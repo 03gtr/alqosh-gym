@@ -1,0 +1,12 @@
+---
+import MuscleView from '../../views/MuscleView.astro';
+import { CATEGORIES, type Category } from '../../data/taxonomy';
+
+export function getStaticPaths() {
+  return (Object.keys(CATEGORIES) as Category[]).map((category) => ({ params: { category }, props: { category } }));
+}
+
+const { category } = Astro.props as { category: Category };
+---
+
+<MuscleView lang="ar" category={category} />

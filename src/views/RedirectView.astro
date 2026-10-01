@@ -1,0 +1,35 @@
+---
+/**
+ * Instant redirect for alias URLs (e.g. /exercise/<slug>/ → /exercises/<slug>/).
+ * Static hosting has no server redirects, so this uses meta refresh + JS,
+ * points search engines at the canonical page and is never indexed.
+ */
+import { absoluteUrl, DIR, localePath, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Language-neutral target path. */
+  to: string;
+  label: string;
+}
+const { lang, to, label } = Astro.props;
+const target = localePath(lang, to);
+const canonical = absoluteUrl(lang, to, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang} dir={DIR[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{label}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <script is:inline define:vars={{ target }}>location.replace(target + location.search + location.hash);</script>
+    <style>body{background:#070708;color:#fff;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}a{color:#ff4d40}</style>
+  </head>
+  <body>
+    <a href={target}>{label}</a>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+---
+/**
+ * Tip of the day: the server renders a tip; the browser swaps in today's tip
+ * (by local date) and "Another tip" cycles through the list.
+ */
+import { tips } from '../data/tips';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const texts = tips.map((tip) => tip[lang]);
+---
+
+<section class="tip grunge" data-tip data-tips={JSON.stringify(texts)} aria-labelledby="tip-title">
+  <div class="tip-inner">
+    <h2 id="tip-title" class="tip-title">{t('tip.title')}</h2>
+    <p class="tip-text" data-tip-text aria-live="polite">{texts[0]}</p>
+    <button type="button" class="btn btn--sm btn--ghost tip-next" data-tip-next>{t('tip.next')}</button>
+  </div>
+</section>
+
+<script>
+  import { tipIndexFor } from '../data/tips';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-tip]')) {
+    const list: string[] = JSON.parse(root.dataset.tips ?? '[]');
+    const text = root.querySelector<HTMLElement>('[data-tip-text]');
+    const next = root.querySelector<HTMLButtonElement>('[data-tip-next]');
+    if (!list.length || !text || !next) continue;
+    let i = tipIndexFor(new Date(), list.length);
+    const show = () => {
+      text.classList.remove('is-in');
+      void text.offsetWidth; // restart the entrance animation
+      text.textContent = list[i];
+      text.classList.add('is-in');
+    };
+    show();
+    next.addEventListener('click', () => {
+      i = (i + 1) % list.length;
+      show();
+    });
+  }
+</script>
+
+<style>
+  .tip {
+    position: relative; overflow: hidden; border: 1px solid var(--line);
+    background:
+      linear-gradient(120deg, rgb(225 6 0 / 0.22), transparent 55%),
+      var(--ink-800);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%);
+  }
+  .tip::before {
+    content: '“'; position: absolute; inset-inline-end: 14px; top: -28px; font-size: 9rem; line-height: 1;
+    color: rgb(225 6 0 / 0.25); font-family: Georgia, serif; pointer-events: none;
+  }
+  .tip-inner { position: relative; padding: 22px; display: grid; gap: 12px; }
+  .tip-title { font-size: 1.05rem; color: var(--accent-text); }
+  .tip-text { font-size: clamp(1.25rem, 1rem + 1.4vw, 1.9rem); font-weight: 900; line-height: 1.45; color: var(--white); min-block-size: 2.9em; }
+  .tip-text.is-in { animation: tip-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .tip-next { justify-self: start; }
+  @keyframes tip-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (min-width: 768px) { .tip-inner { padding: 32px; } }
+</style>

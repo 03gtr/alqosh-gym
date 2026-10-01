@@ -1,0 +1,91 @@
+---
+import Logo from './Logo.astro';
+import ContactLinks from './ContactLinks.astro';
+import { COPYRIGHT_YEAR, developer, gym } from '../config/gym';
+import { localePath, pick, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const links = [
+  { label: t('footer.library'), path: '/exercises/' },
+  { label: t('footer.nutrition'), path: '/nutrition/' },
+  { label: t('footer.calculator'), path: '/calculator/' },
+  { label: t('footer.health'), path: '/health/' },
+  { label: t('footer.gymInfo'), path: '/gym/' },
+];
+const learn = [
+  { label: t('nav.beginner'), path: '/beginner/' },
+  { label: t('nav.advanced'), path: '/advanced/' },
+  { label: t('nav.workouts'), path: '/workouts/' },
+  { label: t('nav.meals'), path: '/nutrition/meals/' },
+  { label: t('nav.qr'), path: '/qr/' },
+];
+---
+
+<footer class="site-footer grunge">
+  <div class="container footer-grid">
+    <div class="brand">
+      <Logo lang={lang} />
+      <p class="alt-name">{gym.altName.ar}<span aria-hidden="true"> · </span><span lang="en" dir="ltr">{gym.altName.en}</span></p>
+      <p class="coach">
+        <a href={localePath(lang, '/gym/#coach')}>{pick(gym.coach.display, lang)}</a>
+        {lang === 'ar' && <span class="muted ltr" lang="en"> · {gym.coach.display.en}</span>}
+      </p>
+      <ContactLinks lang={lang} compact class="footer-contact" />
+    </div>
+    <nav aria-label={t('footer.links')}>
+      <h2 class="col-title">{t('footer.links')}</h2>
+      <ul role="list">
+        {links.map((l) => <li><a href={localePath(lang, l.path)}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+    <nav aria-label={t('footer.learn')}>
+      <h2 class="col-title">{t('footer.learn')}</h2>
+      <ul role="list">
+        {learn.map((l) => <li><a href={localePath(lang, l.path)}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bottom">
+    <p class="disclaimer">{t('disclaimer.short')}</p>
+    <p class="credit">
+      <a href={localePath(lang, '/about/#credits')}>
+        <span lang="ar" dir="rtl">{developer.credit.ar}</span>
+        <span class="sep" aria-hidden="true">|</span>
+        <span lang="en" dir="ltr">{developer.credit.en}</span>
+      </a>
+    </p>
+    <p class="copy"><span class="ltr">© {COPYRIGHT_YEAR} Alqosh Gym</span> — {t('footer.rights')}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: 48px;
+    background: var(--ink-900);
+    border-block-start: 3px solid var(--accent);
+    padding-block: 40px 24px;
+  }
+  .footer-grid { display: grid; gap: 28px; grid-template-columns: 1fr 1fr; }
+  .brand { grid-column: 1 / -1; }
+  @media (min-width: 768px) {
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .brand { grid-column: auto; }
+  }
+  .alt-name { margin-block-start: 8px; color: var(--text-muted); font-weight: 700; }
+  .coach { margin-block-start: 6px; font-weight: 700; }
+  .coach a { color: var(--white); }
+  .brand :global(.footer-contact) { margin-block-start: 12px; }
+  .col-title { font-size: 0.95rem; color: var(--accent-text); margin-block-end: 8px; }
+  ul a { display: inline-flex; min-block-size: 40px; align-items: center; color: var(--text-muted); text-decoration: none; }
+  ul a:hover { color: var(--white); text-decoration: underline; }
+  .footer-bottom { margin-block-start: 28px; padding-block-start: 20px; border-block-start: 1px solid var(--line); display: grid; gap: 10px; }
+  .disclaimer { font-size: var(--fs-xs); color: var(--text-muted); max-width: 80ch; }
+  .credit a { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; font-size: var(--fs-sm); color: var(--text-muted); text-decoration: none; min-block-size: 40px; align-items: center; }
+  .credit a:hover { color: var(--white); }
+  .sep { color: var(--text-dim); }
+  .copy { font-size: var(--fs-xs); color: var(--text-dim); }
+</style>

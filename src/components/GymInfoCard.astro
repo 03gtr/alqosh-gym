@@ -1,0 +1,29 @@
+---
+/** The permanent-discount policy statement (official wording). */
+import { gym } from '../config/gym';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<aside class="policy card">
+  <p class="policy-head"><span class="slash" aria-hidden="true"></span>{gym.discountPolicy.headline[lang]}</p>
+  <blockquote class="policy-text">
+    <p>{gym.discountPolicy.statement[lang]}</p>
+  </blockquote>
+  {lang === 'en' && (
+    <blockquote class="policy-text policy-ar" lang="ar" dir="rtl">
+      <p>{gym.discountPolicy.statement.ar}</p>
+    </blockquote>
+  )}
+</aside>
+
+<style>
+  .policy { border-inline-start: 4px solid var(--accent); background: var(--ink-900); display: grid; gap: 12px; }
+  .policy-head { font-weight: 900; font-size: var(--fs-lg); color: var(--white); }
+  .policy-text { color: var(--text-muted); line-height: 1.9; }
+  .policy-ar { font-size: var(--fs-sm); border-block-start: 1px solid var(--line); padding-block-start: 10px; }
+</style>

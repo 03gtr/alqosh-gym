@@ -1,0 +1,55 @@
+---
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Crumb {
+  label: string;
+  /** Language-neutral path; omit for the current page. */
+  path?: string;
+}
+interface Props {
+  lang: Lang;
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  crumbs?: Crumb[];
+}
+const { lang, title, eyebrow, lead, crumbs = [] } = Astro.props;
+const t = useT(lang);
+---
+
+<section class="page-header grunge">
+  <div class="container">
+    {crumbs.length > 0 && (
+      <nav class="breadcrumb" aria-label={t('a11y.breadcrumb')}>
+        <ol>
+          <li><a href={localePath(lang, '/')}>{t('nav.home')}</a></li>
+          {crumbs.map((c) => (
+            <li>{c.path ? <a href={localePath(lang, c.path)}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1 class="page-title">{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-header {
+    padding-block: 28px 32px;
+    border-block-end: 1px solid var(--line);
+    background:
+      linear-gradient(115deg, transparent 0 72%, rgb(225 6 0 / 0.14) 72% 73.5%, transparent 73.5% 76%, rgb(225 6 0 / 0.08) 76% 82%, transparent 82%),
+      var(--ink-900);
+  }
+  :global(html[dir='rtl']) .page-header {
+    background:
+      linear-gradient(245deg, transparent 0 72%, rgb(225 6 0 / 0.14) 72% 73.5%, transparent 73.5% 76%, rgb(225 6 0 / 0.08) 76% 82%, transparent 82%),
+      var(--ink-900);
+  }
+  .breadcrumb { margin-block-end: 14px; }
+  .page-title { margin-block: 6px 10px; }
+  @media (min-width: 768px) { .page-header { padding-block: 40px 44px; } }
+</style>

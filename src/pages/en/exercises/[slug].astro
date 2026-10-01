@@ -1,0 +1,13 @@
+---
+import ExerciseDetailView from '../../../views/ExerciseDetailView.astro';
+import { exercises } from '../../../data/exercises';
+import type { Exercise } from '../../../data/exercises/types';
+
+export function getStaticPaths() {
+  return exercises.map((exercise) => ({ params: { slug: exercise.slug }, props: { exercise } }));
+}
+
+const { exercise } = Astro.props as { exercise: Exercise };
+---
+
+<ExerciseDetailView lang="en" exercise={exercise} />

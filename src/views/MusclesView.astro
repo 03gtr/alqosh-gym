@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import MuscleCard from '../components/MuscleCard.astro';
+import { MUSCLE_CATEGORIES, TRAINING_CATEGORIES } from '../data/taxonomy';
+import { exercisesForCategory } from '../data/exercises';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<BaseLayout lang={lang} path="/muscles/" title={t('muscles.title')} description={t('muscles.intro')}>
+  <PageHeader lang={lang} title={t('muscles.title')} lead={t('muscles.intro')} crumbs={[{ label: t('nav.muscles') }]} />
+  <div class="container section--tight">
+    <h2 class="section-title">{t('muscles.groups')}</h2>
+    <div class="grid mgrid">
+      {MUSCLE_CATEGORIES.map((c) => <MuscleCard lang={lang} category={c} count={exercisesForCategory(c).length} />)}
+    </div>
+    <h2 class="section-title second">{t('muscles.training')}</h2>
+    <div class="grid mgrid">
+      {TRAINING_CATEGORIES.map((c) => <MuscleCard lang={lang} category={c} count={exercisesForCategory(c).length} />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .mgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; margin-block-start: 12px; }
+  @media (max-width: 420px) { .mgrid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 340px) { .mgrid { grid-template-columns: 1fr; } }
+  .second { margin-block-start: 36px; }
+</style>

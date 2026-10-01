@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import TipCard from '../components/TipCard.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import { getArticles, readingMinutes, splitId } from '../utils/content';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const articles = await getArticles(lang, 'health');
+---
+
+<BaseLayout lang={lang} path="/health/" title={t('health.title')} description={t('health.intro')}>
+  <PageHeader lang={lang} title={t('health.title')} lead={t('health.intro')} crumbs={[{ label: t('nav.health') }]} />
+  <div class="container section--tight">
+    <TipCard lang={lang} />
+    <div class="grid grid--3 list">
+      {articles.map((a) => (
+        <ArticleCard lang={lang} slug={splitId(a.id).slug} title={a.data.title} description={a.data.description} icon={a.data.icon} minutes={readingMinutes(a.body)} />
+      ))}
+    </div>
+    <div class="grid grid--2 hubs">
+      <NutritionCard lang={lang} path="/beginner/" icon="user" title={t('nav.beginner')} text={t('home.pathBeginner')} accent />
+      <NutritionCard lang={lang} path="/advanced/" icon="bolt" title={t('nav.advanced')} text={t('home.pathAdvanced')} />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .list { margin-block-start: 28px; }
+  .hubs { margin-block-start: 28px; }
+</style>

@@ -1,0 +1,37 @@
+---
+/** One official gym benefit. All benefits are permanent — never shown as a promotion. */
+import type { Benefit } from '../config/gym';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  benefit: Benefit;
+  lang: Lang;
+}
+const { benefit, lang } = Astro.props;
+const t = useT(lang);
+---
+
+<article class="benefit card card--cut">
+  <span class="benefit-icon" aria-hidden="true">{benefit.icon}</span>
+  <div>
+    <h3 class="benefit-title">{benefit.title[lang]}</h3>
+    <p class="benefit-detail">{benefit.detail[lang]}</p>
+  </div>
+  <span class="badge permanent">{t('gym.permanent')}</span>
+</article>
+
+<style>
+  .benefit {
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center;
+    background: linear-gradient(160deg, var(--ink-700), var(--ink-800));
+    padding: 18px;
+  }
+  .benefit-icon {
+    font-size: 1.6rem; inline-size: 52px; block-size: 52px; display: grid; place-items: center;
+    background: var(--red-glow); border: 1px solid rgb(225 6 0 / 0.5); border-radius: var(--radius-sm);
+    grid-row: span 2;
+  }
+  .benefit-title { font-size: 1.02rem; line-height: 1.4; }
+  .benefit-detail { color: var(--accent-text); font-weight: 800; font-size: 1.05rem; }
+  .permanent { justify-self: start; grid-column: 2; border-color: rgb(34 197 94 / 0.5); }
+</style>

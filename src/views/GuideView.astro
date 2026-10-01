@@ -1,0 +1,68 @@
+---
+/** Long-form hubs: beginner, advanced (PRO), classic vs modern. */
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import SourceList from '../components/SourceList.astro';
+import { getGuide } from '../utils/content';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  slug: 'beginner' | 'advanced' | 'eras';
+  /** Language-neutral route path. */
+  path: string;
+}
+const { lang, slug, path } = Astro.props;
+const t = useT(lang);
+const guide = await getGuide(lang, slug);
+if (!guide) throw new Error(`Missing guide content: ${lang}/${slug}`);
+const { Content, headings } = await render(guide);
+const toc = headings.filter((h) => h.depth === 2);
+const crumbLabel = slug === 'beginner' ? t('beginner.title') : slug === 'advanced' ? t('advanced.title') : t('eras.title');
+---
+
+<BaseLayout lang={lang} path={path} title={guide.data.title} description={guide.data.description}>
+  <PageHeader lang={lang} title={guide.data.title} lead={guide.data.description} crumbs={[{ label: crumbLabel }]} />
+
+  <div class="container section--tight guide">
+    {toc.length > 2 && (
+      <nav class="toc card" aria-labelledby="toc-h">
+        <h2 id="toc-h" class="toc-title">{t('article.toc')}</h2>
+        <ol>
+          {toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+        </ol>
+      </nav>
+    )}
+    <div class="body">
+      <div class="prose">
+        <Content />
+      </div>
+      <p class="notice guide-note">{t('disclaimer.short')}</p>
+      <div class="prose-like"><SourceList lang={lang} sources={guide.data.sources} /></div>
+
+      <div class="grid grid--2 next">
+        {slug !== 'beginner' && <NutritionCard lang={lang} path="/beginner/" icon="user" title={t('nav.beginner')} text={t('home.pathBeginner')} />}
+        {slug !== 'advanced' && <NutritionCard lang={lang} path="/advanced/" icon="bolt" title={t('nav.advanced')} text={t('home.pathAdvanced')} />}
+        <NutritionCard lang={lang} path="/workouts/" icon="dumbbell" title={t('workout.title')} text={t('home.pathBuilder')} accent />
+        <NutritionCard lang={lang} path="/exercises/" icon="search" title={t('ex.libraryTitle')} text={t('ex.libraryIntro')} />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .guide { display: grid; gap: 24px; }
+  @media (min-width: 1024px) {
+    .guide { grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+    .toc { position: sticky; top: calc(var(--header-h) + 16px); }
+  }
+  .toc-title { font-size: 1rem; margin-block-end: 8px; color: var(--accent-text); }
+  .toc ol { display: grid; gap: 2px; font-size: var(--fs-sm); padding-inline-start: 1.3em; }
+  .toc a { display: inline-block; padding-block: 6px; color: var(--text-muted); text-decoration: none; }
+  .toc a:hover { color: var(--white); text-decoration: underline; }
+  .guide-note { margin-block-start: 28px; max-width: 72ch; }
+  .prose-like { max-width: 72ch; }
+  .next { margin-block-start: 32px; }
+</style>

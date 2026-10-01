@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import MealCard from '../components/MealCard.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import { meals, type MealSlot } from '../data/meals';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const slots: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+const slotLabel = (s: MealSlot) => t(`meals.slot.${s}`);
+const i18n = {
+  slots: Object.fromEntries(slots.map((s) => [s, slotLabel(s)])),
+  palm: t('meals.palm'),
+  fist: t('meals.fist'),
+  cupped: t('meals.cupped'),
+  thumb: t('meals.thumb'),
+  swap: t('meals.swap'),
+  perMeal: t('meals.kcalPerMeal', { n: '{n}', m: '{m}' }),
+};
+---
+
+<BaseLayout lang={lang} path="/nutrition/meals/" title={t('meals.title')} description={t('meals.intro')}>
+  <PageHeader
+    lang={lang}
+    title={t('meals.title')}
+    lead={t('meals.intro')}
+    crumbs={[{ label: t('nav.nutrition'), path: '/nutrition/' }, { label: t('meals.title') }]}
+  />
+
+  <div class="container section--tight">
+    <section class="planner card" data-planner data-lang={lang} data-i18n={JSON.stringify(i18n)} aria-labelledby="planner-h">
+      <h2 id="planner-h" class="section-title">{t('meals.planner')}</h2>
+      <p class="muted">{t('meals.plannerIntro')}</p>
+      <form class="planner-form" data-planner-form>
+        <fieldset>
+          <legend>{t('meals.count')}</legend>
+          <div class="segmented">
+            {[3, 4, 5].map((n) => <label><input type="radio" name="count" value={n} checked={n === 3} /><span>{n}</span></label>)}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>{t('calc.sex')}</legend>
+          <div class="segmented">
+            <label><input type="radio" name="sex" value="male" checked /><span>{t('calc.male')}</span></label>
+            <label><input type="radio" name="sex" value="female" /><span>{t('calc.female')}</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>{t('meals.goal')}</legend>
+          <div class="segmented">
+            <label><input type="radio" name="goal" value="loss" /><span>{t('calc.goal.loss')}</span></label>
+            <label><input type="radio" name="goal" value="maintain" checked /><span>{t('calc.goal.maintain')}</span></label>
+            <label><input type="radio" name="goal" value="gain" /><span>{t('calc.goal.gain')}</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>{t('meals.exclude')}</legend>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="noFish" /><span>{t('meals.noFish')}</span></label>
+            <label class="check"><input type="checkbox" name="noMeat" /><span>{t('meals.noMeat')}</span></label>
+            <label class="check"><input type="checkbox" name="noDairy" /><span>{t('meals.noDairy')}</span></label>
+          </div>
+        </fieldset>
+        <div class="field kcal-field">
+          <label for="kcal">{t('meals.kcalTarget')}</label>
+          <input class="input" id="kcal" name="kcal" type="number" inputmode="numeric" min="1200" max="5000" step="10" />
+          <span class="muted small" data-from-calc hidden>{t('meals.fromCalc')}</span>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">{t('meals.generate')}</button>
+          <button type="button" class="btn" data-shuffle hidden>{t('meals.shuffle')}</button>
+        </div>
+      </form>
+
+      <div class="plan" data-plan aria-live="polite"></div>
+      <p class="muted small hand-note">{t('meals.handNote')}</p>
+    </section>
+
+    <section class="section--tight" aria-labelledby="examples-h">
+      <h2 id="examples-h" class="section-title">{t('meals.examples')}</h2>
+      {slots.map((s) => (
+        <div class="slot">
+          <h3 class="slot-title">{slotLabel(s)}</h3>
+          <div class="grid grid--3">
+            {meals.filter((m) => m.slot === s).map((m) => <MealCard meal={m} lang={lang} />)}
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <p class="notice notice--red">{t('meals.disclaimer')}</p>
+    <div class="grid grid--2 more">
+      <NutritionCard lang={lang} path="/calculator/" icon="calculator" title={t('calc.title')} text={t('home.pathCalc')} accent />
+      <NutritionCard lang={lang} path="/nutrition/" icon="book" title={t('nutrition.title')} text={t('nutrition.intro')} />
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { allowedMeals, meals as pool, portionsFor, slotsFor, type Meal, type MealGoal, type PortionSex } from '../data/meals';
+  import { rng } from '../utils/workout';
+  import { escapeHtml } from '../scripts/exercise-index';
+
+  const root = document.querySelector<HTMLElement>('[data-planner]');
+  if (root) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'ar';
+    const i18n = JSON.parse(root.dataset.i18n ?? '{}');
+    const form = root.querySelector<HTMLFormElement>('[data-planner-form]')!;
+    const plan = root.querySelector<HTMLElement>('[data-plan]')!;
+    const shuffleBtn = root.querySelector<HTMLButtonElement>('[data-shuffle]')!;
+    let seed = 1;
+    let picks: Meal[] = [];
+
+    // Prefill from the calculator (?kcal=&sex=&goal=)
+    const params = new URLSearchParams(location.search);
+    const kcalParam = Number(params.get('kcal'));
+    if (kcalParam >= 1200 && kcalParam <= 5000) {
+      (form.elements.namedItem('kcal') as HTMLInputElement).value = String(kcalParam);
+      root.querySelector<HTMLElement>('[data-from-calc]')!.hidden = false;
+    }
+    for (const key of ['sex', 'goal'] as const) {
+      const v = params.get(key);
+      const radio = v ? form.querySelector<HTMLInputElement>(`input[name="${key}"][value="${CSS.escape(v)}"]`) : null;
+      if (radio) radio.checked = true;
+    }
+
+    const read = () => {
+      const fd = new FormData(form);
+      return {
+        count: Number(fd.get('count') ?? 3),
+        sex: (fd.get('sex') as PortionSex) ?? 'male',
+        goal: (fd.get('goal') as MealGoal) ?? 'maintain',
+        filters: { noFish: fd.has('noFish'), noMeat: fd.has('noMeat'), noDairy: fd.has('noDairy') },
+        kcal: Number(fd.get('kcal')) || 0,
+      };
+    };
+
+    const pickAll = (s: ReturnType<typeof read>) => {
+      const random = rng(seed);
+      const allowed = allowedMeals(s.filters, pool);
+      const used = new Set<string>();
+      return slotsFor(s.count).map((slot) => {
+        const options = allowed.filter((m) => m.slot === slot && !used.has(m.id));
+        const list = options.length ? options : allowed.filter((m) => m.slot === slot);
+        const m = list[Math.floor(random() * list.length)];
+        if (m) used.add(m.id);
+        return m;
+      });
+    };
+
+    const render = () => {
+      const s = read();
+      const slots = slotsFor(s.count);
+      const perMeal = s.kcal >= 1200 ? Math.round(s.kcal / slots.length / 10) * 10 : 0;
+      const nf = new Intl.NumberFormat(lang === 'ar' ? 'ar-IQ-u-nu-latn' : 'en-US', { maximumFractionDigits: 1 });
+      const rows = slots.map((slot, i) => {
+        const m = picks[i];
+        const p = portionsFor(slot, s.count, s.sex, s.goal);
+        const portions = `<ul class="hand">
+          <li><b>${nf.format(p.palm)}</b> ${escapeHtml(i18n.palm)}</li>
+          <li><b>${nf.format(p.fist)}</b> ${escapeHtml(i18n.fist)}</li>
+          <li><b>${nf.format(p.cupped)}</b> ${escapeHtml(i18n.cupped)}</li>
+          <li><b>${nf.format(p.thumb)}</b> ${escapeHtml(i18n.thumb)}</li>
+        </ul>`;
+        const body = m
+          ? `<p class="pm-name">${m.icon} ${escapeHtml(m.name[lang])}</p><p class="pm-items">${m.items[lang].map(escapeHtml).join(' · ')}</p>`
+          : '<p class="pm-items">—</p>';
+        return `<li class="pm"><div class="pm-head"><span class="pm-slot">${escapeHtml(i18n.slots[slot])}</span><button type="button" class="btn btn--sm" data-swap="${i}">${escapeHtml(i18n.swap)}</button></div>${body}${portions}</li>`;
+      });
+      const kcalLine = perMeal
+        ? `<p class="pm-kcal">${escapeHtml(i18n.perMeal.replace('{n}', nf.format(perMeal)).replace('{m}', String(slots.length)))}</p>`
+        : '';
+      plan.innerHTML = `${kcalLine}<ol class="pm-list" role="list">${rows.join('')}</ol>`;
+      shuffleBtn.hidden = false;
+    };
+
+    const generate = () => {
+      picks = pickAll(read());
+      render();
+    };
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      generate();
+    });
+    form.addEventListener('change', () => {
+      if (plan.innerHTML) generate();
+    });
+    shuffleBtn.addEventListener('click', () => {
+      seed += 1;
+      generate();
+    });
+    plan.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-swap]');
+      if (!btn) return;
+      const i = Number(btn.dataset.swap);
+      const s = read();
+      const slot = slotsFor(s.count)[i];
+      const options = allowedMeals(s.filters, pool).filter((m) => m.slot === slot);
+      if (!options.length) return;
+      const current = options.findIndex((m) => m.id === picks[i]?.id);
+      picks[i] = options[(current + 1) % options.length];
+      render();
+    });
+    generate();
+  }
+</script>
+
+<style>
+  .planner { display: grid; gap: 14px; border-block-start: 3px solid var(--accent); }
+  .planner-form { display: grid; gap: 14px; }
+  @media (min-width: 900px) { .planner-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .actions, .kcal-field { grid-column: 1 / -1; } }
+  .kcal-field .input { max-inline-size: 240px; }
+  .small { font-size: var(--fs-xs); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .plan :global(.pm-list) { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+  .plan :global(.pm) { background: var(--ink-900); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 8px; align-content: start; }
+  .plan :global(.pm-head) { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .plan :global(.pm-slot) { color: var(--accent-text); font-weight: 900; }
+  .plan :global(.pm-name) { font-weight: 900; }
+  .plan :global(.pm-items) { font-size: var(--fs-sm); color: var(--text-muted); }
+  .plan :global(.pm-kcal) { font-weight: 800; margin-block-end: 8px; }
+  .plan :global(.hand) { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: var(--fs-xs); border-block-start: 1px solid var(--line); padding-block-start: 8px; }
+  .plan :global(.hand b) { color: var(--white); font-size: 1rem; }
+  .hand-note { margin-block-start: 4px; }
+  .slot { margin-block: 18px; }
+  .slot-title { font-size: var(--fs-lg); margin-block-end: 10px; color: var(--accent-text); }
+  .more { margin-block-start: 24px; }
+</style>

@@ -1,0 +1,54 @@
+---
+/**
+ * Internal QC sheet for the generated exercise visuals (not indexed, not in
+ * the navigation). For every movement template: each keyframe with its
+ * equipment, plus the exercises using it, so a coach can review before
+ * publication. Append #<template-id> (or #id1,id2) to the URL to review templates large.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { TEMPLATES } from '../../visual/library';
+import { stillMarkup, viewBoxFor } from '../../visual/render';
+import { muscleVars } from '../../visual/anatomy';
+
+const entries = Object.entries(TEMPLATES);
+---
+
+<BaseLayout lang="en" urlLang="ar" path="/visuals-review/" title="Visual QC" noindex noAlternates>
+  <div class="container section--tight">
+    <h1 class="page-title">Exercise visual QC</h1>
+    <p class="muted">Keyframes of every movement template (first = start, last = end). Green = template target muscles.</p>
+    <div class="qc-grid">
+      {entries.map(([id, t]) => (
+        <article class="qc card" id={id}>
+          <h2 class="qc-title"><a href={`#${id}`}>{id}</a> <small class="muted">· {t.rig}{t.rig === 'front' ? ` ${t.facing}` : ''} · {t.mode} · targets: {t.targets.join(', ')}</small></h2>
+          <div class="qc-frames">
+            {t.frames.map((_, i) => (
+              <svg class="fig" viewBox={viewBoxFor(t)} style={muscleVars(t.targets.slice(0, 1), t.targets.slice(1))} set:html={stillMarkup(t, i)} />
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const focus = () => {
+    // #id focuses one template; #id1,id2 compares several.
+    const ids = decodeURIComponent(location.hash.slice(1)).split(',').filter(Boolean);
+    document.body.classList.toggle('qc-focus', ids.length > 0);
+    for (const el of document.querySelectorAll<HTMLElement>('.qc')) el.hidden = ids.length > 0 && !ids.includes(el.id);
+  };
+  window.addEventListener('hashchange', focus);
+  focus();
+</script>
+
+<style>
+  .qc-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); margin-block-start: 16px; }
+  .qc-title { font-size: 0.95rem; margin-block-end: 6px; }
+  .qc-title a { color: var(--white); }
+  .qc-frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+  .qc-frames svg { background: var(--ink-900); border-radius: 6px; overflow: hidden; }
+  :global(body.qc-focus) .qc-grid { grid-template-columns: 1fr; }
+  :global(body.qc-focus) .qc-frames { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+</style>

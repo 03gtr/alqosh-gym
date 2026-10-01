@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ExerciseVisual from '../components/ExerciseVisual.astro';
+import ExerciseGrid from '../components/ExerciseGrid.astro';
+import DifficultyBadge from '../components/DifficultyBadge.astro';
+import Icon from '../components/Icon.astro';
+import type { Exercise } from '../data/exercises/types';
+import { getExercise, relatedExercises } from '../data/exercises';
+import { CATEGORIES, EQUIPMENT, ERAS, EXERCISE_TYPES, MUSCLES, PATTERNS } from '../data/taxonomy';
+import { suggestedReps } from '../utils/reps';
+import { absoluteUrl, localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  exercise: Exercise;
+}
+const { lang, exercise: e } = Astro.props;
+const t = useT(lang);
+const c = e.content[lang];
+const path = `/exercises/${e.slug}/`;
+const title = lang === 'ar' ? e.arabicName : e.name;
+const otherName = lang === 'ar' ? e.name : e.arabicName;
+const aka = [...new Set([...e.aliases, ...(e.oldSchoolNames ?? []), ...(e.modernNames ?? []), ...(lang === 'ar' ? e.arabicAliases : [])])];
+const category = CATEGORIES[e.category];
+const alternatives = e.alternatives.map(getExercise).filter((x): x is Exercise => Boolean(x));
+const related = relatedExercises(e, 6);
+const reps = suggestedReps(e, lang);
+const description = `${title} — ${c.steps[0]}`.slice(0, 158);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: title,
+    description: c.setup.join(' '),
+    inLanguage: lang,
+    tool: e.equipment.map((q) => ({ '@type': 'HowToTool', name: EQUIPMENT[q].label[lang] })),
+    step: c.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, text: s })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t('nav.home'), item: absoluteUrl(lang, '/', Astro.site) },
+      { '@type': 'ListItem', position: 2, name: t('nav.exercises'), item: absoluteUrl(lang, '/exercises/', Astro.site) },
+      { '@type': 'ListItem', position: 3, name: category.label[lang], item: absoluteUrl(lang, `/muscles/${e.category}/`, Astro.site) },
+      { '@type': 'ListItem', position: 4, name: title, item: absoluteUrl(lang, path, Astro.site) },
+    ],
+  },
+];
+---
+
+<BaseLayout lang={lang} path={path} title={title} description={description} ogType="article" jsonLd={jsonLd}>
+  <article class="container detail">
+    <nav class="breadcrumb crumbs" aria-label={t('a11y.breadcrumb')}>
+      <ol>
+        <li><a href={localePath(lang, '/exercises/')}>{t('nav.exercises')}</a></li>
+        <li><a href={localePath(lang, `/muscles/${e.category}/`)}>{category.label[lang]}</a></li>
+        <li><span aria-current="page">{title}</span></li>
+      </ol>
+    </nav>
+
+    <div class="detail-grid">
+      <div class="media-col">
+        <ExerciseVisual exercise={e} lang={lang} />
+      </div>
+
+      <div class="info-col">
+        <header class="ex-head">
+          <h1 class="ex-name">{title}</h1>
+          <p class="ex-other" lang={lang === 'ar' ? 'en' : 'ar'} dir={lang === 'ar' ? 'ltr' : 'rtl'}>{otherName}</p>
+          {aka.length > 0 && aka.length <= 3 && (
+            <p class="ex-aka"><span class="muted">{t('ex.aka')}:</span> {aka.join(' · ')}</p>
+          )}
+          {aka.length > 3 && (
+            <details class="ex-aka">
+              <summary><span class="muted">{t('ex.aka')}:</span> {aka.slice(0, 2).join(' · ')} <span class="more">+{aka.length - 2}</span></summary>
+              <p>{aka.slice(2).join(' · ')}</p>
+            </details>
+          )}
+        </header>
+
+        <dl class="facts">
+          <div class="fact fact--wide">
+            <dt>{t('ex.target')}</dt>
+            <dd class="chips">{e.primaryMuscles.map((m) => <span class="badge badge--red">{MUSCLES[m].label[lang]}</span>)}</dd>
+          </div>
+          {e.secondaryMuscles.length > 0 && (
+            <div class="fact fact--wide">
+              <dt>{t('ex.secondary')}</dt>
+              <dd class="chips">{e.secondaryMuscles.map((m) => <span class="badge">{MUSCLES[m].label[lang]}</span>)}</dd>
+            </div>
+          )}
+          <div class="fact">
+            <dt>{t('ex.difficulty')}</dt>
+            <dd><DifficultyBadge level={e.difficulty} lang={lang} /></dd>
+          </div>
+          <div class="fact">
+            <dt>{t('ex.equipment')}</dt>
+            <dd>{e.equipment.map((q) => EQUIPMENT[q].label[lang]).join(lang === 'ar' ? '، ' : ', ')}</dd>
+          </div>
+          {e.movementPattern && (
+            <div class="fact">
+              <dt>{t('ex.pattern')}</dt>
+              <dd>{PATTERNS[e.movementPattern].label[lang]}</dd>
+            </div>
+          )}
+          <div class="fact">
+            <dt>{t('ex.type')}</dt>
+            <dd>{EXERCISE_TYPES[e.exerciseType].label[lang]}</dd>
+          </div>
+          {e.era && (
+            <div class="fact">
+              <dt>{t('ex.era')}</dt>
+              <dd><a href={localePath(lang, '/classic-vs-modern/')}>{ERAS[e.era].label[lang]}</a></dd>
+            </div>
+          )}
+        </dl>
+        <p class="diff-note">{t('ex.difficultyNote')}</p>
+
+        <section class="block" aria-labelledby="setup-h">
+          <h2 id="setup-h" class="block-title">{t('ex.setup')}</h2>
+          <ul class="plain">{c.setup.map((s) => <li>{s}</li>)}</ul>
+        </section>
+
+        <section class="block block--steps" aria-labelledby="steps-h">
+          <h2 id="steps-h" class="block-title">{t('ex.steps')}</h2>
+          <ol class="steps" role="list">
+            {c.steps.map((s, i) => <li><span class="step-num" aria-hidden="true">{i + 1}</span><span>{s}</span></li>)}
+          </ol>
+        </section>
+
+        <section class="block" aria-labelledby="breath-h">
+          <h2 id="breath-h" class="block-title">{t('ex.breathing')}</h2>
+          <p>{c.breathing}</p>
+        </section>
+
+        <section class="block block--mistakes" aria-labelledby="mistakes-h">
+          <h2 id="mistakes-h" class="block-title">{t('ex.mistakes')}</h2>
+          <ul class="mistakes" role="list">
+            {c.mistakes.map((m) => <li><span class="x" aria-hidden="true">✕</span><span>{m}</span></li>)}
+          </ul>
+        </section>
+
+        <section class="block block--tip" aria-labelledby="tip-h">
+          <h2 id="tip-h" class="block-title">💡 {t('ex.tip')}</h2>
+          <ul class="plain">{c.tips.map((tip) => <li>{tip}</li>)}</ul>
+        </section>
+
+        <section class="block" aria-labelledby="reps-h">
+          <h2 id="reps-h" class="block-title">{t('ex.reps')}</h2>
+          <ul class="plain">{reps.map((r) => <li>{r}</li>)}</ul>
+          <p class="muted small">{t('ex.repsNote')}</p>
+        </section>
+
+        {c.safety && (
+          <p class="notice notice--red"><strong>{t('ex.safety')}:</strong> {c.safety}</p>
+        )}
+        <p class="notice">{t('disclaimer.exercise')}</p>
+
+        <div class="share-row">
+          <button type="button" class="btn btn--sm" data-share hidden data-copied={t('ex.copied')}>
+            <Icon name="share" size={18} /><span>{t('ex.share')}</span>
+          </button>
+          <a class="btn btn--sm" href={localePath(lang, '/exercises/')}>{t('ex.backToLibrary')}</a>
+        </div>
+      </div>
+    </div>
+
+    {alternatives.length > 0 && (
+      <section class="section--tight" aria-labelledby="alt-h">
+        <h2 id="alt-h" class="section-title small-title">{t('ex.alternatives')}</h2>
+        <ExerciseGrid exercises={alternatives} lang={lang} />
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <section class="section--tight" aria-labelledby="rel-h">
+        <h2 id="rel-h" class="section-title small-title">{t('ex.related')}</h2>
+        <ExerciseGrid exercises={related} lang={lang} />
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<script>
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-share]')) {
+    const canShare = typeof navigator.share === 'function';
+    const canCopy = !!navigator.clipboard;
+    if (!canShare && !canCopy) continue;
+    btn.hidden = false;
+    btn.addEventListener('click', async () => {
+      const shareUrl = location.href.split('#')[0];
+      if (canShare) {
+        try {
+          await navigator.share({ title: document.title, url: shareUrl });
+        } catch {
+          /* user cancelled */
+        }
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        const label = btn.querySelector('span');
+        if (label) label.textContent = btn.dataset.copied ?? '';
+      }
+    });
+  }
+</script>
+
+<style>
+  .detail { padding-block: 16px 40px; }
+  .crumbs { margin-block-end: 12px; }
+  .detail-grid { display: grid; gap: 18px; }
+  @media (min-width: 960px) {
+    .detail-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 36px; align-items: start; }
+    .media-col { position: sticky; top: calc(var(--header-h) + 16px); }
+  }
+  .ex-head { display: grid; gap: 4px; }
+  .ex-name { font-size: clamp(1.7rem, 1.3rem + 2vw, 2.6rem); line-height: 1.2; }
+  .ex-other { color: var(--text-muted); font-weight: 700; font-size: var(--fs-lg); }
+  .ex-aka { font-size: var(--fs-sm); }
+  details.ex-aka summary { cursor: pointer; list-style: none; min-block-size: 32px; }
+  details.ex-aka summary::-webkit-details-marker { display: none; }
+  .more { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--ink-600); font-weight: 800; font-size: var(--fs-xs); }
+  details.ex-aka p { color: var(--text-muted); }
+  .facts {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-block: 14px 6px;
+  }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px; display: grid; gap: 4px; align-content: start; }
+  .fact--wide { grid-column: 1 / -1; }
+  .fact dt { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+  .fact dd { margin: 0; font-weight: 800; font-size: var(--fs-sm); }
+  .fact dd a { color: var(--accent-text); }
+  .chips { gap: 6px; }
+  .diff-note { font-size: var(--fs-xs); color: var(--text-dim); }
+  .block { margin-block-start: 22px; }
+  .block-title {
+    font-size: var(--fs-lg); margin-block-end: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .block-title::before { content: ''; inline-size: 4px; block-size: 1.1em; background: var(--accent); transform: skewX(-12deg); }
+  .plain { display: grid; gap: 6px; }
+  .steps { display: grid; gap: 10px; counter-reset: none; }
+  .steps li {
+    display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px;
+    font-size: 1.05rem; font-weight: 600;
+  }
+  .step-num {
+    inline-size: 34px; block-size: 34px; display: grid; place-items: center; background: var(--accent); color: var(--white);
+    font-family: var(--font-display); font-size: 1.4rem; line-height: 1;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  }
+  .mistakes { display: grid; gap: 8px; }
+  .mistakes li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+  .x { color: var(--red-400); font-weight: 900; }
+  .block--tip { background: linear-gradient(135deg, rgb(225 6 0 / 0.16), transparent 70%); border: 1px solid rgb(225 6 0 / 0.4); border-radius: var(--radius); padding: 14px 16px; }
+  .small { font-size: var(--fs-xs); margin-block-start: 6px; }
+  .notice { margin-block-start: 16px; }
+  .share-row { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 18px; }
+  .small-title { font-size: var(--fs-xl); margin-block-end: 14px; }
+</style>

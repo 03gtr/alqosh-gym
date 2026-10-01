@@ -1,0 +1,40 @@
+---
+/**
+ * Abstract geometric category glyphs (angular, brand-consistent). They are
+ * decorative symbols, not anatomical illustrations.
+ */
+import type { Category } from '../data/taxonomy';
+
+interface Props {
+  category: Category;
+  size?: number;
+}
+const { category, size = 44 } = Astro.props;
+
+const GLYPHS: Record<Category, string> = {
+  chest: 'M6 14h15l3 12H8Zm19 0h15l-2 12H22Z',
+  back: 'M10 8h26l-4 30h-6l-3-12-3 12h-6Z',
+  shoulders: 'M6 22c0-8 6-12 12-12h10c6 0 12 4 12 12v6h-8v-6H14v6H6Z',
+  biceps: 'M8 32 20 12l8 2 4 10-6 10Zm16-18 8-6 6 4-6 8',
+  triceps: 'M10 10h8l14 22-8 6L10 18Zm12 0h6l8 14',
+  forearms: 'M8 30 30 8l6 6-22 22Zm22-22 4-4 6 6-4 4',
+  legs: 'M14 6h8l-2 16 2 18h-8l-2-18Zm10 0h8l2 16-2 18h-8l2-18Z',
+  glutes: 'M8 14c0-6 6-8 14-6l1 20H10Zm16-6c8-2 14 0 14 6l-2 14H25Z',
+  calves: 'M16 6h8l2 14-2 20h-8l-2-20Zm4 6v24',
+  abs: 'M14 8h8v8h-8Zm10 0h8v8h-8ZM14 18h8v8h-8Zm10 0h8v8h-8ZM14 28h8v8h-8Zm10 0h8v8h-8Z',
+  'full-body': 'M23 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM14 14h18l-4 12h-2l2 14h-6l-2-10-2 10h-6l2-14h-2Z',
+  cardio: 'M23 38S8 28 8 18a7 7 0 0 1 15-3 7 7 0 0 1 15 3c0 10-15 20-15 20Zm-11-16h6l3-5 4 9 3-4h7',
+  'warm-up': 'M23 6c4 6 10 9 10 18a10 10 0 0 1-20 0c0-5 3-8 5-10 0 4 2 6 4 6 0-6 1-10 1-14Z',
+  mobility: 'M23 6a17 17 0 1 0 17 17h-6a11 11 0 1 1-11-11Zm0 0v12l8-6Z',
+  stretching: 'M6 36 20 22l-6-10 6-4 8 12 12-6 2 6-14 8L14 40Z',
+  'cool-down': 'M23 4v38M8 12l30 22M8 34 38 12M18 6l5 5 5-5M18 40l5-5 5 5',
+};
+const filled = !['cardio', 'mobility', 'cool-down', 'calves'].includes(category);
+---
+
+<svg class="muscle-icon" width={size} height={size} viewBox="0 0 46 46" aria-hidden="true" focusable="false">
+  <rect x="1" y="1" width="44" height="44" fill="none" stroke="currentColor" stroke-opacity="0.18" stroke-width="2" transform="skewX(-6) translate(2 0)"></rect>
+  {filled
+    ? <path d={GLYPHS[category]} fill="var(--accent)"></path>
+    : <path d={GLYPHS[category]} fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>}
+</svg>

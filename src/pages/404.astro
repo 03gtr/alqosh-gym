@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchBar from '../components/SearchBar.astro';
+import { localePath, useT } from '../i18n/utils';
+
+const t = useT('ar');
+const en = useT('en');
+// path="/" so the header's language switch leads to the English home page.
+---
+
+<BaseLayout lang="ar" path="/" title={t('common.notFound')} noindex noAlternates>
+  <section class="container nf">
+    <p class="code display" aria-hidden="true">404</p>
+    <h1>{t('common.notFound')}</h1>
+    <p class="muted">{t('common.notFoundBody')}</p>
+    <p class="muted" lang="en" dir="ltr">{en('common.notFound')} — {en('common.notFoundBody')}</p>
+    <div class="search-wrap"><SearchBar lang="ar" id="nf-q" /></div>
+    <div class="links">
+      <a class="btn btn--primary" href={localePath('ar', '/')}>{t('nav.home')}</a>
+      <a class="btn" href={localePath('ar', '/exercises/')}>{t('nav.exercises')}</a>
+      <a class="btn" href={localePath('en', '/')} lang="en">English</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding-block: 48px; display: grid; gap: 12px; max-width: 720px; }
+  .code { font-size: clamp(5rem, 3rem + 10vw, 9rem); color: var(--accent); }
+  .search-wrap { margin-block: 12px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+</style>

@@ -1,0 +1,686 @@
+import type { Exercise } from './types';
+
+export const stretching: Exercise[] = [
+  {
+    slug: 'standing-hamstring-stretch',
+    name: 'Standing Hamstring Stretch',
+    arabicName: 'إطالة الفخذ الخلفي وقوفاً',
+    aliases: ['Hamstring Stretch'],
+    arabicAliases: ['اطالة همسترنج', 'ستريتش همسترنج', 'اطالة الفخذ الخلفي'],
+    category: 'stretching',
+    primaryMuscles: ['hamstrings'],
+    secondaryMuscles: ['calves'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['inchworm', 'worlds-greatest-stretch', 'wall-calf-stretch'],
+    tags: ['static stretch', 'back of thigh', 'اطالة ثابتة', 'فخذ خلفي'],
+    content: {
+      en: {
+        setup: [
+          'Stand tall and place one heel on a low step or bench in front of you, toes pointing up.',
+          'Keep the standing knee soft and your hands on your hips.',
+        ],
+        steps: [
+          'Keep your back straight and hinge forward from the hips.',
+          'Stop when you feel a gentle stretch in the back of the raised thigh.',
+          'Hold the position while breathing slowly.',
+          'Come back up slowly and switch legs.',
+        ],
+        breathing: 'Breathe slowly and deeply during the hold. With each breath out, try to relax a little more into the stretch — never force it.',
+        mistakes: [
+          'Rounding the back to reach the toes.',
+          'Bouncing in the stretch.',
+          'Using a step that is too high.',
+        ],
+        tips: [
+          'Think "chest forward", not "head to knee".',
+          'A slight bend in the raised knee is fine.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per leg. Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'قف مستقيماً وضع كعب إحدى القدمين على درجة أو مسطبة منخفضة أمامك، وأصابع القدم للأعلى.',
+          'أبقِ ركبة الرجل الثابتة مرتخية قليلاً ويديك على الورك.',
+        ],
+        steps: [
+          'أبقِ ظهرك مستقيماً وانحنِ للأمام من الورك.',
+          'توقف عندما تشعر بإطالة خفيفة في خلف الفخذ المرفوع.',
+          'اثبت في الوضعية مع التنفس ببطء.',
+          'ارتفع ببطء وبدّل الرجل.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق أثناء الثبات. مع كل زفير حاول أن ترتخي قليلاً في الإطالة — دون أي إجبار.',
+        mistakes: [
+          'تقويس الظهر للوصول إلى أصابع القدم.',
+          'الارتداد أثناء الإطالة.',
+          'استخدام درجة مرتفعة جداً.',
+        ],
+        tips: [
+          'فكّر في «تقديم الصدر للأمام» وليس «إيصال الرأس إلى الركبة».',
+          'لا بأس بثني بسيط في ركبة الرجل المرفوعة.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل رجل. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+  {
+    slug: 'standing-quad-stretch',
+    name: 'Standing Quad Stretch',
+    arabicName: 'إطالة الفخذ الأمامي وقوفاً',
+    aliases: ['Quad Stretch', 'Standing Quadriceps Stretch'],
+    arabicAliases: ['اطالة كواد', 'ستريتش كواد', 'اطالة الفخذ الامامي'],
+    category: 'stretching',
+    primaryMuscles: ['quads'],
+    secondaryMuscles: ['hip-flexors'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['half-kneeling-hip-flexor-stretch', 'worlds-greatest-stretch'],
+    tags: ['static stretch', 'front of thigh', 'اطالة ثابتة', 'فخذ امامي'],
+    content: {
+      en: {
+        setup: [
+          'Stand tall next to a wall or rack and hold it with one hand for balance.',
+        ],
+        steps: [
+          'Bend one knee and hold that ankle or foot behind you with your free hand.',
+          'Bring your heel toward your glutes and keep both knees close together.',
+          'Gently tuck your hips under until you feel a stretch in the front of the thigh, and hold.',
+          'Release slowly and switch legs.',
+        ],
+        breathing: 'Breathe slowly and steadily throughout the hold — do not hold your breath.',
+        mistakes: [
+          'Arching the lower back and pushing the belly forward.',
+          'Letting the bent knee drift out to the side or forward.',
+          'Pulling the heel hard into the glutes.',
+        ],
+        tips: [
+          'If you cannot reach your foot, loop a towel or band around the ankle.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per leg. Never bounce or force into pain.',
+        safety: 'If you feel pain in the knee, ease off and ask a coach for another option.',
+      },
+      ar: {
+        setup: [
+          'قف مستقيماً بجانب حائط أو حامل وأمسكه بيد واحدة للتوازن.',
+        ],
+        steps: [
+          'اثنِ ركبة واحدة وأمسك الكاحل أو القدم خلفك باليد الحرة.',
+          'قرّب الكعب نحو المؤخرة وأبقِ الركبتين متقاربتين.',
+          'أدخل الحوض للأسفل بلطف حتى تشعر بإطالة في مقدمة الفخذ، واثبت.',
+          'اترك القدم ببطء وبدّل الرجل.',
+        ],
+        breathing: 'تنفّس ببطء وبانتظام طوال الثبات — لا تحبس نفسك.',
+        mistakes: [
+          'تقويس أسفل الظهر ودفع البطن للأمام.',
+          'خروج الركبة المثنية للجانب أو للأمام.',
+          'شدّ الكعب بقوة نحو المؤخرة.',
+        ],
+        tips: [
+          'إذا لم تصل إلى قدمك، لفّ منشفة أو حبلاً مطاطياً حول الكاحل.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل رجل. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+        safety: 'إذا شعرت بألم في الركبة، خفّف الإطالة واطلب من المدرب بديلاً آخر.',
+      },
+    },
+  },
+  {
+    slug: 'half-kneeling-hip-flexor-stretch',
+    name: 'Half-Kneeling Hip Flexor Stretch',
+    arabicName: 'إطالة مثنيات الورك على ركبة واحدة',
+    aliases: ['Kneeling Hip Flexor Stretch', 'Hip Flexor Stretch', 'Kneeling Lunge Stretch'],
+    arabicAliases: ['اطالة مثنيات الورك', 'هيب فلكسر ستريتش', 'اطالة اللانج'],
+    category: 'stretching',
+    primaryMuscles: ['hip-flexors'],
+    secondaryMuscles: ['quads'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    movementPattern: 'lunge',
+    exerciseType: 'stretch',
+    alternatives: ['worlds-greatest-stretch', 'standing-quad-stretch', 'butterfly-stretch'],
+    tags: ['static stretch', 'front of hip', 'sitting', 'جلوس طويل', 'ورك'],
+    content: {
+      en: {
+        setup: [
+          'Kneel on one knee on a mat with the other foot flat on the floor in front, both knees bent to about 90°.',
+          'Stand your upper body tall with your hands on your hips.',
+        ],
+        steps: [
+          'Squeeze the glute of the back leg and gently tuck your hips under.',
+          'Shift your body slightly forward until you feel a stretch at the front of the back hip.',
+          'Hold while keeping your torso upright and ribs down.',
+          'Return slowly and switch sides.',
+        ],
+        breathing: 'Breathe slowly and deeply during the hold. Relax a little more with each breath out without pushing harder.',
+        mistakes: [
+          'Arching the lower back instead of tucking the hips.',
+          'Lunging far forward so the front knee goes well past the toes.',
+          'Kneeling directly on a hard floor.',
+        ],
+        tips: [
+          'Raise the arm on the kneeling side overhead to feel a bit more stretch along the side.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per side. Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'اركع على ركبة واحدة فوق حصيرة والقدم الأخرى على الأرض أمامك، والركبتان مثنيتان بزاوية 90° تقريباً.',
+          'اجعل الجزء العلوي مستقيماً ويديك على الورك.',
+        ],
+        steps: [
+          'اشدد عضلة المؤخرة في الرجل الخلفية وأدخل الحوض للأسفل بلطف.',
+          'حرّك جسمك قليلاً للأمام حتى تشعر بإطالة في مقدمة الورك الخلفي.',
+          'اثبت مع إبقاء الجذع مستقيماً والأضلاع للأسفل.',
+          'ارجع ببطء وبدّل الجهة.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق أثناء الثبات. ارتخِ قليلاً مع كل زفير دون أن تضغط أكثر.',
+        mistakes: [
+          'تقويس أسفل الظهر بدلاً من إدخال الحوض.',
+          'الاندفاع كثيراً للأمام حتى تتجاوز الركبة الأمامية أصابع القدم بكثير.',
+          'الركوع مباشرة على أرضية صلبة.',
+        ],
+        tips: [
+          'ارفع ذراع جهة الركبة الأرضية فوق رأسك لتشعر بإطالة أكثر على جانب الجسم.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل جهة. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+  {
+    slug: 'figure-four-glute-stretch',
+    name: 'Figure-Four Glute Stretch',
+    arabicName: 'إطالة الألوية بوضعية الرقم أربعة',
+    aliases: ['Figure-4 Stretch', 'Supine Figure-Four Stretch', 'Piriformis Stretch'],
+    arabicAliases: ['اطالة رقم اربعة', 'فيغر فور', 'اطالة المؤخرة'],
+    category: 'stretching',
+    primaryMuscles: ['glutes'],
+    secondaryMuscles: ['glute-med'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['hip-90-90', 'butterfly-stretch', 'supine-spinal-twist'],
+    tags: ['static stretch', 'hip stretch', 'اطالة ثابتة', 'ورك'],
+    content: {
+      en: {
+        setup: [
+          'Lie on your back with both knees bent and feet flat on the floor.',
+          'Cross your right ankle over your left knee, letting the right knee open out to the side.',
+        ],
+        steps: [
+          'Reach through the gap and hold behind your left thigh with both hands.',
+          'Gently pull the left thigh toward your chest until you feel a stretch in the right glute.',
+          'Keep your head and shoulders relaxed on the floor and hold.',
+          'Release slowly and switch sides.',
+        ],
+        breathing: 'Breathe slowly and deeply into your belly while holding. Relax into the stretch as you breathe out.',
+        mistakes: [
+          'Lifting the head and tensing the neck.',
+          'Pulling hard so the stretch becomes painful.',
+          'Letting the crossed foot slip so the ankle bends sharply.',
+        ],
+        tips: [
+          'Keep the crossed foot flexed (toes pulled back) to protect the knee.',
+          'To make it easier, keep the bottom foot on the floor instead of pulling the leg in.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per side. Never bounce or force into pain.',
+        safety: 'If you feel pain in the knee of the crossed leg, ease off or stop.',
+      },
+      ar: {
+        setup: [
+          'استلقِ على ظهرك مع ثني الركبتين والقدمان على الأرض.',
+          'ضع كاحلك الأيمن فوق ركبتك اليسرى، ودع الركبة اليمنى تنفتح إلى الجانب.',
+        ],
+        steps: [
+          'مدّ يديك عبر الفراغ وأمسك خلف فخذك الأيسر بكلتا يديك.',
+          'اسحب الفخذ الأيسر بلطف نحو صدرك حتى تشعر بإطالة في المؤخرة اليمنى.',
+          'أبقِ رأسك وكتفيك مرتخية على الأرض واثبت.',
+          'اترك ببطء وبدّل الجهة.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق إلى البطن أثناء الثبات. ارتخِ في الإطالة مع الزفير.',
+        mistakes: [
+          'رفع الرأس وشدّ الرقبة.',
+          'السحب بقوة حتى تصبح الإطالة مؤلمة.',
+          'انزلاق القدم المتقاطعة فينثني الكاحل بشدة.',
+        ],
+        tips: [
+          'أبقِ القدم المتقاطعة مثنية (الأصابع مسحوبة للخلف) لحماية الركبة.',
+          'لتسهيلها، أبقِ القدم السفلى على الأرض بدلاً من سحب الرجل نحوك.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل جهة. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+        safety: 'إذا شعرت بألم في ركبة الرجل المتقاطعة، خفّف الإطالة أو توقف.',
+      },
+    },
+  },
+  {
+    slug: 'doorway-chest-stretch',
+    name: 'Doorway Chest Stretch',
+    arabicName: 'إطالة الصدر عند إطار الباب',
+    aliases: ['Doorway Pec Stretch', 'Chest Stretch'],
+    arabicAliases: ['اطالة الصدر', 'ستريتش صدر', 'اطالة الباب'],
+    category: 'stretching',
+    primaryMuscles: ['chest'],
+    secondaryMuscles: ['front-delts'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['band-shoulder-pass-through', 'wall-slide', 'cross-body-shoulder-stretch'],
+    tags: ['static stretch', 'posture', 'pecs', 'قوام', 'صدر'],
+    content: {
+      en: {
+        setup: [
+          'Stand in a doorway or next to a rack upright.',
+          'Place your forearm against the frame with your elbow bent to about 90° and at shoulder height.',
+        ],
+        steps: [
+          'Step forward gently with the foot on the same side.',
+          'Turn your chest slightly away from the arm until you feel a stretch across the front of the chest and shoulder.',
+          'Keep your shoulder down and away from your ear and hold.',
+          'Step back to release and switch sides.',
+        ],
+        breathing: 'Breathe slowly and evenly while holding. Relax your shoulder a little more with each breath out.',
+        mistakes: [
+          'Leaning too far forward and forcing the shoulder.',
+          'Shrugging the shoulder up.',
+          'Placing the elbow higher than the shoulder.',
+        ],
+        tips: [
+          'Try the arm slightly lower or higher (never above shoulder level) to feel different parts of the chest.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per side. Never bounce or force into pain.',
+        safety: 'If you feel pain, tingling or pinching in the shoulder, stop and ask a coach or a qualified health professional.',
+      },
+      ar: {
+        setup: [
+          'قف عند إطار باب أو بجانب عمود حامل.',
+          'ضع ساعدك على الإطار مع ثني المرفق بزاوية 90° تقريباً وبمستوى الكتف.',
+        ],
+        steps: [
+          'تقدّم بخطوة خفيفة بالقدم من نفس الجهة.',
+          'أدِر صدرك قليلاً بعيداً عن الذراع حتى تشعر بإطالة في مقدمة الصدر والكتف.',
+          'أبقِ الكتف للأسفل بعيداً عن الأذن واثبت.',
+          'ارجع خطوة للخلف وبدّل الجهة.',
+        ],
+        breathing: 'تنفّس ببطء وبانتظام أثناء الثبات. أرخِ كتفك قليلاً مع كل زفير.',
+        mistakes: [
+          'الميل كثيراً للأمام وإجبار الكتف.',
+          'رفع الكتف للأعلى.',
+          'وضع المرفق أعلى من مستوى الكتف.',
+        ],
+        tips: [
+          'جرّب الذراع أخفض أو أعلى قليلاً (دون تجاوز مستوى الكتف) لتشعر بأجزاء مختلفة من الصدر.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل جهة. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+        safety: 'إذا شعرت بألم أو تنميل أو قرصة في الكتف، فتوقف واستشر مدرباً أو مختصاً صحياً مؤهلاً.',
+      },
+    },
+  },
+  {
+    slug: 'cross-body-shoulder-stretch',
+    name: 'Cross-Body Shoulder Stretch',
+    arabicName: 'إطالة الكتف عبر الصدر',
+    aliases: ['Cross-Arm Stretch', 'Cross-Body Arm Stretch'],
+    arabicAliases: ['اطالة الكتف', 'ستريتش كتف', 'سحب الذراع عبر الصدر'],
+    category: 'stretching',
+    primaryMuscles: ['rear-delts'],
+    secondaryMuscles: ['upper-back'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['overhead-triceps-stretch', 'doorway-chest-stretch', 'arm-circles'],
+    tags: ['static stretch', 'rear shoulder', 'اطالة ثابتة', 'كتف خلفي'],
+    content: {
+      en: {
+        setup: [
+          'Stand or sit tall with your shoulders relaxed.',
+        ],
+        steps: [
+          'Bring one arm straight across your chest at about shoulder height.',
+          'Hold it with the other hand just above the elbow, not on the elbow joint.',
+          'Gently pull the arm closer to your chest until you feel a stretch at the back of the shoulder, and hold.',
+          'Release slowly and switch arms.',
+        ],
+        breathing: 'Breathe slowly and steadily during the hold. Let the shoulder relax as you breathe out.',
+        mistakes: [
+          'Shrugging the stretched shoulder up toward the ear.',
+          'Twisting the whole upper body instead of moving the arm.',
+          'Pressing directly on the elbow joint.',
+        ],
+        tips: [
+          'Keep the shoulder blade of the stretched arm drawn slightly down.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per arm. Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'قف أو اجلس مستقيماً مع إرخاء الكتفين.',
+        ],
+        steps: [
+          'مدّ ذراعاً واحدة مستقيمة عبر صدرك بمستوى الكتف تقريباً.',
+          'أمسكها باليد الأخرى فوق المرفق مباشرة، وليس على مفصل المرفق.',
+          'اسحب الذراع بلطف نحو صدرك حتى تشعر بإطالة في خلف الكتف، واثبت.',
+          'اترك ببطء وبدّل الذراع.',
+        ],
+        breathing: 'تنفّس ببطء وبانتظام أثناء الثبات. دع الكتف يرتخي مع الزفير.',
+        mistakes: [
+          'رفع الكتف المشدود نحو الأذن.',
+          'لفّ الجزء العلوي كله بدلاً من تحريك الذراع.',
+          'الضغط مباشرة على مفصل المرفق.',
+        ],
+        tips: [
+          'أبقِ لوح كتف الذراع الممدودة مسحوباً للأسفل قليلاً.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل ذراع. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+  {
+    slug: 'overhead-triceps-stretch',
+    name: 'Overhead Triceps Stretch',
+    arabicName: 'إطالة الترايسبس فوق الرأس',
+    aliases: ['Triceps Stretch'],
+    arabicAliases: ['اطالة تراي', 'ستريتش ترايسبس', 'اطالة الذراع الخلفي'],
+    category: 'stretching',
+    primaryMuscles: ['triceps'],
+    secondaryMuscles: ['lats'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['kneeling-lat-stretch', 'cross-body-shoulder-stretch'],
+    tags: ['static stretch', 'arm stretch', 'اطالة ثابتة', 'ذراع'],
+    content: {
+      en: {
+        setup: [
+          'Stand or sit tall with your core lightly braced.',
+        ],
+        steps: [
+          'Raise one arm overhead, bend the elbow and let your hand drop behind your head toward your upper back.',
+          'Hold the bent elbow with your other hand.',
+          'Gently guide the elbow back and toward your head until you feel a stretch in the back of the upper arm, and hold.',
+          'Release slowly and switch arms.',
+        ],
+        breathing: 'Breathe slowly and steadily throughout the hold — do not hold your breath.',
+        mistakes: [
+          'Arching the lower back and pushing the ribs forward.',
+          'Pushing the head forward instead of keeping it tall.',
+          'Pulling hard on the elbow.',
+        ],
+        tips: [
+          'If your shoulders are tight, use a towel held in both hands behind your back instead.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per arm. Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'قف أو اجلس مستقيماً مع شدّ خفيف لعضلات الجذع.',
+        ],
+        steps: [
+          'ارفع ذراعاً واحدة فوق رأسك، واثنِ المرفق ودع يدك تنزل خلف رأسك نحو أعلى الظهر.',
+          'أمسك المرفق المثني باليد الأخرى.',
+          'وجّه المرفق بلطف للخلف ونحو الرأس حتى تشعر بإطالة في خلف العضد، واثبت.',
+          'اترك ببطء وبدّل الذراع.',
+        ],
+        breathing: 'تنفّس ببطء وبانتظام طوال الثبات — لا تحبس نفسك.',
+        mistakes: [
+          'تقويس أسفل الظهر ودفع الأضلاع للأمام.',
+          'دفع الرأس للأمام بدلاً من إبقائه مستقيماً.',
+          'السحب بقوة على المرفق.',
+        ],
+        tips: [
+          'إذا كان كتفاك مشدودين، استخدم منشفة تمسكها بكلتا يديك خلف ظهرك بدلاً من ذلك.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل ذراع. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+  {
+    slug: 'wall-calf-stretch',
+    name: 'Wall Calf Stretch',
+    arabicName: 'إطالة السمانة على الحائط',
+    aliases: ['Calf Stretch', 'Standing Calf Stretch'],
+    arabicAliases: ['اطالة الكالف', 'اطالة السمانة', 'ستريتش كالف'],
+    category: 'stretching',
+    primaryMuscles: ['calves'],
+    secondaryMuscles: [],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['ankle-knee-to-wall', 'standing-hamstring-stretch'],
+    tags: ['static stretch', 'lower leg', 'اطالة ثابتة', 'ساق'],
+    content: {
+      en: {
+        setup: [
+          'Stand facing a wall with your hands on it at chest height.',
+          'Step one foot back, keeping both feet pointing forward and the back heel on the floor.',
+        ],
+        steps: [
+          'Keep the back leg straight and bend the front knee, leaning your hips toward the wall.',
+          'Stop when you feel a stretch in the calf of the back leg, and hold.',
+          'Then bend the back knee slightly, keeping the heel down, to feel the stretch lower in the calf, and hold.',
+          'Release and switch legs.',
+        ],
+        breathing: 'Breathe slowly and steadily during each hold. Relax a little more as you breathe out.',
+        mistakes: [
+          'Letting the back heel lift off the floor.',
+          'Turning the back foot out to the side.',
+          'Bouncing toward the wall.',
+        ],
+        tips: [
+          'Doing both versions — straight knee and bent knee — stretches the calf more completely.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times per leg (straight and bent knee). Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'قف مواجهاً للحائط ويداك عليه بمستوى الصدر.',
+          'أرجع قدماً واحدة للخلف، مع توجيه القدمين للأمام وبقاء الكعب الخلفي على الأرض.',
+        ],
+        steps: [
+          'أبقِ الرجل الخلفية مستقيمة واثنِ الركبة الأمامية، مع إمالة الورك نحو الحائط.',
+          'توقف عندما تشعر بإطالة في سمانة الرجل الخلفية، واثبت.',
+          'ثم اثنِ الركبة الخلفية قليلاً مع إبقاء الكعب على الأرض لتشعر بالإطالة أسفل السمانة، واثبت.',
+          'اترك وبدّل الرجل.',
+        ],
+        breathing: 'تنفّس ببطء وبانتظام أثناء كل ثبات. ارتخِ قليلاً أكثر مع الزفير.',
+        mistakes: [
+          'ارتفاع الكعب الخلفي عن الأرض.',
+          'توجيه القدم الخلفية للخارج.',
+          'الارتداد نحو الحائط.',
+        ],
+        tips: [
+          'أداء النسختين — الركبة مستقيمة ومثنية — يطيل السمانة بشكل أشمل.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات لكل رجل (بالركبة مستقيمة ومثنية). لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+  {
+    slug: 'childs-pose',
+    name: "Child's Pose",
+    arabicName: 'وضعية الطفل',
+    aliases: ['Balasana', "Child's Pose Stretch"],
+    arabicAliases: ['تشايلدز بوز', 'وضعية الطفل في اليوغا'],
+    category: 'stretching',
+    primaryMuscles: ['lower-back', 'lats'],
+    secondaryMuscles: ['glutes', 'upper-back'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['kneeling-lat-stretch', 'cat-cow', 'supine-spinal-twist'],
+    tags: ['yoga', 'relax', 'back stretch', 'يوغا', 'استرخاء', 'ظهر'],
+    content: {
+      en: {
+        setup: [
+          'Kneel on a mat with your big toes touching and your knees hip-width apart or wider.',
+        ],
+        steps: [
+          'Sit your hips back toward your heels.',
+          'Walk your hands forward and lower your chest toward the floor between your knees.',
+          'Rest your forehead on the mat or a folded towel and let your shoulders relax, then hold.',
+          'Walk your hands back slowly to come up.',
+        ],
+        breathing: 'Breathe slowly and deeply into your back and sides. Let your body sink a little with each breath out.',
+        mistakes: [
+          'Forcing the hips down onto the heels.',
+          'Tensing the shoulders and neck.',
+          'Holding the breath.',
+        ],
+        tips: [
+          'Walk both hands to one side to feel more stretch along the opposite side of your back.',
+          'A cushion between the hips and heels makes it more comfortable.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times, or rest here for a few slow breaths. Never force into pain.',
+        safety: 'If kneeling hurts your knees, place a cushion under them or choose another stretch.',
+      },
+      ar: {
+        setup: [
+          'اركع على حصيرة وإصبعا القدمين الكبيران متلامسان، والركبتان بعرض الورك أو أوسع.',
+        ],
+        steps: [
+          'أرجع الورك للخلف نحو الكعبين.',
+          'امشِ بيديك للأمام وأنزل صدرك نحو الأرض بين الركبتين.',
+          'ضع جبهتك على الحصيرة أو على منشفة مطوية ودع كتفيك يرتخيان، ثم اثبت.',
+          'امشِ بيديك ببطء للخلف لترتفع.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق نحو الظهر والجانبين. دع جسمك ينزل قليلاً مع كل زفير.',
+        mistakes: [
+          'إجبار الورك على النزول إلى الكعبين.',
+          'شدّ الكتفين والرقبة.',
+          'حبس النفس.',
+        ],
+        tips: [
+          'حرّك اليدين معاً إلى جهة واحدة لتشعر بإطالة أكثر على الجانب المقابل من الظهر.',
+          'وسادة بين الورك والكعبين تجعل الوضعية أكثر راحة.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات، أو استرح فيها لبضعة أنفاس بطيئة. لا تُجبر الإطالة حتى الألم.',
+        safety: 'إذا كان الركوع يؤلم ركبتيك، ضع وسادة تحتهما أو اختر إطالة أخرى.',
+      },
+    },
+  },
+  {
+    slug: 'kneeling-lat-stretch',
+    name: 'Kneeling Lat Stretch',
+    arabicName: 'إطالة الظهر العريض على الركبتين',
+    aliases: ['Bench Lat Stretch', 'Lat Stretch'],
+    arabicAliases: ['اطالة اللاتس', 'اطالة الجوانح', 'ستريتش لاتس'],
+    category: 'stretching',
+    primaryMuscles: ['lats'],
+    secondaryMuscles: ['triceps', 'upper-back'],
+    equipment: ['bench'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['childs-pose', 'overhead-triceps-stretch', 'dead-hang'],
+    tags: ['static stretch', 'back stretch', 'اطالة ثابتة', 'ظهر'],
+    content: {
+      en: {
+        setup: [
+          'Kneel on a mat facing a flat bench, about an arm\'s length away.',
+          'Place your elbows on the edge of the bench, shoulder-width apart, with your palms together or holding a light stick.',
+        ],
+        steps: [
+          'Sit your hips back toward your heels.',
+          'Let your chest sink down toward the floor between your arms.',
+          'Stop when you feel a stretch along the sides of your back and the backs of your arms, and hold.',
+          'Lift your chest and come back up slowly.',
+        ],
+        breathing: 'Breathe slowly and deeply, letting your chest sink a little more on each breath out.',
+        mistakes: [
+          'Arching the lower back a lot instead of sinking the chest.',
+          'Shrugging the shoulders up to the ears.',
+          'Forcing the chest down until it hurts.',
+        ],
+        tips: [
+          'Without a bench, you can do the same stretch with your hands on the floor, as in child\'s pose.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times. Never bounce or force into pain.',
+        safety: 'If you feel pinching in the shoulders, reduce the range or stop.',
+      },
+      ar: {
+        setup: [
+          'اركع على حصيرة مواجهاً مسطبة مستوية، على بعد طول ذراع تقريباً.',
+          'ضع مرفقيك على حافة المسطبة بعرض الكتفين، وراحتا اليد متلاصقتان أو ممسكتان بعصا خفيفة.',
+        ],
+        steps: [
+          'أرجع الورك للخلف نحو الكعبين.',
+          'دع صدرك ينزل نحو الأرض بين ذراعيك.',
+          'توقف عندما تشعر بإطالة على جانبي الظهر وخلف الذراعين، واثبت.',
+          'ارفع صدرك وارجع ببطء للأعلى.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق، ودع صدرك ينزل قليلاً مع كل زفير.',
+        mistakes: [
+          'تقويس أسفل الظهر كثيراً بدلاً من إنزال الصدر.',
+          'رفع الكتفين نحو الأذنين.',
+          'إجبار الصدر على النزول حتى الألم.',
+        ],
+        tips: [
+          'بدون مسطبة، يمكنك أداء نفس الإطالة واليدان على الأرض، كما في وضعية الطفل.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+        safety: 'إذا شعرت بقرصة في الكتفين، فقلّل المدى أو توقف.',
+      },
+    },
+  },
+  {
+    slug: 'butterfly-stretch',
+    name: 'Butterfly Stretch',
+    arabicName: 'إطالة الفراشة',
+    aliases: ['Seated Butterfly Stretch', 'Groin Stretch', 'Bound Angle Pose'],
+    arabicAliases: ['الفراشة', 'اطالة الفراشة', 'بترفلاي ستريتش', 'اطالة الفخذ الداخلي'],
+    category: 'stretching',
+    primaryMuscles: ['adductors'],
+    secondaryMuscles: ['hip-flexors', 'glutes'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'stretch',
+    alternatives: ['hip-90-90', 'deep-squat-hold', 'lateral-lunge'],
+    tags: ['static stretch', 'inner thigh', 'hips', 'فخذ داخلي', 'ورك'],
+    content: {
+      en: {
+        setup: [
+          'Sit tall on a mat and bring the soles of your feet together in front of you.',
+          'Let your knees fall out to the sides and hold your ankles or feet.',
+        ],
+        steps: [
+          'Sit up tall, lengthening your spine.',
+          'Hinge forward slightly from the hips with a straight back until you feel a stretch in the inner thighs.',
+          'Let your knees relax toward the floor and hold.',
+          'Come back up slowly and straighten your legs.',
+        ],
+        breathing: 'Breathe slowly and deeply while holding, and relax your hips a little more as you breathe out.',
+        mistakes: [
+          'Pushing the knees down hard with the hands or elbows.',
+          'Rounding the back to get the head lower.',
+          'Bouncing the knees up and down.',
+        ],
+        tips: [
+          'Move your feet further from your body to make the stretch gentler.',
+          'Sitting on a folded towel helps you sit tall.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times. Never bounce or force into pain.',
+      },
+      ar: {
+        setup: [
+          'اجلس مستقيماً على حصيرة واجمع باطن القدمين معاً أمامك.',
+          'دع الركبتين تنفتحان إلى الجانبين وأمسك الكاحلين أو القدمين.',
+        ],
+        steps: [
+          'اجلس مستقيماً مع إطالة العمود الفقري.',
+          'انحنِ للأمام قليلاً من الورك مع ظهر مستقيم حتى تشعر بإطالة في الفخذ الداخلي.',
+          'دع الركبتين ترتخيان نحو الأرض واثبت.',
+          'ارتفع ببطء وافرد رجليك.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق أثناء الثبات، وأرخِ الورك قليلاً أكثر مع الزفير.',
+        mistakes: [
+          'دفع الركبتين للأسفل بقوة باليدين أو المرفقين.',
+          'تقويس الظهر لإنزال الرأس أكثر.',
+          'تحريك الركبتين للأعلى والأسفل بارتداد.',
+        ],
+        tips: [
+          'أبعِد القدمين عن جسمك لتصبح الإطالة ألطف.',
+          'الجلوس على منشفة مطوية يساعدك على الجلوس مستقيماً.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات. لا ترتد ولا تُجبر الإطالة حتى الألم.',
+      },
+    },
+  },
+];

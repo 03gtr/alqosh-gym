@@ -1,0 +1,21 @@
+---
+import { DIFFICULTY, type Difficulty } from '../data/taxonomy';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  level: Difficulty;
+  lang: Lang;
+}
+const { level, lang } = Astro.props;
+const d = DIFFICULTY[level];
+---
+
+<span class:list={['badge', 'difficulty', `difficulty--${level}`]}>
+  <span aria-hidden="true">{d.dot}</span>{d.label[lang]}
+</span>
+
+<style>
+  .difficulty--beginner { border-color: rgb(34 197 94 / 0.5); }
+  .difficulty--intermediate { border-color: rgb(250 204 21 / 0.5); }
+  .difficulty--advanced { border-color: rgb(225 6 0 / 0.7); }
+</style>

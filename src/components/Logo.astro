@@ -1,0 +1,53 @@
+---
+import type { Lang } from '../i18n/utils';
+import { localePath } from '../i18n/utils';
+import { gym } from '../config/gym';
+
+interface Props {
+  lang: Lang;
+  size?: 'sm' | 'lg';
+  link?: boolean;
+}
+const { lang, size = 'sm', link = true } = Astro.props;
+const Tag = link ? 'a' : 'div';
+---
+
+<Tag
+  class:list={['logo', `logo--${size}`]}
+  href={link ? localePath(lang, '/') : undefined}
+  aria-label={link ? `${gym.name.en} — ${gym.name.ar}` : undefined}
+>
+  <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+    <path d="M6 34 18 6h7L13 34Z" fill="#e10600"></path>
+    <path d="M20 34 32 6h3L23 34Z" fill="#ffffff"></path>
+    <path d="M27 34 34 18h3l-7 16Z" fill="#e10600"></path>
+  </svg>
+  <span class="logo-text">
+    <span class="logo-en">ALQOSH <b>GYM</b></span>
+    <span class="logo-ar" lang="ar" dir="rtl">{gym.name.ar}</span>
+  </span>
+</Tag>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--white);
+    min-block-size: 44px;
+  }
+  .logo-mark { inline-size: 34px; block-size: 34px; flex: none; }
+  .logo-text { display: grid; line-height: 1; }
+  .logo-en {
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    letter-spacing: 0.04em;
+    direction: ltr;
+  }
+  .logo-en b { color: var(--accent-text); font-weight: 400; }
+  .logo-ar { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-block-start: 2px; }
+  .logo--lg .logo-mark { inline-size: 56px; block-size: 56px; }
+  .logo--lg .logo-en { font-size: 2.4rem; }
+  .logo--lg .logo-ar { font-size: 1rem; }
+</style>

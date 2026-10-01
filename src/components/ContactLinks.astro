@@ -1,0 +1,56 @@
+---
+/**
+ * Official contact actions (call, WhatsApp, Google Maps, Facebook), driven by
+ * gym.contact — anything not provided there is not rendered.
+ */
+import Icon from './Icon.astro';
+import { gym } from '../config/gym';
+import { useT, type Lang } from '../i18n/utils';
+import type { IconName } from './icons';
+
+interface Props {
+  lang: Lang;
+  /** Smaller, quieter links (footer). */
+  compact?: boolean;
+  class?: string;
+}
+const { lang, compact = false, class: className } = Astro.props;
+const t = useT(lang);
+const c = gym.contact;
+
+interface Item { href: string; icon: IconName; label: string; detail?: string; external: boolean }
+const items: Item[] = [];
+if (c.phone) items.push({ href: `tel:${c.phone.e164}`, icon: 'phone', label: t('contact.call'), detail: c.phone.display, external: false });
+if (c.whatsapp) items.push({ href: `https://wa.me/${c.whatsapp.e164.replace(/\D/g, '')}`, icon: 'chat', label: t('contact.whatsapp'), detail: c.whatsapp.display, external: true });
+if (c.mapUrl) items.push({ href: c.mapUrl, icon: 'pin', label: t('contact.map'), external: true });
+for (const s of c.socials) items.push({ href: s.url, icon: 'facebook', label: t(`contact.${s.id}`), external: true });
+---
+
+{items.length > 0 && (
+  <ul class:list={['contact-links', { 'contact-links--compact': compact }, className]} role="list">
+    {items.map((it) => (
+      <li>
+        <a href={it.href} {...(it.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+          <Icon name={it.icon} size={compact ? 18 : 20} />
+          <span class="cl-label">{it.label}</span>
+          {it.detail && <bdi class="cl-detail" dir="ltr">{it.detail}</bdi>}
+          {it.external && <span class="sr-only">{t('contact.newTab')}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .contact-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; }
+  .contact-links a {
+    display: inline-flex; align-items: center; gap: 8px; min-block-size: 44px; padding: 8px 14px;
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink-700);
+    color: var(--white); font-weight: 800; text-decoration: none; max-inline-size: 100%;
+  }
+  .contact-links a:hover { border-color: var(--accent); }
+  .contact-links .icon { color: var(--accent-text); flex: none; }
+  .cl-detail { color: var(--text-muted); font-weight: 700; white-space: nowrap; }
+  .contact-links--compact { gap: 6px; }
+  .contact-links--compact a { min-block-size: 40px; padding: 6px 10px; font-size: var(--fs-sm); background: transparent; }
+</style>

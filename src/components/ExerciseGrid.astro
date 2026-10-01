@@ -1,0 +1,26 @@
+---
+import ExerciseCard from './ExerciseCard.astro';
+import type { Exercise } from '../data/exercises/types';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  exercises: Exercise[];
+  lang: Lang;
+  id?: string;
+  level?: 'h2' | 'h3';
+}
+const { exercises, lang, id, level } = Astro.props;
+---
+
+<div class="grid grid--cards" id={id} role="list">
+  {exercises.map((e) => (
+    <div role="listitem" class="ex-item" data-slug={e.slug}>
+      <ExerciseCard exercise={e} lang={lang} level={level} />
+    </div>
+  ))}
+</div>
+
+<style>
+  .ex-item { display: flex; }
+  .ex-item > :global(*) { flex: 1; }
+</style>

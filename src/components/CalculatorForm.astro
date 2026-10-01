@@ -1,0 +1,77 @@
+---
+import { LIMITS } from '../utils/nutrition';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const activities = [
+  ['sedentary', 'calc.act.sedentary'],
+  ['light', 'calc.act.light'],
+  ['moderate', 'calc.act.moderate'],
+  ['high', 'calc.act.high'],
+  ['veryHigh', 'calc.act.veryHigh'],
+] as const;
+---
+
+<form class="calc-form card" data-calc-form novalidate>
+  <fieldset>
+    <legend>{t('calc.sex')}</legend>
+    <div class="segmented">
+      <label><input type="radio" name="sex" value="male" checked /><span>{t('calc.male')}</span></label>
+      <label><input type="radio" name="sex" value="female" /><span>{t('calc.female')}</span></label>
+    </div>
+  </fieldset>
+
+  <div class="row3">
+    <div class="field">
+      <label for="calc-age">{t('calc.age')}</label>
+      <input class="input" id="calc-age" name="age" type="number" inputmode="numeric" min={LIMITS.age.min} max={LIMITS.age.max} step="1" required aria-describedby="err-age" />
+      <span class="field-error" id="err-age" data-error-for="age" aria-live="polite"></span>
+    </div>
+    <div class="field">
+      <label for="calc-height">{t('calc.height')}</label>
+      <input class="input" id="calc-height" name="heightCm" type="number" inputmode="decimal" min={LIMITS.heightCm.min} max={LIMITS.heightCm.max} step="0.5" required aria-describedby="err-height" />
+      <span class="field-error" id="err-height" data-error-for="heightCm" aria-live="polite"></span>
+    </div>
+    <div class="field">
+      <label for="calc-weight">{t('calc.weight')}</label>
+      <input class="input" id="calc-weight" name="weightKg" type="number" inputmode="decimal" min={LIMITS.weightKg.min} max={LIMITS.weightKg.max} step="0.1" required aria-describedby="err-weight" />
+      <span class="field-error" id="err-weight" data-error-for="weightKg" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="calc-activity">{t('calc.activity')}</label>
+    <select class="select" id="calc-activity" name="activity">
+      {activities.map(([v, k]) => <option value={v} selected={v === 'moderate'}>{t(k)}</option>)}
+    </select>
+  </div>
+
+  <fieldset>
+    <legend>{t('calc.goal')}</legend>
+    <div class="segmented">
+      <label><input type="radio" name="goal" value="loss" /><span>{t('calc.goal.loss')}</span></label>
+      <label><input type="radio" name="goal" value="maintain" checked /><span>{t('calc.goal.maintain')}</span></label>
+      <label><input type="radio" name="goal" value="gain" /><span>{t('calc.goal.gain')}</span></label>
+    </div>
+  </fieldset>
+
+  <p class="muted small">{t('calc.adultsOnly')}</p>
+  <div class="actions">
+    <button class="btn btn--primary" type="submit">{t('calc.submit')}</button>
+    <button class="btn" type="reset">{t('calc.reset')}</button>
+  </div>
+</form>
+
+<style>
+  .calc-form { display: grid; gap: 16px; }
+  legend { margin-block-end: 6px; }
+  .row3 { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 380px) { .row3 { grid-template-columns: 1fr 1fr; } .row3 .field:first-child { grid-column: 1 / -1; } }
+  .small { font-size: var(--fs-xs); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .actions .btn--primary { flex: 1; }
+</style>

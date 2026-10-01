@@ -1,0 +1,165 @@
+---
+/**
+ * Site navigation: sticky header (desktop links) + mobile bottom bar with a
+ * "More" sheet. The sheet uses the native Popover API — no JavaScript needed.
+ */
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { bottomNav, desktopNav, isActive, moreNav } from '../config/nav';
+import { localePath, otherLang, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Language-neutral path of the current page, e.g. "/exercises/squat/". */
+  path: string;
+}
+const { lang, path } = Astro.props;
+const t = useT(lang);
+const alt = otherLang(lang);
+const moreActive = moreNav.some((i) => isActive(i.path, path)) && !bottomNav.some((i) => isActive(i.path, path));
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <Logo lang={lang} />
+    <nav class="desktop-nav" aria-label={t('a11y.menu')}>
+      <ul role="list">
+        {desktopNav.map((item) => (
+          <li>
+            <a href={localePath(lang, item.path)} aria-current={isActive(item.path, path) ? 'page' : undefined}>
+              {t(item.key)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-btn" href={localePath(lang, '/exercises/')} aria-label={t('search.label')}>
+        <Icon name="search" />
+      </a>
+      <a class="lang-btn" href={localePath(alt, path)} hreflang={alt} lang={alt} aria-label={t('a11y.langSwitch')}>
+        <Icon name="globe" size={18} />
+        <span>{t('lang.otherShort')}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="bottom-nav" aria-label={t('a11y.mobileNav')}>
+  <ul role="list">
+    {bottomNav.map((item) => (
+      <li>
+        <a href={localePath(lang, item.path)} aria-current={isActive(item.path, path) ? 'page' : undefined}>
+          <Icon name={item.icon} />
+          <span>{t(item.key)}</span>
+        </a>
+      </li>
+    ))}
+    <li>
+      <button type="button" popovertarget="more-sheet" aria-haspopup="dialog" class:list={{ 'is-active': moreActive }}>
+        <Icon name="more" />
+        <span>{t('nav.more')}</span>
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<div id="more-sheet" popover class="more-sheet" role="dialog" aria-label={t('nav.more')}>
+  <div class="sheet-head">
+    <strong>{t('nav.more')}</strong>
+    <button type="button" class="icon-btn" popovertarget="more-sheet" popovertargetaction="hide" aria-label={t('nav.close')}>
+      <Icon name="close" />
+    </button>
+  </div>
+  <ul role="list" class="sheet-list">
+    {moreNav.map((item) => (
+      <li>
+        <a href={localePath(lang, item.path)} aria-current={isActive(item.path, path) ? 'page' : undefined}>
+          <Icon name={item.icon} />
+          <span>{t(item.key)}</span>
+        </a>
+      </li>
+    ))}
+    <li>
+      <a href={localePath(alt, path)} hreflang={alt} lang={alt}>
+        <Icon name="globe" />
+        <span>{t('lang.other')}</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--black);
+    border-block-end: 1px solid var(--line);
+  }
+  .site-header::after {
+    content: ''; position: absolute; inset-inline: 0; bottom: -1px; block-size: 2px;
+    background: linear-gradient(90deg, var(--accent) 0 18%, transparent 18%);
+  }
+  :global(html[dir='rtl']) .site-header::after { background: linear-gradient(270deg, var(--accent) 0 18%, transparent 18%); }
+  .header-inner { display: flex; align-items: center; gap: 16px; min-block-size: var(--header-h); }
+  .desktop-nav { display: none; margin-inline: auto; }
+  .desktop-nav ul { display: flex; gap: 2px; }
+  .desktop-nav a {
+    display: flex; align-items: center; min-block-size: 44px; padding: 6px 10px;
+    text-decoration: none; font-weight: 700; font-size: 0.95rem; color: var(--text-muted);
+    border-block-end: 2px solid transparent;
+  }
+  .desktop-nav a:hover { color: var(--white); }
+  .desktop-nav a[aria-current='page'] { color: var(--white); border-block-end-color: var(--accent); }
+  .header-actions { display: flex; align-items: center; gap: 6px; margin-inline-start: auto; }
+  .icon-btn {
+    display: inline-grid; place-items: center; inline-size: 44px; block-size: 44px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface);
+    color: var(--text); text-decoration: none;
+  }
+  .icon-btn:hover { border-color: var(--text-muted); }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 6px; min-block-size: 44px; padding: 6px 12px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-sm); text-decoration: none; font-weight: 800; font-size: 0.9rem;
+  }
+  .lang-btn:hover { border-color: var(--white); }
+  @media (min-width: 1180px) {
+    .desktop-nav { display: block; }
+    .header-actions { margin-inline-start: 0; }
+  }
+
+  .bottom-nav {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 60;
+    background: var(--ink-900);
+    border-block-start: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bottom-nav ul { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .bottom-nav a, .bottom-nav button {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    inline-size: 100%; min-block-size: var(--bottom-nav-h); padding: 6px 2px;
+    background: none; border: 0; color: var(--text-muted); text-decoration: none;
+    font-size: 0.72rem; font-weight: 700; line-height: 1.2; position: relative;
+  }
+  .bottom-nav a[aria-current='page'], .bottom-nav button.is-active { color: var(--white); }
+  .bottom-nav a[aria-current='page']::before, .bottom-nav button.is-active::before {
+    content: ''; position: absolute; top: 0; inset-inline: 28%; block-size: 3px; background: var(--accent);
+  }
+  @media (min-width: 1180px) { .bottom-nav { display: none; } }
+
+  .more-sheet {
+    position: fixed; inset: auto 0 0 0; margin: 0; inline-size: 100%; max-inline-size: none;
+    max-block-size: 85dvh; overflow-y: auto;
+    background: var(--ink-800); color: var(--text); border: 0; border-block-start: 3px solid var(--accent);
+    padding: 16px var(--gutter) calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .more-sheet::backdrop { background: rgb(0 0 0 / 0.6); }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-block-end: 8px; font-size: 1.1rem; }
+  .sheet-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sheet-list a {
+    display: flex; align-items: center; gap: 10px; min-block-size: 52px; padding: 10px 12px;
+    background: var(--ink-900); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    text-decoration: none; font-weight: 700; font-size: 0.95rem;
+  }
+  .sheet-list a[aria-current='page'] { border-color: var(--accent); }
+  @media (min-width: 1180px) { .more-sheet { display: none; } }
+</style>

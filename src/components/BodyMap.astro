@@ -1,0 +1,44 @@
+---
+/**
+ * Static anatomical muscle map: GREEN = primary, grey = secondary.
+ * Colours come only from the exercise data (primaryMuscles / secondaryMuscles).
+ */
+import type { Muscle } from '../data/taxonomy';
+import type { Facing } from '../visual/shapes';
+import { bestFacing, muscleVars } from '../visual/anatomy';
+import { BODYMAP_VIEWBOX } from '../visual/render';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  primary: readonly Muscle[];
+  secondary?: readonly Muscle[];
+  /** 'both' = front + back; 'best' = the view that shows the primary muscles. */
+  views?: 'both' | 'best';
+  /** Show the Front / Back labels. */
+  labels?: boolean;
+  class?: string;
+}
+const { lang, primary, secondary = [], views = 'both', labels = true, class: className } = Astro.props;
+const t = useT(lang);
+const facings: Facing[] = views === 'both' ? ['anterior', 'posterior'] : [bestFacing(primary)];
+const style = muscleVars(primary, secondary);
+---
+
+<div class:list={['bodymap', className]} role="img" aria-label={t('vis.bodyMapLabel')}>
+  {facings.map((f) => (
+    <figure class="bm-view">
+      <svg class="fig" viewBox={BODYMAP_VIEWBOX} style={style} aria-hidden="true" focusable="false">
+        <use href={`#bm-${f}`} />
+      </svg>
+      {labels && <figcaption>{f === 'anterior' ? t('vis.front') : t('vis.back')}</figcaption>}
+    </figure>
+  ))}
+</div>
+
+<style>
+  .bodymap { display: flex; justify-content: center; gap: 6px; }
+  .bm-view { margin: 0; display: grid; justify-items: center; gap: 2px; flex: 1; max-inline-size: 140px; }
+  .bm-view svg { inline-size: 100%; block-size: auto; }
+  .bm-view figcaption { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+</style>

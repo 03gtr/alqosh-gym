@@ -1,0 +1,508 @@
+import type { Exercise } from './types';
+
+export const mobility: Exercise[] = [
+  {
+    slug: 'cat-cow',
+    name: 'Cat-Cow',
+    arabicName: 'تمرين القطة والبقرة',
+    aliases: ['Cat-Cow Stretch', 'Cat-Camel'],
+    arabicAliases: ['كات كاو', 'القطة والبقرة', 'القطة والجمل'],
+    category: 'mobility',
+    primaryMuscles: ['lower-back', 'upper-back'],
+    secondaryMuscles: ['abs', 'deep-core'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'mobility',
+    alternatives: ['childs-pose', 'thoracic-open-book', 'bird-dog'],
+    tags: ['spine', 'back mobility', 'العمود الفقري', 'ظهر', 'يوغا'],
+    content: {
+      en: {
+        setup: [
+          'Start on your hands and knees with your hands under your shoulders and your knees under your hips.',
+          'Keep your back flat and your neck in line with your spine.',
+        ],
+        steps: [
+          'Slowly round your back up toward the ceiling, tucking your tailbone and letting your head drop (cat).',
+          'Pause for a moment at the top.',
+          'Slowly let your belly drop and lift your chest and tailbone, looking slightly forward (cow).',
+          'Move smoothly between the two positions.',
+        ],
+        breathing: 'Breathe out as you round your back and breathe in as you arch it. Let your breath set the pace.',
+        mistakes: [
+          'Moving quickly instead of slowly and smoothly.',
+          'Forcing the arch into the lower back.',
+          'Bending the elbows instead of keeping the arms straight.',
+        ],
+        tips: [
+          'Try to move one part of the spine at a time, from the tailbone up to the head.',
+          'Use a mat or folded towel under your knees for comfort.',
+        ],
+        prescription: '8–12 slow cycles, 1–2 rounds. Move only within a comfortable range.',
+      },
+      ar: {
+        setup: [
+          'ابدأ على اليدين والركبتين، واليدان تحت الكتفين والركبتان تحت الورك.',
+          'أبقِ ظهرك مستوياً والرقبة على خط العمود الفقري.',
+        ],
+        steps: [
+          'قوّس ظهرك ببطء نحو السقف مع إدخال الحوض ونزول الرأس للأسفل (القطة).',
+          'توقف لحظة في الأعلى.',
+          'أنزل بطنك ببطء وارفع صدرك وحوضك مع النظر قليلاً للأمام (البقرة).',
+          'تحرّك بسلاسة بين الوضعين.',
+        ],
+        breathing: 'أخرج النفس عند تقويس الظهر للأعلى، وخذ نفساً عند إنزال البطن. دع تنفسك يحدد سرعة الحركة.',
+        mistakes: [
+          'الحركة بسرعة بدلاً من البطء والسلاسة.',
+          'إجبار أسفل الظهر على التقوس الزائد.',
+          'ثني المرفقين بدلاً من إبقاء الذراعين مستقيمتين.',
+        ],
+        tips: [
+          'حاول تحريك العمود الفقري جزءاً بعد جزء، من الحوض حتى الرأس.',
+          'ضع حصيرة أو منشفة مطوية تحت ركبتيك للراحة.',
+        ],
+        prescription: 'من 8 إلى 12 دورة بطيئة، جولة أو جولتان. تحرّك فقط ضمن المدى المريح.',
+      },
+    },
+  },
+  {
+    slug: 'worlds-greatest-stretch',
+    name: "World's Greatest Stretch",
+    arabicName: 'إطالة الطعن مع الدوران',
+    aliases: ['Lunge with Rotation', 'Spiderman Lunge with Reach'],
+    arabicAliases: ['ورلدز جريتست ستريتش', 'لانج مع لف', 'اطالة اللانج مع الدوران'],
+    category: 'mobility',
+    primaryMuscles: ['hip-flexors', 'hamstrings'],
+    secondaryMuscles: ['glutes', 'adductors', 'upper-back'],
+    equipment: ['bodyweight'],
+    difficulty: 'intermediate',
+    movementPattern: 'lunge',
+    exerciseType: 'mobility',
+    alternatives: ['half-kneeling-hip-flexor-stretch', 'thoracic-open-book', 'inchworm', 'leg-swings'],
+    tags: ['full body mobility', 'hips', 'ورك', 'مرونة شاملة'],
+    content: {
+      en: {
+        setup: [
+          'Start in a high plank, then step your right foot forward to the outside of your right hand into a long lunge.',
+          'Keep your back leg straight or rest the back knee on the floor if needed.',
+        ],
+        steps: [
+          'Drop your right elbow toward the inside of your right foot and hold briefly.',
+          'Place the right hand on the floor, then rotate your chest open and reach your right arm to the ceiling.',
+          'Return the hand to the floor, shift your hips back and straighten the front leg to feel the back of the thigh.',
+          'Step back to the plank and repeat on the other side.',
+        ],
+        breathing: 'Breathe out as you sink and rotate, and breathe in as you return. Take a slow breath in each position.',
+        mistakes: [
+          'Rushing through the positions.',
+          'Letting the front knee cave inward.',
+          'Twisting only the arm instead of opening the chest.',
+        ],
+        tips: [
+          'Go only as low as is comfortable — use a back-knee-down version to start.',
+        ],
+        prescription: '3–5 reps per side, pausing 2–3 breaths in each position.',
+      },
+      ar: {
+        setup: [
+          'ابدأ من وضع البلانك العالي، ثم اخطُ بقدمك اليمنى للأمام إلى خارج اليد اليمنى في وضع طعن طويل.',
+          'أبقِ الرجل الخلفية مستقيمة، أو ضع الركبة الخلفية على الأرض إذا احتجت.',
+        ],
+        steps: [
+          'أنزل المرفق الأيمن نحو الجهة الداخلية للقدم اليمنى وثبت لحظة.',
+          'ضع اليد اليمنى على الأرض، ثم افتح صدرك بالدوران ومدّ ذراعك اليمنى نحو السقف.',
+          'أعِد اليد إلى الأرض، وأرجع الورك للخلف مع فرد الرجل الأمامية لتشعر بالفخذ الخلفي.',
+          'ارجع بخطوة إلى البلانك وكرر على الجهة الأخرى.',
+        ],
+        breathing: 'أخرج النفس أثناء النزول والدوران، وخذ نفساً أثناء الرجوع. خذ نفساً بطيئاً في كل وضعية.',
+        mistakes: [
+          'الاستعجال بين الوضعيات.',
+          'دخول الركبة الأمامية للداخل.',
+          'لفّ الذراع فقط بدلاً من فتح الصدر.',
+        ],
+        tips: [
+          'انزل فقط بالقدر المريح — ابدأ بالنسخة التي تكون فيها الركبة الخلفية على الأرض.',
+        ],
+        prescription: 'من 3 إلى 5 تكرارات لكل جهة، مع التوقف لنفَسين أو ثلاثة في كل وضعية.',
+      },
+    },
+  },
+  {
+    slug: 'hip-90-90',
+    name: '90/90 Hip Switch',
+    arabicName: 'تبديل الورك بوضعية 90/90',
+    aliases: ['90/90 Hip Mobility', 'Hip 90/90', '90/90 Switches'],
+    arabicAliases: ['نايتي نايتي هيب سويتش', 'تبديل الورك'],
+    category: 'mobility',
+    primaryMuscles: ['glutes', 'glute-med'],
+    secondaryMuscles: ['adductors', 'hip-flexors'],
+    equipment: ['bodyweight'],
+    difficulty: 'intermediate',
+    movementPattern: 'rotation',
+    exerciseType: 'mobility',
+    alternatives: ['figure-four-glute-stretch', 'butterfly-stretch', 'worlds-greatest-stretch', 'leg-swings'],
+    tags: ['hip mobility', 'internal rotation', 'external rotation', 'ورك'],
+    content: {
+      en: {
+        setup: [
+          'Sit on the floor with both knees bent to about 90°: the front leg turned out in front of you, the back leg turned in to the side.',
+          'Place your hands on the floor behind you for support and sit tall.',
+        ],
+        steps: [
+          'Keeping your feet on the floor, lift both knees and rotate them over to the other side.',
+          'Let both legs settle into the mirrored 90/90 position on the other side.',
+          'Sit tall for a moment in the new position.',
+          'Rotate back to the first side and repeat.',
+        ],
+        breathing: 'Breathe out as you switch sides and breathe in as you settle into each position.',
+        mistakes: [
+          'Slumping and rounding the back.',
+          'Forcing the knees down to the floor.',
+          'Moving quickly instead of with control.',
+        ],
+        tips: [
+          'Keep your hands behind you until it feels easy, then try with your arms forward.',
+        ],
+        prescription: '6–10 switches (3–5 per side), 1–2 rounds. Move only within a comfortable range.',
+        safety: 'If you feel pinching or pain in the hip or knee, reduce the range or stop and ask a coach.',
+      },
+      ar: {
+        setup: [
+          'اجلس على الأرض مع ثني الركبتين بزاوية 90° تقريباً: الرجل الأمامية مفتوحة للخارج أمامك، والخلفية موجهة للداخل إلى الجانب.',
+          'ضع يديك على الأرض خلفك للدعم واجلس مستقيماً.',
+        ],
+        steps: [
+          'مع إبقاء القدمين على الأرض، ارفع الركبتين وأدِرهما إلى الجهة الأخرى.',
+          'دع الرجلين تستقران في وضعية 90/90 المعاكسة على الجهة الأخرى.',
+          'اجلس مستقيماً لحظة في الوضعية الجديدة.',
+          'أدِرهما إلى الجهة الأولى وكرر.',
+        ],
+        breathing: 'أخرج النفس أثناء التبديل، وخذ نفساً عند الاستقرار في كل وضعية.',
+        mistakes: [
+          'الانحناء وتقويس الظهر.',
+          'إجبار الركبتين على النزول للأرض.',
+          'الحركة بسرعة بدلاً من التحكم.',
+        ],
+        tips: [
+          'أبقِ يديك خلفك حتى تصبح الحركة سهلة، ثم جرّبها والذراعان للأمام.',
+        ],
+        prescription: 'من 6 إلى 10 تبديلات (3–5 لكل جهة)، جولة أو جولتان. تحرّك فقط ضمن المدى المريح.',
+        safety: 'إذا شعرت بقرصة أو ألم في الورك أو الركبة، فقلّل المدى أو توقف واستشر مدرباً.',
+      },
+    },
+  },
+  {
+    slug: 'thoracic-open-book',
+    name: 'Thoracic Open Book',
+    arabicName: 'فتح الكتاب للظهر العلوي',
+    aliases: ['Open Book Stretch', 'Side-Lying Open Book'],
+    arabicAliases: ['اوبن بوك', 'فتح الكتاب', 'الكتاب المفتوح'],
+    category: 'mobility',
+    primaryMuscles: ['upper-back'],
+    secondaryMuscles: ['chest', 'obliques'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    movementPattern: 'rotation',
+    exerciseType: 'mobility',
+    alternatives: ['cat-cow', 'worlds-greatest-stretch', 'supine-spinal-twist'],
+    tags: ['t-spine', 'upper back mobility', 'ظهر علوي', 'دوران'],
+    content: {
+      en: {
+        setup: [
+          'Lie on your side with your hips and knees bent to about 90° and your arms straight out in front of you, palms together.',
+          'Rest your head on a small cushion or your bottom arm.',
+        ],
+        steps: [
+          'Keeping your knees together on the floor, lift the top arm up and over.',
+          'Rotate your chest open and follow your hand with your eyes as it moves toward the floor behind you.',
+          'Pause for one or two breaths at the end of your comfortable range.',
+          'Slowly return the arm to the starting position and repeat, then switch sides.',
+        ],
+        breathing: 'Breathe out as you open and rotate; breathe in as you return.',
+        mistakes: [
+          'Letting the knees lift or slide apart.',
+          'Forcing the arm all the way to the floor.',
+          'Rotating only the arm and not the chest.',
+        ],
+        tips: [
+          'A pillow or foam roller under the top knee helps keep the hips still.',
+        ],
+        prescription: '8–10 slow reps per side, 1–2 rounds.',
+      },
+      ar: {
+        setup: [
+          'استلقِ على جانبك مع ثني الورك والركبتين بزاوية 90° تقريباً، والذراعان ممدودتان أمامك وراحتا اليد متلاصقتان.',
+          'أسند رأسك على وسادة صغيرة أو على الذراع السفلية.',
+        ],
+        steps: [
+          'مع إبقاء الركبتين متلاصقتين على الأرض، ارفع الذراع العلوية وحرّكها للجهة الأخرى.',
+          'افتح صدرك بالدوران وتابع يدك بعينيك وهي تتحرك نحو الأرض خلفك.',
+          'توقف لنفَس أو اثنين عند نهاية المدى المريح.',
+          'أعِد الذراع ببطء إلى البداية وكرر، ثم بدّل الجهة.',
+        ],
+        breathing: 'أخرج النفس أثناء الفتح والدوران، وخذ نفساً أثناء الرجوع.',
+        mistakes: [
+          'ارتفاع الركبتين أو انفصالهما.',
+          'إجبار الذراع على الوصول إلى الأرض.',
+          'تحريك الذراع فقط دون دوران الصدر.',
+        ],
+        tips: [
+          'وسادة أو فوم رولر تحت الركبة العلوية يساعد على تثبيت الورك.',
+        ],
+        prescription: 'من 8 إلى 10 تكرارات بطيئة لكل جهة، جولة أو جولتان.',
+      },
+    },
+  },
+  {
+    slug: 'ankle-knee-to-wall',
+    name: 'Knee-to-Wall Ankle Mobilization',
+    arabicName: 'تحريك الكاحل بالركبة نحو الحائط',
+    aliases: ['Knee-to-Wall Stretch', 'Knee-to-Wall Ankle Mobility', 'Ankle Dorsiflexion Drill'],
+    arabicAliases: ['ني تو وول', 'مرونة الكاحل', 'الركبة للحائط'],
+    category: 'mobility',
+    primaryMuscles: ['calves'],
+    secondaryMuscles: ['tibialis'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'mobility',
+    alternatives: ['wall-calf-stretch', 'deep-squat-hold', 'tibialis-raise'],
+    tags: ['ankle mobility', 'squat depth', 'كاحل', 'عمق السكوات'],
+    content: {
+      en: {
+        setup: [
+          'Face a wall in a split stance with your front foot a few centimetres from the wall.',
+          'Rest your hands on the wall for balance.',
+        ],
+        steps: [
+          'Keeping the front heel flat on the floor, slowly push your front knee forward toward the wall.',
+          'Guide the knee over the middle toes, not inward.',
+          'Touch the wall lightly or stop at the end of your comfortable range, and pause briefly.',
+          'Return slowly; move the foot slightly further back as it gets easier.',
+        ],
+        breathing: 'Breathe out as you drive the knee forward and breathe in as you return.',
+        mistakes: [
+          'Letting the front heel lift.',
+          'Letting the knee cave inward toward the big toe.',
+          'Bouncing into the wall.',
+        ],
+        tips: [
+          'Useful before squats if your heels lift or your ankles feel stiff.',
+        ],
+        prescription: '10–15 slow reps per ankle, 1–2 rounds.',
+      },
+      ar: {
+        setup: [
+          'واجه الحائط بوضعية خطوة، والقدم الأمامية على بُعد بضعة سنتيمترات من الحائط.',
+          'ضع يديك على الحائط للتوازن.',
+        ],
+        steps: [
+          'مع إبقاء كعب القدم الأمامية على الأرض، ادفع الركبة الأمامية ببطء نحو الحائط.',
+          'وجّه الركبة فوق منتصف أصابع القدم وليس للداخل.',
+          'المس الحائط بخفة أو توقف عند نهاية المدى المريح، وثبت لحظة.',
+          'ارجع ببطء؛ وأبعِد القدم قليلاً عن الحائط كلما أصبح الأمر أسهل.',
+        ],
+        breathing: 'أخرج النفس عند دفع الركبة للأمام، وخذ نفساً أثناء الرجوع.',
+        mistakes: [
+          'ارتفاع كعب القدم الأمامية.',
+          'دخول الركبة للداخل نحو إصبع القدم الكبير.',
+          'الارتداد نحو الحائط.',
+        ],
+        tips: [
+          'مفيد قبل السكوات إذا كان كعباك يرتفعان أو كان الكاحلان متيبسين.',
+        ],
+        prescription: 'من 10 إلى 15 تكراراً بطيئاً لكل كاحل، جولة أو جولتان.',
+      },
+    },
+  },
+  {
+    slug: 'band-shoulder-pass-through',
+    name: 'Band Shoulder Pass-Through',
+    arabicName: 'تمرير الحبل المطاطي فوق الكتفين',
+    aliases: ['Shoulder Dislocates', 'Shoulder Pass-Through', 'Band Pass-Through'],
+    arabicAliases: ['باس ثرو', 'تمرير الباند', 'شولدر ديسلوكيت'],
+    category: 'mobility',
+    primaryMuscles: ['front-delts', 'chest'],
+    secondaryMuscles: ['rotator-cuff', 'rear-delts', 'upper-back'],
+    equipment: ['band'],
+    difficulty: 'intermediate',
+    exerciseType: 'mobility',
+    alternatives: ['arm-circles', 'wall-slide', 'doorway-chest-stretch'],
+    tags: ['shoulder mobility', 'مرونة الكتف', 'احماء الكتف'],
+    content: {
+      en: {
+        setup: [
+          'Stand tall holding a light band in front of your hips with a wide overhand grip.',
+          'Brace your core lightly and keep your ribs down.',
+        ],
+        steps: [
+          'Keeping your arms straight, raise the band up in front of you and over your head.',
+          'Continue the arc behind you until the band reaches your lower back or as far as is comfortable.',
+          'Reverse the movement slowly to bring the band back over your head to the front.',
+          'Repeat smoothly, moving your grip slightly closer only when it feels easy.',
+        ],
+        breathing: 'Breathe in as the band goes up and over, and breathe out as it comes down behind or in front of you.',
+        mistakes: [
+          'Using a grip so narrow that you have to bend your elbows or force the shoulders.',
+          'Arching the lower back to get the band over.',
+          'Moving fast or jerking through the top.',
+        ],
+        tips: [
+          'Start wide — you can always narrow the grip later.',
+          'A PVC pipe or broomstick can be used if you do not have a band.',
+        ],
+        prescription: '10–15 slow reps, 1–2 rounds.',
+        safety: 'If you feel pinching or pain in the shoulder, widen your grip or stop and ask a coach or a qualified health professional.',
+      },
+      ar: {
+        setup: [
+          'قف مستقيماً وأمسك حبلاً مطاطياً خفيفاً أمام الورك بقبضة واسعة من الأعلى.',
+          'شدّ عضلات الجذع بخفة وأبقِ الأضلاع للأسفل.',
+        ],
+        steps: [
+          'مع إبقاء الذراعين مستقيمتين، ارفع الحبل أمامك ثم فوق رأسك.',
+          'أكمل القوس خلفك حتى يصل الحبل إلى أسفل الظهر أو بالقدر المريح.',
+          'اعكس الحركة ببطء لتعيد الحبل فوق رأسك إلى الأمام.',
+          'كرر بسلاسة، ولا تضيّق القبضة قليلاً إلا عندما تصبح الحركة سهلة.',
+        ],
+        breathing: 'خذ نفساً أثناء رفع الحبل فوق الرأس، وأخرجه أثناء نزوله خلفك أو أمامك.',
+        mistakes: [
+          'استخدام قبضة ضيقة جداً تجبرك على ثني المرفقين أو إجبار الكتفين.',
+          'تقويس أسفل الظهر لتمرير الحبل.',
+          'الحركة بسرعة أو بشكل متقطع عند الأعلى.',
+        ],
+        tips: [
+          'ابدأ بقبضة واسعة — يمكنك تضييقها لاحقاً.',
+          'يمكن استخدام أنبوب بلاستيكي أو عصا مكنسة إذا لم يكن لديك حبل مطاطي.',
+        ],
+        prescription: 'من 10 إلى 15 تكراراً بطيئاً، جولة أو جولتان.',
+        safety: 'إذا شعرت بقرصة أو ألم في الكتف، فوسّع القبضة أو توقف واستشر مدرباً أو مختصاً صحياً مؤهلاً.',
+      },
+    },
+  },
+  {
+    slug: 'wall-slide',
+    name: 'Wall Slide',
+    arabicName: 'انزلاق الذراعين على الحائط',
+    aliases: ['Wall Angel', 'Wall Slides'],
+    arabicAliases: ['وول سلايد', 'وول انجل', 'ملاك الحائط'],
+    category: 'mobility',
+    primaryMuscles: ['upper-back', 'rotator-cuff'],
+    secondaryMuscles: ['traps', 'rear-delts', 'deep-core'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    exerciseType: 'mobility',
+    alternatives: ['band-pull-apart', 'band-shoulder-pass-through', 'incline-y-raise', 'arm-circles'],
+    tags: ['posture', 'shoulder mobility', 'قوام', 'مرونة الكتف'],
+    content: {
+      en: {
+        setup: [
+          'Stand with your back against a wall, feet a small step away from it, and knees slightly bent.',
+          'Press your lower back gently toward the wall and place the backs of your arms against it in a "W" shape, elbows bent.',
+        ],
+        steps: [
+          'Slowly slide your arms up the wall toward a "Y" shape.',
+          'Keep your lower back, upper back and arms as close to the wall as you comfortably can.',
+          'Stop when your arms or back start to come off the wall.',
+          'Slide back down to the "W" position, drawing your shoulder blades down.',
+        ],
+        breathing: 'Breathe in as you slide your arms up and breathe out as you pull them back down.',
+        mistakes: [
+          'Arching the lower back away from the wall.',
+          'Shrugging the shoulders up to the ears.',
+          'Forcing the arms to stay flat against the wall when it hurts.',
+        ],
+        tips: [
+          'A smaller range done well is better than a big range with an arched back.',
+        ],
+        prescription: '8–12 slow reps, 1–2 rounds.',
+      },
+      ar: {
+        setup: [
+          'قف وظهرك مستند إلى الحائط، والقدمان على بُعد خطوة صغيرة منه، مع ثني الركبتين قليلاً.',
+          'اضغط أسفل ظهرك بلطف نحو الحائط، وضع ظهر الذراعين عليه بشكل حرف «W» والمرفقان مثنيان.',
+        ],
+        steps: [
+          'حرّك ذراعيك ببطء للأعلى على الحائط نحو شكل حرف «Y».',
+          'أبقِ أسفل الظهر وأعلاه والذراعين قريبة من الحائط بالقدر المريح.',
+          'توقف عندما تبدأ الذراعان أو الظهر بالابتعاد عن الحائط.',
+          'انزلق للأسفل إلى وضع «W» مع سحب لوحي الكتف للأسفل.',
+        ],
+        breathing: 'خذ نفساً أثناء رفع الذراعين، وأخرجه أثناء سحبهما للأسفل.',
+        mistakes: [
+          'تقويس أسفل الظهر بعيداً عن الحائط.',
+          'رفع الكتفين نحو الأذنين.',
+          'إجبار الذراعين على البقاء ملتصقتين بالحائط مع وجود ألم.',
+        ],
+        tips: [
+          'مدى أصغر بأداء صحيح أفضل من مدى كبير مع تقويس الظهر.',
+        ],
+        prescription: 'من 8 إلى 12 تكراراً بطيئاً، جولة أو جولتان.',
+      },
+    },
+  },
+  {
+    slug: 'deep-squat-hold',
+    name: 'Deep Squat Hold',
+    arabicName: 'الثبات في القرفصاء العميقة',
+    aliases: ['Deep Squat', 'Squat Hold'],
+    arabicAliases: ['ديب سكوات هولد', 'ثبات سكوات', 'سكوات عميق'],
+    category: 'mobility',
+    primaryMuscles: ['glutes', 'adductors'],
+    secondaryMuscles: ['quads', 'calves', 'lower-back'],
+    equipment: ['bodyweight'],
+    difficulty: 'beginner',
+    movementPattern: 'squat',
+    exerciseType: 'mobility',
+    alternatives: ['bodyweight-squat', 'goblet-squat', 'ankle-knee-to-wall', 'butterfly-stretch'],
+    tags: ['hip mobility', 'ankle mobility', 'ورك', 'كاحل'],
+    content: {
+      en: {
+        setup: [
+          'Stand with your feet about shoulder-width apart or a little wider, toes turned out slightly.',
+          'Hold on to a rack or a door frame if you need support.',
+        ],
+        steps: [
+          'Lower slowly into the deepest squat you can hold with your heels on the floor.',
+          'Bring your hands together at your chest and use your elbows to gently guide your knees out.',
+          'Keep your chest up and relax into the position.',
+          'Hold for the set time, then push through your feet to stand up slowly.',
+        ],
+        breathing: 'Breathe slowly and deeply through your nose while holding the position. Do not hold your breath.',
+        mistakes: [
+          'Letting the heels lift off the floor.',
+          'Letting the knees cave inward.',
+          'Forcing more depth than is comfortable.',
+        ],
+        tips: [
+          'If your heels lift, hold on to something in front of you or place a small plate under your heels.',
+          'Shift your weight gently side to side to explore the position.',
+        ],
+        prescription: 'Hold 20–30 seconds, 2–3 times. Build up to longer holds as it becomes comfortable.',
+        safety: 'Skip the deepest range if it causes knee or hip pain, and ask a coach or a qualified health professional.',
+      },
+      ar: {
+        setup: [
+          'قف والقدمان بعرض الكتفين أو أوسع قليلاً، مع توجيه أصابع القدمين للخارج قليلاً.',
+          'أمسك بحامل أو إطار باب إذا احتجت إلى دعم.',
+        ],
+        steps: [
+          'انزل ببطء إلى أعمق قرفصاء تستطيع الثبات فيها مع بقاء الكعبين على الأرض.',
+          'اجمع يديك أمام صدرك واستخدم المرفقين لدفع الركبتين للخارج بلطف.',
+          'أبقِ الصدر مرفوعاً واسترخِ في الوضعية.',
+          'اثبت للوقت المحدد، ثم ادفع بقدميك لتقف ببطء.',
+        ],
+        breathing: 'تنفّس ببطء وبعمق من الأنف أثناء الثبات. لا تحبس نفسك.',
+        mistakes: [
+          'ارتفاع الكعبين عن الأرض.',
+          'دخول الركبتين للداخل.',
+          'إجبار الجسم على عمق أكبر من المريح.',
+        ],
+        tips: [
+          'إذا ارتفع كعباك، أمسك بشيء أمامك أو ضع صحناً صغيراً تحت الكعبين.',
+          'حرّك وزنك بلطف من جانب إلى جانب لتعتاد على الوضعية.',
+        ],
+        prescription: 'اثبت من 20 إلى 30 ثانية، 2–3 مرات. زِد مدة الثبات تدريجياً كلما أصبحت مريحة.',
+        safety: 'تجنّب أعمق مدى إذا سبّب ألماً في الركبة أو الورك، واستشر مدرباً أو مختصاً صحياً مؤهلاً.',
+      },
+    },
+  },
+];

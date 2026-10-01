@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import { getArticles, readingMinutes, splitId } from '../utils/content';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const articles = await getArticles(lang, 'nutrition');
+---
+
+<BaseLayout lang={lang} path="/nutrition/" title={t('nutrition.title')} description={t('nutrition.intro')}>
+  <PageHeader lang={lang} title={t('nutrition.title')} lead={t('nutrition.intro')} crumbs={[{ label: t('nav.nutrition') }]} />
+  <div class="container section--tight">
+    <div class="grid grid--2 tools">
+      <NutritionCard lang={lang} path="/calculator/" icon="calculator" title={t('calc.title')} text={t('home.pathCalc')} accent />
+      <NutritionCard lang={lang} path="/nutrition/meals/" icon="nutrition" title={t('meals.title')} text={t('meals.plannerIntro')} />
+    </div>
+    <h2 class="section-title list-title">{t('nutrition.articles')}</h2>
+    <div class="grid grid--3">
+      {articles.map((a) => (
+        <ArticleCard lang={lang} slug={splitId(a.id).slug} title={a.data.title} description={a.data.description} icon={a.data.icon} minutes={readingMinutes(a.body)} />
+      ))}
+    </div>
+    <p class="notice end-note">{t('meals.disclaimer')}</p>
+  </div>
+</BaseLayout>
+
+<style>
+  .list-title { margin-block: 36px 16px; }
+  .end-note { margin-block-start: 28px; }
+</style>

@@ -1,0 +1,34 @@
+---
+import MuscleIcon from './MuscleIcon.astro';
+import { CATEGORIES, type Category } from '../data/taxonomy';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  category: Category;
+  count: number;
+}
+const { lang, category, count } = Astro.props;
+const t = useT(lang);
+const c = CATEGORIES[category];
+const other = lang === 'ar' ? c.label.en : c.label.ar;
+---
+
+<a class="muscle-card card card-link" href={localePath(lang, `/muscles/${category}/`)}>
+  <MuscleIcon category={category} size={48} />
+  <span class="muscle-name">{c.label[lang]}</span>
+  <span class="muscle-other" lang={lang === 'ar' ? 'en' : 'ar'}>{other}</span>
+  <span class="muscle-count">{t('ex.count', { n: count })}</span>
+</a>
+
+<style>
+  .muscle-card {
+    display: grid; grid-template-columns: auto 1fr; gap: 0 12px; align-items: center; padding: 14px;
+    min-block-size: 84px; color: var(--white);
+  }
+  .muscle-card :global(.muscle-icon) { grid-row: span 3; }
+  .muscle-card:hover { border-color: var(--accent); }
+  .muscle-name { font-weight: 900; font-size: 1.05rem; line-height: 1.3; }
+  .muscle-other { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.3; }
+  .muscle-count { font-size: var(--fs-xs); color: var(--accent-text); font-weight: 800; }
+</style>

@@ -1,0 +1,33 @@
+---
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  minutes?: number;
+}
+const { lang, slug, title, description, icon, minutes } = Astro.props;
+const t = useT(lang);
+---
+
+<article class="article-card card card-link">
+  <a href={localePath(lang, `/articles/${slug}/`)} class="article-link">
+    <span class="article-icon" aria-hidden="true">{icon}</span>
+    <h3 class="article-title">{title}</h3>
+    <p class="article-desc">{description}</p>
+    {minutes && <p class="article-meta">{t('article.readTime', { n: minutes })}</p>}
+  </a>
+</article>
+
+<style>
+  .article-card { padding: 0; display: flex; }
+  .article-link { display: grid; gap: 8px; align-content: start; padding: 18px; text-decoration: none; inline-size: 100%; }
+  .article-icon { font-size: 1.8rem; }
+  .article-title { font-size: 1.1rem; }
+  .article-desc { color: var(--text-muted); font-size: var(--fs-sm); }
+  .article-meta { color: var(--accent-text); font-size: var(--fs-xs); font-weight: 800; }
+  .article-card:hover { border-color: var(--accent); }
+</style>

@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Icon from '../components/Icon.astro';
+import { exercises } from '../data/exercises';
+import { CATEGORIES, MUSCLE_CATEGORIES, TRAINING_CATEGORIES } from '../data/taxonomy';
+import { absoluteUrl, localePath, url, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const order = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
+const list = [...exercises].sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category) || a.name.localeCompare(b.name));
+const shortUrl = (slug: string) => absoluteUrl('ar', `/exercises/${slug}/`, Astro.site).replace(/^https?:\/\//, '');
+---
+
+<BaseLayout lang={lang} path="/qr/" title={t('qr.pageTitle')} description={t('qr.pageIntro')}>
+  <PageHeader lang={lang} title={t('qr.pageTitle')} lead={t('qr.pageIntro')} crumbs={[{ label: t('nav.qr') }]} />
+
+  <div class="container section--tight">
+    <section class="how no-print" aria-labelledby="how-h">
+      <h2 id="how-h" class="section-title">{t('qr.howTitle')}</h2>
+      <ol class="how-list" role="list">
+        <li><span class="n">1</span>{t('qr.how1')}</li>
+        <li><span class="n">2</span>{t('qr.how2')}</li>
+        <li><span class="n">3</span>{t('qr.how3')}</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="staff-h" class="staff" data-qr>
+      <h2 id="staff-h" class="section-title no-print">{t('qr.staffTitle')}</h2>
+      <p class="muted no-print">{t('qr.staffNote')}</p>
+      <div class="qr-tools no-print">
+        <label class="field">
+          <span class="label">{t('qr.filter')}</span>
+          <select class="select" data-qr-filter>
+            <option value="">{t('qr.all')}</option>
+            {order.map((c) => <option value={c}>{CATEGORIES[c].label[lang]}</option>)}
+          </select>
+        </label>
+        <button type="button" class="btn btn--primary" data-print hidden><Icon name="print" size={18} />{t('qr.print')}</button>
+      </div>
+
+      <ul class="qr-grid" role="list">
+        {list.map((e) => (
+          <li class="qr-card" data-category={e.category}>
+            <img src={url(`/qr/${e.slug}.svg`)} alt={`QR: ${e.name}`} width="180" height="180" loading="lazy" decoding="async" />
+            <div class="qr-text">
+              <a class="qr-name" href={localePath(lang, `/exercises/${e.slug}/`)} lang="ar" dir="rtl">{e.arabicName}</a>
+              <span class="qr-en" lang="en" dir="ltr">{e.name}</span>
+              <span class="qr-url" dir="ltr">{shortUrl(e.slug)}</span>
+              <a class="qr-dl no-print" href={url(`/qr/${e.slug}.svg`)} download={`alqosh-gym-qr-${e.slug}.svg`}>{t('qr.download')}</a>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-qr]');
+  if (root) {
+    const select = root.querySelector<HTMLSelectElement>('[data-qr-filter]')!;
+    const cards = [...root.querySelectorAll<HTMLElement>('.qr-card')];
+    select.addEventListener('change', () => {
+      for (const c of cards) c.hidden = Boolean(select.value) && c.dataset.category !== select.value;
+    });
+    const print = root.querySelector<HTMLButtonElement>('[data-print]')!;
+    print.hidden = false;
+    print.addEventListener('click', () => {
+      // Load every lazy QR image before printing.
+      for (const img of root.querySelectorAll<HTMLImageElement>('img[loading="lazy"]')) img.loading = 'eager';
+      window.setTimeout(() => window.print(), 300);
+    });
+  }
+</script>
+
+<style>
+  .how-list { display: grid; gap: 10px; margin-block: 12px 32px; }
+  @media (min-width: 768px) { .how-list { grid-template-columns: repeat(3, 1fr); } }
+  .how-list li { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-weight: 700; }
+  .n { flex: none; inline-size: 32px; block-size: 32px; display: grid; place-items: center; background: var(--accent); color: var(--white); font-family: var(--font-display); font-size: 1.3rem; }
+  .qr-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-block: 14px 18px; }
+  .qr-tools .field { min-inline-size: 220px; }
+  .qr-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .qr-card { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; background: var(--white); color: #000; border-radius: var(--radius-sm); padding: 10px; break-inside: avoid; }
+  .qr-card img { inline-size: 110px; block-size: 110px; }
+  .qr-text { display: grid; gap: 2px; min-inline-size: 0; }
+  .qr-name { font-weight: 900; color: #000; text-decoration: none; line-height: 1.35; }
+  .qr-en { font-size: var(--fs-sm); font-weight: 700; color: #333; }
+  .qr-url { font-size: 0.7rem; color: #555; overflow-wrap: anywhere; }
+  .qr-dl { font-size: var(--fs-xs); color: #b80500; font-weight: 800; }
+  @media print {
+    .qr-grid { grid-template-columns: repeat(3, 1fr); gap: 8mm; }
+    .qr-card { grid-template-columns: 1fr; justify-items: center; text-align: center; border: 1px solid #000; }
+    .qr-card img { inline-size: 40mm; block-size: 40mm; }
+    .qr-card[hidden] { display: none !important; }
+  }
+</style>

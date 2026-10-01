@@ -1,0 +1,86 @@
+---
+import DifficultyBadge from './DifficultyBadge.astro';
+import BodyMap from './BodyMap.astro';
+import type { Exercise } from '../data/exercises/types';
+import { EQUIPMENT, MUSCLES } from '../data/taxonomy';
+import { resolveMedia } from '../utils/media';
+import { localePath, url, type Lang } from '../i18n/utils';
+
+interface Props {
+  exercise: Exercise;
+  lang: Lang;
+  /** Heading level for the card title. */
+  level?: 'h2' | 'h3';
+}
+const { exercise: e, lang, level = 'h3' } = Astro.props;
+const Heading = level;
+const media = resolveMedia(e);
+const primaryName = lang === 'ar' ? e.arabicName : e.name;
+const secondaryName = lang === 'ar' ? e.name : e.arabicName;
+const muscle = MUSCLES[e.primaryMuscles[0]].label[lang];
+const equipment = e.equipment
+  .filter((q) => q !== 'bodyweight' || e.equipment.length === 1)
+  .slice(0, 2)
+  .map((q) => EQUIPMENT[q].label[lang])
+  .join(' · ');
+---
+
+<article class="ex-card card-link" data-slug={e.slug}>
+  <a class="ex-link" href={localePath(lang, `/exercises/${e.slug}/`)}>
+    <div class:list={['ex-thumb', { 'ex-thumb--icon': !media.poster }]}>
+      {media.poster
+        ? <img src={url(media.poster)} alt="" loading="lazy" decoding="async" width="320" height="240" />
+        : <BodyMap lang={lang} primary={e.primaryMuscles} secondary={e.secondaryMuscles} views="best" labels={false} class="ex-bodymap" />}
+      {media.hasAnimation && <span class="badge badge--solid anim-badge" aria-hidden="true">▶</span>}
+    </div>
+    <div class="ex-body">
+      <Heading class="ex-title">{primaryName}</Heading>
+      <p class="ex-alt" lang={lang === 'ar' ? 'en' : 'ar'} dir={lang === 'ar' ? 'ltr' : 'rtl'}>{secondaryName}</p>
+      <p class="ex-meta">{muscle}</p>
+      <div class="ex-tags">
+        <DifficultyBadge level={e.difficulty} lang={lang} />
+      </div>
+      {equipment && <p class="ex-equip">{equipment}</p>}
+    </div>
+  </a>
+</article>
+
+<style>
+  .ex-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+  }
+  .ex-card:hover { border-color: var(--accent); }
+  .ex-link { display: flex; flex-direction: column; inline-size: 100%; text-decoration: none; color: inherit; }
+  .ex-link:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+  .ex-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    background:
+      linear-gradient(135deg, transparent 0 60%, rgb(225 6 0 / 0.12) 60% 64%, transparent 64%),
+      var(--ink-900);
+    border-block-end: 1px solid var(--line);
+    color: var(--white);
+  }
+  .ex-thumb img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  .ex-thumb--icon { aspect-ratio: 16 / 10; padding-block: 6px; }
+  .ex-thumb :global(.ex-bodymap) { block-size: 100%; }
+  .ex-thumb :global(.ex-bodymap .bm-view) { block-size: 100%; max-inline-size: none; }
+  .ex-thumb :global(.ex-bodymap svg) { block-size: 100%; inline-size: auto; }
+  .ex-equip { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.4; }
+  .anim-badge { position: absolute; inset-block-start: 8px; inset-inline-end: 8px; }
+  .ex-body { padding: 12px; display: grid; gap: 4px; flex: 1; align-content: start; }
+  .ex-title { font-size: 1rem; line-height: 1.35; }
+  .ex-alt { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.3; }
+  .ex-meta { font-size: var(--fs-xs); color: var(--accent-text); font-weight: 700; }
+  .ex-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-block-start: 6px; }
+  @media (min-width: 640px) {
+    .ex-body { padding: 14px; }
+    .ex-title { font-size: 1.08rem; }
+  }
+</style>

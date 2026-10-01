@@ -1,0 +1,80 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import SourceList from '../components/SourceList.astro';
+import { getArticles, readingMinutes, splitId, type Article } from '../utils/content';
+import { absoluteUrl, formatNumber, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  article: Article;
+}
+const { lang, article } = Astro.props;
+const t = useT(lang);
+const { Content } = await render(article);
+const slug = splitId(article.id).slug;
+const path = `/articles/${slug}/`;
+const topic = article.data.topics[0];
+const hub = topic === 'nutrition' ? { label: t('nav.nutrition'), path: '/nutrition/' } : { label: t('nav.health'), path: '/health/' };
+const others = (await getArticles(lang, topic)).filter((a) => a.id !== article.id).slice(0, 3);
+const updated = article.data.updated;
+const updatedText = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-IQ-u-nu-latn' : 'en-GB', { dateStyle: 'long' }).format(updated);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.data.title,
+    description: article.data.description,
+    inLanguage: lang,
+    dateModified: updated.toISOString().slice(0, 10),
+    mainEntityOfPage: absoluteUrl(lang, path, Astro.site),
+    publisher: { '@type': 'Organization', name: 'ALQOSH GYM' },
+  },
+];
+---
+
+<BaseLayout lang={lang} path={path} title={article.data.title} description={article.data.description} ogType="article" jsonLd={jsonLd}>
+  <PageHeader
+    lang={lang}
+    title={article.data.title}
+    lead={article.data.description}
+    crumbs={[{ label: hub.label, path: hub.path }, { label: article.data.title }]}
+  >
+    <p class="meta">
+      <span aria-hidden="true">{article.data.icon}</span>
+      {t('article.readTime', { n: formatNumber(readingMinutes(article.body), lang) })} ·
+      {t('article.updated')}: <time datetime={updated.toISOString().slice(0, 10)}>{updatedText}</time>
+    </p>
+  </PageHeader>
+
+  <div class="container section--tight">
+    <div class="prose">
+      <Content />
+    </div>
+    <p class="notice article-note">{t('article.disclaimer')} {t('disclaimer.short')}</p>
+    <div class="prose-like">
+      <SourceList lang={lang} sources={article.data.sources} />
+    </div>
+
+    {others.length > 0 && (
+      <section class="more" aria-labelledby="more-h">
+        <h2 id="more-h" class="section-title">{t('article.related')}</h2>
+        <div class="grid grid--3">
+          {others.map((a) => (
+            <ArticleCard lang={lang} slug={splitId(a.id).slug} title={a.data.title} description={a.data.description} icon={a.data.icon} minutes={readingMinutes(a.body)} />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .meta { color: var(--text-muted); font-size: var(--fs-sm); font-weight: 700; margin-block-start: 6px; }
+  .article-note { margin-block-start: 28px; max-width: 72ch; }
+  .prose-like { max-width: 72ch; }
+  .more { margin-block-start: 40px; }
+</style>

@@ -1,0 +1,301 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import HoursCard from '../components/HoursCard.astro';
+import Icon from '../components/Icon.astro';
+import { CATEGORIES, EQUIPMENT, GOALS, MUSCLE_CATEGORIES, type Equipment, type Goal } from '../data/taxonomy';
+import { exercises } from '../data/exercises';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+
+const builderGoals: Goal[] = ['muscle-gain', 'fat-loss', 'general-fitness', 'strength', 'conditioning', 'beginner-fitness', 'athletic'];
+const goalBlurb: Record<string, { ar: string; en: string }> = {
+  'muscle-gain': { ar: 'حجم تدريبي متوسط إلى عالٍ، 6–15 تكرار، وتغذية كافية.', en: 'Moderate-to-high volume, 6–15 reps and enough food.' },
+  'fat-loss': { ar: 'حافظ على تمارين المقاومة، أضف حركة يومية، ونقص سعرات معتدل.', en: 'Keep lifting, add daily movement and a moderate calorie deficit.' },
+  'general-fitness': { ar: 'قوة + تحمل + مرونة بشكل متوازن للصحة.', en: 'Balanced strength, endurance and mobility for health.' },
+  strength: { ar: 'تمارين مركّبة، تكرارات أقل، وراحة أطول.', en: 'Compound lifts, lower reps and longer rest.' },
+  conditioning: { ar: 'دوائر وتمارين تحمل لتحسين النفس واللياقة القلبية.', en: 'Circuits and conditioning to improve your engine.' },
+  'beginner-fitness': { ar: 'بداية آمنة: جسم كامل 2–3 أيام وتقنية أولاً.', en: 'A safe start: full body 2–3 days, technique first.' },
+  athletic: { ar: 'قوة انفجارية وقوة عامة وحركة متعددة الاتجاهات.', en: 'Power, general strength and multi-directional movement.' },
+};
+
+const EQUIPMENT_CHOICES: Equipment[] = [
+  'barbell', 'dumbbell', 'cable', 'machine', 'smith-machine', 'bench', 'pull-up-bar', 'dip-station',
+  'ez-bar', 'kettlebell', 'band', 'plate', 'cardio-machine', 'landmine', 'trap-bar', 'roman-chair',
+  'medicine-ball', 'box', 'ab-wheel',
+];
+const usedEquipment = new Set(exercises.flatMap((e) => e.equipment));
+const equipmentChoices = EQUIPMENT_CHOICES.filter((q) => usedEquipment.has(q));
+const fullGymDefault = new Set<Equipment>(equipmentChoices);
+
+const i18n = {
+  day: t('workout.day', { n: '{n}' }),
+  rest: t('workout.restDay'),
+  sets: t('workout.sets'),
+  reps: t('workout.reps'),
+  restBetween: t('workout.restBetween'),
+  swap: t('workout.swap'),
+  noMatch: t('workout.noMatch'),
+  minutes: t('workout.minutes', { n: '{n}' }),
+  split: t('workout.split'),
+  cardio: t('workout.cardioNote', { text: '{text}' }),
+  warmup: t('workout.warmup'),
+  progression: t('workout.progression'),
+  weekdays: lang === 'ar'
+    ? ['يوم 1', 'يوم 2', 'يوم 3', 'يوم 4', 'يوم 5', 'يوم 6', 'يوم 7']
+    : ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+};
+---
+
+<BaseLayout lang={lang} path="/workouts/" title={t('workout.title')} description={t('workout.intro')}>
+  <PageHeader lang={lang} title={t('workout.title')} lead={t('workout.intro')} crumbs={[{ label: t('nav.workouts') }]} />
+
+  <div class="container">
+    <!-- PATHWAYS -->
+    <section class="section--tight" aria-labelledby="paths-h">
+      <h2 id="paths-h" class="section-title">{t('workout.pathTitle')}</h2>
+      <p class="muted">{t('workout.pathIntro')}</p>
+      <div class="pathways">
+        {(['men', 'women'] as const).map((who) => (
+          <article class="pathway card card--accent">
+            <h3 class="pw-title">{who === 'men' ? '👨 ' + t('workout.men') : '👩 ' + t('workout.women')}</h3>
+            <HoursCard lang={lang} who={who} compact hideTitle />
+            <p class="pw-sub">{t('workout.chooseGoal')}</p>
+            <div class="chips">
+              {builderGoals.map((g) => (
+                <a class="chip" href={`?goal=${g}#builder`} data-preset={g}>{GOALS[g].label[lang]}</a>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+      <div class="grid grid--3 goal-notes">
+        {builderGoals.map((g) => (
+          <div class="goal-note">
+            <strong>{GOALS[g].label[lang]}</strong>
+            <span>{goalBlurb[g][lang]}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- BUILDER -->
+    <section class="section--tight builder" id="builder" aria-labelledby="builder-h" data-builder data-lang={lang} data-i18n={JSON.stringify(i18n)}>
+      <h2 id="builder-h" class="section-title">{t('workout.title')}</h2>
+      <form class="builder-form card" data-builder-form>
+        <div class="field">
+          <label for="goal">{t('workout.goal')}</label>
+          <select class="select" id="goal" name="goal">
+            {builderGoals.map((g) => <option value={g} selected={g === 'general-fitness'}>{GOALS[g].label[lang]}</option>)}
+          </select>
+        </div>
+        <fieldset>
+          <legend>{t('workout.experience')}</legend>
+          <div class="segmented">
+            <label><input type="radio" name="experience" value="beginner" checked /><span>{t('workout.exp.beginner')}</span></label>
+            <label><input type="radio" name="experience" value="intermediate" /><span>{t('workout.exp.intermediate')}</span></label>
+            <label><input type="radio" name="experience" value="advanced" /><span>{t('workout.exp.advanced')}</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>{t('workout.days')}</legend>
+          <div class="segmented days">
+            {[2, 3, 4, 5, 6].map((d) => <label><input type="radio" name="days" value={d} checked={d === 3} /><span>{d}</span></label>)}
+          </div>
+        </fieldset>
+        <fieldset class="wide">
+          <legend>{t('workout.equipment')}</legend>
+          <div class="checks">
+            {equipmentChoices.map((q) => (
+              <label class="check"><input type="checkbox" name="equipment" value={q} checked={fullGymDefault.has(q)} /><span>{EQUIPMENT[q].label[lang]}</span></label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset class="wide">
+          <legend>{t('workout.focus')}</legend>
+          <div class="checks">
+            {MUSCLE_CATEGORIES.filter((c) => c !== 'full-body').map((c) => (
+              <label class="check"><input type="checkbox" name="focus" value={c} /><span>{CATEGORIES[c].label[lang]}</span></label>
+            ))}
+          </div>
+        </fieldset>
+        <div class="actions wide">
+          <button type="submit" class="btn btn--primary">{t('workout.build')}</button>
+          <button type="button" class="btn" data-shuffle hidden><Icon name="shuffle" size={18} />{t('workout.shuffle')}</button>
+          <button type="button" class="btn" data-print hidden><Icon name="print" size={18} />{t('workout.print')}</button>
+        </div>
+      </form>
+
+      <div class="plan-out" data-plan aria-live="polite">
+        <p class="card empty">{t('workout.empty')}</p>
+      </div>
+      <p class="notice notice--red">{t('workout.disclaimer')}</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { loadIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
+  import { buildPlan, swapExercise, type BuilderInput, type Plan } from '../utils/workout';
+  import type { ExerciseLite } from '../utils/exercise-index';
+
+  const root = document.querySelector<HTMLElement>('[data-builder]');
+  if (root) void init(root);
+
+  async function init(root: HTMLElement) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'ar';
+    const i18n = JSON.parse(root.dataset.i18n ?? '{}');
+    const form = root.querySelector<HTMLFormElement>('[data-builder-form]')!;
+    const out = root.querySelector<HTMLElement>('[data-plan]')!;
+    const shuffleBtn = root.querySelector<HTMLButtonElement>('[data-shuffle]')!;
+    const printBtn = root.querySelector<HTMLButtonElement>('[data-print]')!;
+    let pool: ExerciseLite[] = [];
+    let plan: Plan | null = null;
+    let input: BuilderInput | null = null;
+    let seed = 0;
+
+    const preset = new URLSearchParams(location.search).get('goal');
+    if (preset) {
+      const sel = form.querySelector<HTMLSelectElement>('select[name="goal"]')!;
+      if ([...sel.options].some((o) => o.value === preset)) sel.value = preset;
+    }
+
+    const read = (): BuilderInput => {
+      const fd = new FormData(form);
+      return {
+        goal: fd.get('goal') as BuilderInput['goal'],
+        experience: fd.get('experience') as BuilderInput['experience'],
+        days: Number(fd.get('days')),
+        equipment: fd.getAll('equipment') as BuilderInput['equipment'],
+        focus: fd.getAll('focus') as BuilderInput['focus'],
+        seed,
+      };
+    };
+
+    const render = () => {
+      if (!plan || !input) return;
+      const p = plan;
+      const days = p.week.map((d, i) => {
+        const label = i18n.weekdays[i];
+        if (!d.session) {
+          return `<li class="wd wd--rest"><span class="wd-day">${escapeHtml(label)}</span><span class="wd-title">${escapeHtml(i18n.rest)}</span></li>`;
+        }
+        const s = d.session;
+        const items = s.items.map((it, j) => {
+          const ex = it.exercise;
+          const name = ex ? escapeHtml(lang === 'ar' ? ex.ar : ex.name) : `<em>${escapeHtml(i18n.noMatch)}</em>`;
+          const link = ex ? `<a href="${exerciseHref(lang, ex.slug)}">${name}</a>` : name;
+          return `<li class="pi"><div class="pi-main"><span class="pi-slot">${escapeHtml(it.slot.label[lang])}</span>${link}</div>
+            <div class="pi-rx"><b dir="ltr">${escapeHtml(it.prescription.sets)} × ${escapeHtml(it.prescription.reps[lang])}</b>
+            <span>${escapeHtml(i18n.sets)} × ${escapeHtml(i18n.reps)} · ${escapeHtml(i18n.restBetween)}: ${escapeHtml(it.prescription.rest[lang])}</span></div>
+            ${ex ? `<button type="button" class="btn btn--sm pi-swap" data-swap="${i}:${j}" aria-label="${escapeHtml(i18n.swap)}">⇄</button>` : ''}</li>`;
+        }).join('');
+        const minutes = s.items.length ? `<span class="wd-min">~${escapeHtml(i18n.minutes.replace('{n}', String(s.minutes)))}</span>` : '';
+        return `<li class="wd"><div class="wd-head"><span class="wd-day">${escapeHtml(label)}</span><span class="wd-title">${escapeHtml(s.title[lang])}</span>${minutes}</div>
+          ${items ? `<ol class="pis" role="list">${items}</ol>` : ''}</li>`;
+      }).join('');
+      out.innerHTML = `
+        <div class="plan-head card">
+          <p><strong>${escapeHtml(i18n.split)}:</strong> ${escapeHtml(p.split[lang])}</p>
+          <p class="muted">${escapeHtml(i18n.warmup)}</p>
+          <p class="muted">${escapeHtml(i18n.progression)}</p>
+          ${p.cardio ? `<p class="muted">${escapeHtml(i18n.cardio.replace('{text}', p.cardio[lang]))}</p>` : ''}
+        </div>
+        <ol class="week" role="list">${days}</ol>`;
+      shuffleBtn.hidden = false;
+      printBtn.hidden = false;
+    };
+
+    const build = async () => {
+      if (!pool.length) {
+        try {
+          pool = await loadIndex();
+        } catch {
+          return;
+        }
+      }
+      input = read();
+      plan = buildPlan(input, pool);
+      render();
+    };
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      seed = 0;
+      void build().then(() => out.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    });
+    shuffleBtn.addEventListener('click', () => {
+      seed = Math.floor(Math.random() * 1e9) + 1;
+      void build();
+    });
+    printBtn.addEventListener('click', () => window.print());
+    out.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-swap]');
+      if (!btn || !plan || !input) return;
+      const [di, ii] = btn.dataset.swap!.split(':').map(Number);
+      const session = plan.week[di].session;
+      if (!session) return;
+      const taken = session.items.map((x) => x.exercise?.slug).filter((s): s is string => Boolean(s));
+      session.items[ii] = { ...session.items[ii], exercise: swapExercise(session.items[ii], pool, input, taken) };
+      render();
+    });
+    for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-preset]')) {
+      a.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const sel = form.querySelector<HTMLSelectElement>('select[name="goal"]')!;
+        sel.value = a.dataset.preset!;
+        history.replaceState(null, '', `?goal=${a.dataset.preset}#builder`);
+        seed = 0;
+        void build().then(() => root.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      });
+    }
+    if (preset) void build();
+  }
+</script>
+
+<style>
+  .pathways { display: grid; gap: 14px; margin-block: 14px; }
+  @media (min-width: 900px) { .pathways { grid-template-columns: 1fr 1fr; } }
+  .pathway { display: grid; gap: 12px; }
+  .pw-title { font-size: var(--fs-xl); }
+  .pathway :global(.hours-card) { background: var(--ink-900); border-block-start: 0; }
+  .pw-sub { font-weight: 800; color: var(--accent-text); }
+  .goal-notes { gap: 8px; margin-block-start: 8px; }
+  .goal-note { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: var(--fs-sm); }
+  .goal-note span { color: var(--text-muted); }
+  .builder { scroll-margin-top: calc(var(--header-h) + 8px); }
+  .builder-form { display: grid; gap: 16px; }
+  @media (min-width: 900px) { .builder-form { grid-template-columns: repeat(3, minmax(0, 1fr)); } .wide { grid-column: 1 / -1; } }
+  .days span { min-inline-size: 48px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .plan-out { margin-block: 18px; }
+  .empty { color: var(--text-muted); text-align: center; border-style: dashed; }
+  .plan-out :global(.plan-head) { display: grid; gap: 6px; margin-block-end: 12px; }
+  .plan-out :global(.week) { display: grid; gap: 10px; }
+  .plan-out :global(.wd) { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .plan-out :global(.wd--rest) { display: flex; gap: 12px; align-items: center; opacity: 0.8; }
+  .plan-out :global(.wd-head) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-block-end: 8px; }
+  .plan-out :global(.wd-day) { font-family: var(--font-display); font-size: 1.4rem; color: var(--accent-text); letter-spacing: 0.03em; }
+  .plan-out :global(.wd-title) { font-weight: 900; }
+  .plan-out :global(.wd-min) { color: var(--text-muted); font-size: var(--fs-xs); }
+  .plan-out :global(.pis) { display: grid; gap: 6px; }
+  .plan-out :global(.pi) { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 10px; background: var(--ink-900); border-radius: var(--radius-sm); }
+  .plan-out :global(.pi-main) { display: grid; gap: 2px; }
+  .plan-out :global(.pi-slot) { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+  .plan-out :global(.pi-main a) { font-weight: 800; color: var(--white); }
+  .plan-out :global(.pi-rx) { grid-column: 1; display: grid; font-size: var(--fs-xs); color: var(--text-muted); }
+  .plan-out :global(.pi-rx b) { color: var(--white); font-size: var(--fs-sm); justify-self: start; }
+  .plan-out :global(.pi-swap) { grid-column: 2; grid-row: 1 / span 2; min-inline-size: 44px; }
+  @media (min-width: 1024px) { .plan-out :global(.week) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media print {
+    .pathways, .goal-notes, .builder-form, .section-title, :global(.page-header) { display: none !important; }
+    .plan-out :global(.pi-swap) { display: none; }
+    .plan-out :global(.wd), .plan-out :global(.pi), .plan-out :global(.plan-head) { background: #fff; color: #000; border-color: #999; }
+    .plan-out :global(.pi-main a), .plan-out :global(.pi-rx b) { color: #000; }
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SearchBar from '../components/SearchBar.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import ExerciseGrid from '../components/ExerciseGrid.astro';
+import Icon from '../components/Icon.astro';
+import { exercises } from '../data/exercises';
+import { MUSCLE_CATEGORIES, TRAINING_CATEGORIES, type Equipment } from '../data/taxonomy';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+
+// Stable browse order: by category (muscles first), then name.
+const catOrder = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
+const sorted = [...exercises].sort((a, b) => {
+  const c = catOrder.indexOf(a.category) - catOrder.indexOf(b.category);
+  if (c) return c;
+  return (lang === 'ar' ? a.arabicName : a.name).localeCompare(lang === 'ar' ? b.arabicName : b.name, lang);
+});
+const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equipment[];
+---
+
+<BaseLayout lang={lang} path="/exercises/" title={t('ex.libraryTitle')} description={t('ex.libraryIntro')}>
+  <PageHeader lang={lang} title={t('ex.libraryTitle')} lead={t('ex.libraryIntro')} crumbs={[{ label: t('nav.exercises') }]} />
+
+  <div class="container library" data-library data-lang={lang}>
+    <div class="toolbar">
+      <SearchBar lang={lang} suggest={false} id="library-q" />
+      <div class="toolbar-row">
+        <p class="count" aria-live="polite"><strong data-result-count>{t('ex.count', { n: exercises.length })}</strong></p>
+        <label class="sort">
+          <span class="sr-only">{t('filters.sort')}</span>
+          <select class="select" data-sort>
+            <option value="relevance">{t('filters.sortRelevance')}</option>
+            <option value="name">{t('filters.sortName')}</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="layout">
+      <details class="filter-panel" data-filter-panel>
+        <summary class="btn btn--sm filter-toggle">
+          <Icon name="filter" size={18} />{t('filters.open')}
+          <span class="active-count" data-active-count></span>
+        </summary>
+        <FilterPanel lang={lang} usedEquipment={usedEquipment} />
+      </details>
+
+      <div class="results">
+        <p class="notice empty" data-empty hidden>{t('search.noResults')}</p>
+        <ExerciseGrid exercises={sorted} lang={lang} id="exercise-grid" level="h2" />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import '../scripts/library';
+  // Filters start open on large screens.
+  const panel = document.querySelector<HTMLDetailsElement>('[data-filter-panel]');
+  if (panel && window.matchMedia('(min-width: 1024px)').matches) panel.open = true;
+</script>
+
+<style>
+  .library { padding-block: 20px 40px; }
+  .toolbar {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px;
+    padding-block: 10px; background: var(--bg); border-block-end: 1px solid var(--line); margin-block-end: 14px;
+  }
+  .toolbar-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; }
+  .count { color: var(--text-muted); min-inline-size: 0; }
+  .sort { min-inline-size: 0; max-inline-size: 100%; }
+  .sort .select { min-block-size: 40px; padding-block: 6px; inline-size: auto; max-inline-size: 100%; font-size: var(--fs-sm); }
+  .layout { display: grid; gap: 16px; }
+  .filter-panel > summary { list-style: none; }
+  .filter-panel > summary::-webkit-details-marker { display: none; }
+  .filter-panel[open] > summary { margin-block-end: 10px; }
+  .active-count:not(:empty) { background: var(--accent); color: var(--white); border-radius: 999px; padding: 0 8px; font-size: var(--fs-xs); }
+  .empty { margin-block-end: 12px; }
+  @media (min-width: 1024px) {
+    .toolbar { position: sticky; top: var(--header-h); z-index: 20; }
+    .layout { grid-template-columns: 290px 1fr; align-items: start; }
+    .filter-panel { position: sticky; top: calc(var(--header-h) + 140px); max-block-size: calc(100dvh - var(--header-h) - 160px); overflow-y: auto; }
+  }
+</style>

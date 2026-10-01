@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ExerciseGrid from '../components/ExerciseGrid.astro';
+import Icon from '../components/Icon.astro';
+import { CATEGORIES, MUSCLE_CATEGORIES, TRAINING_CATEGORIES, type Category } from '../data/taxonomy';
+import { exercisesForCategory, secondaryExercisesForCategory } from '../data/exercises';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  category: Category;
+}
+const { lang, category } = Astro.props;
+const t = useT(lang);
+const c = CATEGORIES[category];
+const name = c.label[lang];
+const other = lang === 'ar' ? c.label.en : c.label.ar;
+const byName = (a: { name: string; arabicName: string }, b: { name: string; arabicName: string }) =>
+  (lang === 'ar' ? a.arabicName : a.name).localeCompare(lang === 'ar' ? b.arabicName : b.name, lang);
+const primary = exercisesForCategory(category).sort(byName);
+const secondary = secondaryExercisesForCategory(category).sort(byName);
+const siblings = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES].filter((x) => x !== category);
+---
+
+<BaseLayout lang={lang} path={`/muscles/${category}/`} title={name} description={t('muscles.primary', { name })}>
+  <PageHeader
+    lang={lang}
+    title={name}
+    eyebrow={other}
+    lead={t('ex.count', { n: primary.length })}
+    crumbs={[{ label: t('nav.muscles'), path: '/muscles/' }, { label: name }]}
+  >
+    <a class="btn btn--sm" href={`${localePath(lang, '/exercises/')}?category=${category}`}><Icon name="filter" size={18} />{t('filters.open')}</a>
+  </PageHeader>
+
+  <div class="container section--tight">
+    <h2 class="section-title sub">{t('muscles.primary', { name })}</h2>
+    <ExerciseGrid exercises={primary} lang={lang} />
+
+    {secondary.length > 0 && (
+      <details class="secondary">
+        <summary>{t('muscles.secondary', { name })} ({secondary.length})</summary>
+        <ExerciseGrid exercises={secondary} lang={lang} />
+      </details>
+    )}
+
+    <nav class="siblings" aria-label={t('nav.muscles')}>
+      <div class="chips">
+        {siblings.map((s) => <a class="chip" href={localePath(lang, `/muscles/${s}/`)}>{CATEGORIES[s].label[lang]}</a>)}
+      </div>
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  .sub { font-size: var(--fs-xl); margin-block-end: 14px; }
+  .secondary { margin-block-start: 28px; border: 1px solid var(--line); border-radius: var(--radius); padding: 0 14px; background: var(--ink-900); }
+  .secondary summary { min-block-size: 52px; display: flex; align-items: center; font-weight: 800; cursor: pointer; }
+  .secondary[open] { padding-block-end: 14px; }
+  .siblings { margin-block-start: 32px; }
+</style>

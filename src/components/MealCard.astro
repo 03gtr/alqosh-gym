@@ -1,0 +1,23 @@
+---
+import type { Meal } from '../data/meals';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  meal: Meal;
+  lang: Lang;
+}
+const { meal, lang } = Astro.props;
+---
+
+<article class="meal card" data-meal={meal.id} data-slot={meal.slot} data-contains={meal.contains.join(' ')}>
+  <h3 class="meal-name"><span aria-hidden="true">{meal.icon}</span> {meal.name[lang]}</h3>
+  <ul class="meal-items">
+    {meal.items[lang].map((i) => <li>{i}</li>)}
+  </ul>
+</article>
+
+<style>
+  .meal { display: grid; gap: 8px; align-content: start; }
+  .meal-name { font-size: 1.02rem; }
+  .meal-items { font-size: var(--fs-sm); color: var(--text-muted); display: grid; gap: 2px; }
+</style>

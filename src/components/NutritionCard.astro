@@ -1,0 +1,38 @@
+---
+/** A highlighted tool / hub link card (calculator, meals, nutrition, hubs…). */
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+import { localePath, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  path: string;
+  title: string;
+  text: string;
+  icon: IconName;
+  accent?: boolean;
+}
+const { lang, path, title, text, icon, accent = false } = Astro.props;
+---
+
+<a class:list={['tool-card', 'card', 'card-link', { 'tool-card--accent': accent }]} href={localePath(lang, path)}>
+  <span class="tool-icon"><Icon name={icon} size={26} /></span>
+  <span class="tool-title">{title}</span>
+  <span class="tool-text">{text}</span>
+  <span class="tool-arrow" aria-hidden="true"><Icon name="arrow" size={20} flip /></span>
+</a>
+
+<style>
+  .tool-card { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 14px; align-items: center; padding: 18px; }
+  .tool-card:hover { border-color: var(--accent); }
+  .tool-icon {
+    grid-row: span 2; inline-size: 50px; block-size: 50px; display: grid; place-items: center;
+    background: var(--ink-900); border: 1px solid var(--line-strong); color: var(--accent-text);
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  .tool-title { font-weight: 900; font-size: 1.08rem; }
+  .tool-text { grid-column: 2; color: var(--text-muted); font-size: var(--fs-sm); line-height: 1.5; }
+  .tool-arrow { grid-column: 3; grid-row: 1 / span 2; color: var(--text-dim); }
+  .tool-card--accent { background: linear-gradient(135deg, rgb(225 6 0 / 0.25), var(--ink-800) 60%); border-color: rgb(225 6 0 / 0.5); }
+  .tool-card--accent .tool-icon { background: var(--accent); color: var(--white); border-color: var(--accent); }
+</style>

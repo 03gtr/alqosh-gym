@@ -1,0 +1,36 @@
+---
+import { MUSCLES, type Muscle } from '../data/taxonomy';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  primary: readonly Muscle[];
+  secondary?: readonly Muscle[];
+}
+const { lang, primary, secondary = [] } = Astro.props;
+const t = useT(lang);
+const sep = lang === 'ar' ? '، ' : ', ';
+const names = (list: readonly Muscle[]) => list.map((m) => MUSCLES[m].label[lang]).join(sep);
+const others = secondary.filter((m) => !primary.includes(m));
+---
+
+<dl class="legend">
+  <div class="row row--primary">
+    <dt><span class="mus-swatch mus-swatch--primary" aria-hidden="true"></span>{t('vis.primary')}</dt>
+    <dd>{names(primary)}</dd>
+  </div>
+  {others.length > 0 && (
+    <div class="row">
+      <dt><span class="mus-swatch mus-swatch--secondary" aria-hidden="true"></span>{t('vis.secondary')}</dt>
+      <dd>{names(others)}</dd>
+    </div>
+  )}
+</dl>
+
+<style>
+  .legend { display: grid; gap: 8px; margin: 0; }
+  .row { display: grid; gap: 2px; }
+  dt { display: flex; align-items: center; gap: 8px; font-size: var(--fs-xs); font-weight: 800; color: var(--text-muted); }
+  dd { margin: 0; font-weight: 800; font-size: var(--fs-sm); line-height: 1.45; }
+  .row--primary dd { color: var(--mus-primary); font-size: 1rem; }
+</style>

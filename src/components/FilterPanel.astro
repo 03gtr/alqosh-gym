@@ -1,0 +1,86 @@
+---
+/**
+ * Exercise filters. A real GET form (works as plain HTML); the library script
+ * applies filters instantly and keeps the URL in sync so results are shareable.
+ */
+import {
+  CATEGORIES, DIFFICULTY, EQUIPMENT, ERAS, EXERCISE_TYPES, GOALS, MUSCLE_CATEGORIES, PATTERNS,
+  PRIMARY_EQUIPMENT_FILTERS, TRAINING_CATEGORIES, type Equipment,
+} from '../data/taxonomy';
+import { localePath, useT, type Lang } from '../i18n/utils';
+import type { UIKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Equipment actually used by at least one exercise. */
+  usedEquipment: Equipment[];
+}
+const { lang, usedEquipment } = Astro.props;
+const t = useT(lang);
+
+const extraEquipment = usedEquipment.filter((q) => !PRIMARY_EQUIPMENT_FILTERS.includes(q));
+const groups: { name: string; title: UIKey; options: { value: string; label: string }[]; open?: boolean }[] = [
+  {
+    name: 'category', title: 'filters.category', open: true,
+    options: [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES].map((c) => ({ value: c, label: CATEGORIES[c].label[lang] })),
+  },
+  {
+    name: 'equipment', title: 'filters.equipment',
+    options: [...PRIMARY_EQUIPMENT_FILTERS, ...extraEquipment].map((q) => ({ value: q, label: EQUIPMENT[q].label[lang] })),
+  },
+  {
+    name: 'difficulty', title: 'filters.difficulty',
+    options: Object.entries(DIFFICULTY).map(([k, v]) => ({ value: k, label: `${v.dot} ${v.label[lang]}` })),
+  },
+  { name: 'goal', title: 'filters.goal', options: Object.entries(GOALS).map(([k, v]) => ({ value: k, label: v.label[lang] })) },
+  { name: 'pattern', title: 'filters.pattern', options: Object.entries(PATTERNS).map(([k, v]) => ({ value: k, label: v.label[lang] })) },
+  { name: 'type', title: 'filters.type', options: Object.entries(EXERCISE_TYPES).map(([k, v]) => ({ value: k, label: v.label[lang] })) },
+  { name: 'era', title: 'filters.era', options: Object.entries(ERAS).map(([k, v]) => ({ value: k, label: v.label[lang] })) },
+];
+---
+
+<form class="filters" data-filters action={localePath(lang, '/exercises/')} method="get" aria-label={t('filters.title')}>
+  {groups.map((g) => (
+    <details class="fgroup" open={g.open}>
+      <summary><span>{t(g.title)}</span><span class="fcount" data-count-for={g.name}></span></summary>
+      <fieldset>
+        <legend class="sr-only">{t(g.title)}</legend>
+        <div class="checks">
+          {g.options.map((o) => (
+            <label class="check">
+              <input type="checkbox" name={g.name} value={o.value} />
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+        {g.name === 'era' && (
+          <a class="era-link" href={localePath(lang, '/classic-vs-modern/')}>{t('ex.erasLink')}</a>
+        )}
+      </fieldset>
+    </details>
+  ))}
+  <div class="factions">
+    <button type="submit" class="btn btn--primary btn--sm">{t('filters.apply')}</button>
+    <a class="btn btn--sm" href={localePath(lang, '/exercises/')} data-reset>{t('filters.reset')}</a>
+  </div>
+</form>
+
+<style>
+  .filters { display: grid; gap: 8px; }
+  .fgroup { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+  .fgroup summary {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    min-block-size: 48px; padding: 8px 14px; font-weight: 800; cursor: pointer; list-style: none;
+  }
+  .fgroup summary::-webkit-details-marker { display: none; }
+  .fgroup summary::after { content: '+'; font-size: 1.3rem; color: var(--text-muted); margin-inline-start: auto; }
+  .fgroup[open] summary::after { content: '−'; }
+  .fcount:not(:empty) {
+    background: var(--accent); color: var(--white); border-radius: 999px; padding: 0 8px; font-size: var(--fs-xs);
+  }
+  .fgroup fieldset { padding: 0 12px 12px; }
+  .checks { gap: 6px; }
+  .check span { min-block-size: 40px; padding: 6px 12px; }
+  .era-link { display: inline-block; margin-block-start: 10px; color: var(--accent-text); font-weight: 700; font-size: var(--fs-sm); }
+  .factions { display: flex; gap: 8px; flex-wrap: wrap; padding-block: 4px; }
+</style>

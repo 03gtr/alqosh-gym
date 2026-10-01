@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Exercise visuals — anatomical figures, equipment and muscle highlighting.
+   ONE rule site-wide: GREEN = primary target muscle; grey = secondary.
+   ========================================================================== */
+
+:root {
+  --mus-primary: #2fe27a;     /* target muscle — high contrast on the dark figure */
+  --mus-secondary: #7f818f;   /* secondary — deliberately quiet */
+  --mus-neutral: #43444f;     /* untargeted muscle */
+  --fig-base: #2d2e37;        /* skin / silhouette */
+  --fig-line: #61626e;
+}
+
+.fig { display: block; inline-size: 100%; block-size: auto; overflow: visible; }
+.fig .b { fill: var(--fig-base); stroke: var(--fig-line); stroke-width: 0.6; stroke-linejoin: round; }
+.fig .m, .fig .mo { stroke: rgb(0 0 0 / 0.4); stroke-width: 0.35; stroke-linejoin: round; }
+.fig .ln { fill: none; stroke: rgb(0 0 0 / 0.38); stroke-width: 0.5; }
+.fig .dt { fill: var(--fig-line); }
+.fig .far { opacity: 0.5; }
+.fig .xray { opacity: 0.62; pointer-events: none; }
+.fig .xr { stroke: none; }
+
+/* End-position ghost: outline only */
+.fig .ghost .b, .fig .ghost .m, .fig .ghost .mo { fill: none !important; stroke: rgb(255 255 255 / 0.16); stroke-width: 0.7; }
+.fig .ghost .ln, .fig .ghost .dt { display: none; }
+
+/* Direction arrows (forward during the movement, reversed during the return) */
+.fig .dir { fill: none; stroke: var(--accent-text); stroke-width: 1.5; stroke-dasharray: 3.5 3; stroke-linecap: round; opacity: 0.9; }
+.fig .dir-head { fill: var(--accent-text); }
+.fig .dir-back { display: none; }
+.fig.is-return .dir-go { display: none; }
+.fig.is-return .dir-back { display: inline; }
+.fig.is-hold .dirs, .fig.is-cycle .dirs { display: none; }
+
+/* Equipment */
+.fig .floor { stroke: #3c3d46; stroke-width: 1.4; }
+.fig .prop-pad { fill: #3b3138; stroke: #5d4c57; stroke-width: 0.7; }
+.fig .prop-metal { fill: #8f919c; }
+.fig .prop-wood { fill: #5c4a35; stroke: #75604a; stroke-width: 0.6; }
+.fig .prop-wall { fill: #2b2c33; }
+.fig .prop-frame { stroke: #5b5c67; stroke-width: 2.4; stroke-linecap: round; }
+.fig .prop-plate { fill: #18181d; stroke: #a2a4b0; stroke-width: 1.2; }
+.fig .prop-plate-in { fill: none; stroke: #5b5c67; stroke-width: 0.8; }
+.fig .prop-hole { fill: #0c0c0f; }
+.fig .prop-cable { stroke: #cfd0d8; stroke-width: 0.9; }
+.fig .prop-band { stroke: #e10600; stroke-width: 1.8; stroke-linecap: round; }
+.fig .prop-bar { stroke: #c0c2cc; stroke-width: 2.6; stroke-linecap: round; }
+.fig .prop-lever { stroke: #72737f; stroke-width: 3.2; stroke-linecap: round; }
+.fig .prop-rope { fill: none; stroke: #ded5ba; stroke-width: 1.5; stroke-linecap: round; }
+.fig .prop-ball { fill: #7c2b25; stroke: #3c1512; stroke-width: 0.8; }
+.fig .prop-seam { fill: none; stroke: #3c1512; stroke-width: 0.8; }
+.fig .prop-handle { fill: none; stroke: #a2a4b0; stroke-width: 1.4; }
+
+/* Legend swatches */
+.mus-swatch { display: inline-block; inline-size: 12px; block-size: 12px; border-radius: 3px; vertical-align: -1px; }
+.mus-swatch--primary { background: var(--mus-primary); }
+.mus-swatch--secondary { background: var(--mus-secondary); }

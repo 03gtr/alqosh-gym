@@ -1,0 +1,187 @@
+---
+/**
+ * Exercise search. Works without JavaScript (submits to the library page);
+ * with JavaScript it shows instant bilingual suggestions (ARIA combobox).
+ */
+import Icon from './Icon.astro';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Show quick example chips under the field. */
+  examples?: boolean;
+  /** Live suggestions dropdown (disable on the library page, which filters in place). */
+  suggest?: boolean;
+  value?: string;
+  id?: string;
+  autofocus?: boolean;
+}
+const { lang, examples = false, suggest = true, value = '', id = 'q', autofocus = false } = Astro.props;
+const t = useT(lang);
+const sampleQueries = lang === 'ar'
+  ? ['بنش', 'سكوات', 'لات بول داون', 'باي', 'صدر', 'Cable Fly']
+  : ['Bench Press', 'Squat', 'Lat Pulldown', 'Biceps Curl', 'Cable Fly', 'بنش'];
+---
+
+<div class="search" data-search data-lang={lang} data-suggest={suggest ? '1' : '0'}>
+  <form class="search-form" role="search" action={localePath(lang, '/exercises/')} method="get">
+    <label class="sr-only" for={id}>{t('search.label')}</label>
+    <span class="search-icon" aria-hidden="true"><Icon name="search" /></span>
+    <input
+      id={id}
+      class="search-input"
+      type="search"
+      name="q"
+      value={value}
+      placeholder={t('search.placeholder')}
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      enterkeyhint="search"
+      autofocus={autofocus}
+      role={suggest ? 'combobox' : undefined}
+      aria-autocomplete={suggest ? 'list' : undefined}
+      aria-expanded={suggest ? 'false' : undefined}
+      aria-controls={suggest ? `${id}-list` : undefined}
+    />
+    <button class="btn btn--primary search-submit" type="submit">{t('search.submit')}</button>
+  </form>
+  {suggest && (
+    <div class="suggest" hidden>
+      <ul id={`${id}-list`} role="listbox" aria-label={t('search.label')}></ul>
+      <a class="suggest-all" href={localePath(lang, '/exercises/')}>{t('search.seeAll')}</a>
+    </div>
+  )}
+  <p class="sr-only" aria-live="polite" data-status></p>
+  {examples && (
+    <div class="examples">
+      <span class="muted">{t('search.examples')}</span>
+      <div class="chips">
+        {sampleQueries.map((q) => (
+          <a class="chip" href={`${localePath(lang, '/exercises/')}?q=${encodeURIComponent(q)}`}>{q}</a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  import { loadIndex, searchIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
+
+  const NO_RESULTS = { ar: 'ما لقينا تمرين مطابق. جرّب كلمة ثانية أو اسم العضلة.', en: 'No matching exercise. Try another word or a muscle name.' };
+  const COUNT = { ar: (n: number) => `${n} تمرين`, en: (n: number) => `${n} exercises` };
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-search][data-suggest="1"]')) {
+    const lang = (root.dataset.lang === 'en' ? 'en' : 'ar') as 'ar' | 'en';
+    const input = root.querySelector<HTMLInputElement>('.search-input')!;
+    const box = root.querySelector<HTMLElement>('.suggest')!;
+    const list = box.querySelector<HTMLUListElement>('ul')!;
+    const all = box.querySelector<HTMLAnchorElement>('.suggest-all')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    let active = -1;
+    let timer: number | undefined;
+
+    const close = () => {
+      box.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
+      active = -1;
+    };
+    const options = () => [...list.querySelectorAll<HTMLAnchorElement>('[role="option"]')];
+    const highlight = (i: number) => {
+      const opts = options();
+      opts.forEach((o, j) => o.setAttribute('aria-selected', String(j === i)));
+      active = i;
+      if (opts[i]) {
+        input.setAttribute('aria-activedescendant', opts[i].id);
+        opts[i].scrollIntoView({ block: 'nearest' });
+      }
+    };
+
+    const render = async () => {
+      const q = input.value.trim();
+      if (!q) return close();
+      let index;
+      try {
+        index = await loadIndex();
+      } catch {
+        return close(); // fall back to plain form submit
+      }
+      const results = searchIndex(index, q);
+      const top = results.slice(0, 7);
+      list.innerHTML = top.length
+        ? top.map((e, i) => {
+            const main = lang === 'ar' ? e.ar : e.name;
+            const sub = lang === 'ar' ? e.name : e.ar;
+            return `<li role="presentation"><a role="option" id="${input.id}-opt-${i}" aria-selected="false" href="${exerciseHref(lang, e.slug)}"><strong>${escapeHtml(main)}</strong><span>${escapeHtml(sub)}</span></a></li>`;
+          }).join('')
+        : `<li class="empty" role="presentation">${NO_RESULTS[lang]}</li>`;
+      all.href = `${form.action}?q=${encodeURIComponent(q)}`;
+      all.hidden = results.length <= top.length;
+      status.textContent = COUNT[lang](results.length);
+      box.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      active = -1;
+    };
+
+    input.addEventListener('focus', () => { loadIndex().catch(() => undefined); }, { once: true });
+    input.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(render, 90);
+    });
+    input.addEventListener('keydown', (ev) => {
+      const opts = options();
+      if (ev.key === 'ArrowDown' && opts.length) {
+        ev.preventDefault();
+        if (box.hidden) void render();
+        highlight((active + 1) % opts.length);
+      } else if (ev.key === 'ArrowUp' && opts.length) {
+        ev.preventDefault();
+        highlight((active - 1 + opts.length) % opts.length);
+      } else if (ev.key === 'Enter' && active >= 0 && opts[active]) {
+        ev.preventDefault();
+        window.location.href = opts[active].href;
+      } else if (ev.key === 'Escape') {
+        close();
+      }
+    });
+    document.addEventListener('click', (ev) => {
+      if (!root.contains(ev.target as Node)) close();
+    });
+  }
+</script>
+
+<style>
+  .search { position: relative; inline-size: 100%; }
+  .search-form {
+    display: flex; align-items: stretch; gap: 8px;
+    background: var(--ink-900); border: 2px solid var(--line-strong); border-radius: var(--radius);
+    padding: 6px; padding-inline-start: 12px;
+  }
+  .search-form:focus-within { border-color: var(--white); }
+  .search-icon { display: grid; place-items: center; color: var(--text-muted); }
+  .search-input {
+    flex: 1; min-inline-size: 0; min-block-size: 48px; background: transparent; border: 0; outline: none;
+    font-size: 1.05rem; font-weight: 600; color: var(--white);
+  }
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input::-webkit-search-cancel-button { filter: invert(1); }
+  .search-submit { --cut: 10px; padding-inline: 18px; }
+  @media (max-width: 380px) { .search-submit { padding-inline: 12px; } }
+  .suggest {
+    position: absolute; inset-inline: 0; top: calc(100% + 6px); z-index: 40;
+    background: var(--ink-800); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    box-shadow: var(--shadow); max-block-size: min(60dvh, 420px); overflow-y: auto;
+  }
+  .suggest ul { list-style: none; padding: 6px; margin: 0; }
+  .suggest :global(a[role='option']) {
+    display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--radius-sm);
+    text-decoration: none; min-block-size: 48px; justify-content: center;
+  }
+  .suggest :global(a[role='option'] span) { font-size: var(--fs-xs); color: var(--text-muted); }
+  .suggest :global(a[role='option']:hover), .suggest :global(a[aria-selected='true']) { background: var(--ink-600); }
+  .suggest :global(.empty) { padding: 12px; color: var(--text-muted); font-size: var(--fs-sm); }
+  .suggest-all { display: block; padding: 12px 16px; border-block-start: 1px solid var(--line); color: var(--accent-text); font-weight: 800; text-decoration: none; }
+  .examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-block-start: 12px; font-size: var(--fs-sm); }
+</style>

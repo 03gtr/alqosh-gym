@@ -1,0 +1,13 @@
+---
+import ArticleView from '../../views/ArticleView.astro';
+import { getArticles, splitId, type Article } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const list = await getArticles('ar');
+  return list.map((article) => ({ params: { slug: splitId(article.id).slug }, props: { article } }));
+}
+
+const { article } = Astro.props as { article: Article };
+---
+
+<ArticleView lang="ar" article={article} />

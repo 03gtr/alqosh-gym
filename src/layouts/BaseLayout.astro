@@ -1,0 +1,95 @@
+---
+import '@fontsource-variable/cairo';
+import '@fontsource/bebas-neue/400.css';
+import '../styles/global.css';
+import '../styles/visual.css';
+import { muscleCss } from '../visual/anatomy';
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import BodyMapSprite from '../components/BodyMapSprite.astro';
+import { gym } from '../config/gym';
+import { absoluteUrl, DIR, LANGS, url, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Language-neutral, root-relative path of this page (e.g. "/exercises/squat/"). */
+  path: string;
+  title?: string;
+  description?: string;
+  /** Set for pages that exist only in one language or must not be indexed. */
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  /** Structured data objects (schema.org). */
+  jsonLd?: Record<string, unknown>[];
+  /** Hide the language alternates (e.g. 404). */
+  noAlternates?: boolean;
+  /** Language prefix of this page's own URL when it differs from `lang` (single-language internal pages). */
+  urlLang?: Lang;
+}
+
+const { lang, path, title, description, noindex = false, ogType = 'website', jsonLd = [], noAlternates = false, urlLang = lang } = Astro.props;
+const t = useT(lang);
+const siteName = lang === 'ar' ? `${gym.name.ar} | ${gym.name.en}` : `${gym.name.en} | ${gym.name.ar}`;
+const fullTitle = title ? `${title} — ${lang === 'ar' ? gym.name.ar : gym.name.en}` : siteName;
+const desc = description ?? t('site.description');
+const site = Astro.site;
+const canonical = absoluteUrl(urlLang, path, site);
+const ogLocale = lang === 'ar' ? 'ar_IQ' : 'en_US';
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ExerciseGym',
+  name: gym.name.en,
+  alternateName: [gym.name.ar, gym.altName.ar, gym.altName.en],
+  url: absoluteUrl('ar', '/', site),
+  // Opening *days* are not part of the official information, so no
+  // openingHoursSpecification is emitted (it would require inventing them).
+  description: 'Men: 5:00 AM – 1:00 AM. Women: 8:00 AM – 10:00 AM and 4:00 PM – 6:00 PM.',
+  ...(gym.contact.phone ? { telephone: gym.contact.phone.e164 } : {}),
+  ...(gym.contact.mapUrl ? { hasMap: gym.contact.mapUrl } : {}),
+  ...(gym.contact.socials.length ? { sameAs: gym.contact.socials.map((s) => s.url) } : {}),
+};
+const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
+---
+
+<!doctype html>
+<html lang={lang} dir={DIR[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    {!noAlternates && LANGS.map((l) => <link rel="alternate" hreflang={l} href={absoluteUrl(l, path, site)} />)}
+    {!noAlternates && <link rel="alternate" hreflang="x-default" href={absoluteUrl('ar', path, site)} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#070708" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={lang === 'ar' ? 'en_US' : 'ar_IQ'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={desc} />
+
+    {structured.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
+    <style is:inline set:html={muscleCss()} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('a11y.skip')}</a>
+    <BodyMapSprite />
+    <Navigation lang={lang} path={path} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

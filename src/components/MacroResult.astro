@@ -1,0 +1,89 @@
+---
+/** Result panel for the calculator; values are filled in by the calculator script. */
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<section class="results" data-results aria-live="polite" aria-labelledby="results-h">
+  <p class="empty card" data-results-empty>{t('calc.empty')}</p>
+
+  <div data-results-body hidden>
+    <h2 id="results-h" class="section-title">{t('calc.results')} <span class="badge badge--red">{t('calc.estimated')}</span></h2>
+
+    <div class="stats">
+      <div class="stat card">
+        <span class="stat-label">{t('calc.bmr')}</span>
+        <span class="stat-value"><b data-out="bmr">–</b> <small>{t('calc.kcal')}</small></span>
+        <span class="stat-hint">{t('calc.bmrHint')}</span>
+      </div>
+      <div class="stat card">
+        <span class="stat-label">{t('calc.tdee')}</span>
+        <span class="stat-value"><b data-out="tdee">–</b> <small>{t('calc.kcal')}</small></span>
+        <span class="stat-hint">{t('calc.tdeeHint')}</span>
+      </div>
+    </div>
+
+    <h3 class="sub">{t('calc.ranges')}</h3>
+    <ul class="ranges" role="list">
+      <li data-range="loss"><span>{t('calc.goal.loss')}</span><b dir="ltr" data-out="loss">–</b></li>
+      <li data-range="maintain"><span>{t('calc.goal.maintain')}</span><b dir="ltr" data-out="maintain">–</b></li>
+      <li data-range="gain"><span>{t('calc.goal.gain')}</span><b dir="ltr" data-out="gain">–</b></li>
+    </ul>
+    <p class="notice" data-floor-note hidden>{t('calc.floorNote')}</p>
+
+    <h3 class="sub" id="macros">{t('macro.title')}</h3>
+    <p class="muted">{t('macro.intro')}</p>
+    <div class="macros">
+      <div class="macro macro--kcal"><span>{t('macro.calories')}</span><b data-out="kcal">–</b><small>{t('calc.kcalShort')}</small></div>
+      <div class="macro macro--p"><span>{t('macro.protein')}</span><b data-out="protein">–</b><small>{t('macro.g')}</small><em data-out="proteinNote"></em></div>
+      <div class="macro macro--c"><span>{t('macro.carbs')}</span><b data-out="carbs">–</b><small>{t('macro.g')}</small></div>
+      <div class="macro macro--f"><span>{t('macro.fat')}</span><b data-out="fat">–</b><small>{t('macro.g')}</small><em data-out="fatNote"></em></div>
+    </div>
+    <div class="bar" aria-hidden="true"><span data-bar="p"></span><span data-bar="c"></span><span data-bar="f"></span></div>
+    <p class="muted small">{t('macro.note')}</p>
+
+    <div class="next">
+      <a class="btn btn--primary" href={localePath(lang, '/nutrition/meals/')} data-meals-link>{t('calc.toMeals')}</a>
+      <a class="btn" href={localePath(lang, '/articles/calories/')}>{t('common.learnMore')}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .results { display: grid; gap: 12px; }
+  .empty { color: var(--text-muted); text-align: center; padding: 28px; border-style: dashed; }
+  .section-title { font-size: var(--fs-xl); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .stats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); margin-block-end: 18px; }
+  .stat { display: grid; gap: 4px; }
+  .stat-label { font-weight: 800; font-size: var(--fs-sm); color: var(--text-muted); }
+  .stat-value b { font-family: var(--font-display); font-size: 2.6rem; font-weight: 400; color: var(--white); letter-spacing: 0.02em; }
+  .stat-hint { font-size: var(--fs-xs); color: var(--text-dim); }
+  .sub { font-size: var(--fs-lg); margin-block: 18px 10px; }
+  .ranges { display: grid; gap: 8px; }
+  .ranges li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); font-weight: 800; }
+  .ranges li b { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; letter-spacing: 0.02em; }
+  .ranges li.is-goal { border-color: var(--accent); background: var(--red-glow); }
+  .macros { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block: 12px; }
+  @media (min-width: 640px) { .macros { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .macro { display: grid; gap: 2px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); border-block-start: 4px solid var(--line-strong); }
+  .macro span { font-size: var(--fs-sm); font-weight: 800; color: var(--text-muted); }
+  .macro b { font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; line-height: 1; }
+  .macro small { font-size: var(--fs-xs); color: var(--text-dim); }
+  .macro em { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); }
+  .macro--kcal { border-block-start-color: var(--white); }
+  .macro--p { border-block-start-color: var(--accent); }
+  .macro--c { border-block-start-color: var(--yellow); }
+  .macro--f { border-block-start-color: var(--green); }
+  .bar { display: flex; block-size: 12px; border-radius: 999px; overflow: hidden; background: var(--ink-600); }
+  .bar span { display: block; block-size: 100%; transition: inline-size 0.4s; }
+  .bar [data-bar='p'] { background: var(--accent); }
+  .bar [data-bar='c'] { background: var(--yellow); }
+  .bar [data-bar='f'] { background: var(--green); }
+  .small { font-size: var(--fs-xs); margin-block-start: 8px; }
+  .next { display: flex; flex-wrap: wrap; gap: 10px; margin-block-start: 16px; }
+</style>

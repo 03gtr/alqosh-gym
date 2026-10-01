@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CalculatorForm from '../components/CalculatorForm.astro';
+import MacroResult from '../components/MacroResult.astro';
+import SourceList from '../components/SourceList.astro';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const sources = [
+  { title: 'A new predictive equation for resting energy expenditure in healthy individuals (Mifflin et al.)', publisher: 'American Journal of Clinical Nutrition', year: 1990, doi: '10.1093/ajcn/51.2.241' },
+  { title: 'International Society of Sports Nutrition Position Stand: protein and exercise (Jäger et al.)', publisher: 'Journal of the International Society of Sports Nutrition', year: 2017, doi: '10.1186/s12970-017-0177-8' },
+  { title: 'American College of Sports Medicine Joint Position Statement: Nutrition and Athletic Performance (Thomas, Erdman & Burke)', publisher: 'Medicine & Science in Sports & Exercise', year: 2016, doi: '10.1249/MSS.0000000000000852' },
+];
+const messages = {
+  range: t('calc.errorRange', { min: '{min}', max: '{max}' }),
+  perKg: t('macro.perKg', { n: '{n}' }),
+  ofCalories: t('macro.ofCalories', { n: '{n}' }),
+  kcal: t('calc.kcalShort'),
+};
+---
+
+<BaseLayout lang={lang} path="/calculator/" title={t('calc.title')} description={t('calc.intro')}>
+  <PageHeader lang={lang} title={t('calc.title')} lead={t('calc.intro')} crumbs={[{ label: t('nav.calculator') }]} />
+
+  <div class="container section--tight calc" data-calculator data-lang={lang} data-messages={JSON.stringify(messages)}>
+    <div class="calc-grid">
+      <CalculatorForm lang={lang} />
+      <MacroResult lang={lang} />
+    </div>
+
+    <details class="formula card">
+      <summary>{t('calc.formula')}</summary>
+      <div class="formula-body" dir="ltr" lang="en">
+        <p><strong>Mifflin-St Jeor</strong></p>
+        <p>Men: BMR = 10 × weight (kg) + 6.25 × height (cm) − 5 × age + 5</p>
+        <p>Women: BMR = 10 × weight (kg) + 6.25 × height (cm) − 5 × age − 161</p>
+        <p>TDEE = BMR × 1.2 / 1.375 / 1.55 / 1.725 / 1.9</p>
+        <p>Fat loss ≈ 80–90% of TDEE · Maintenance ≈ 95–105% · Muscle gain ≈ 105–110%</p>
+        <p>Protein 1.4–2.2 g/kg (by goal) · Fat 25–35% of calories · Carbohydrates = remainder</p>
+      </div>
+    </details>
+
+    <p class="notice notice--red disclaimer">{t('calc.disclaimer')}</p>
+    <SourceList lang={lang} sources={sources} />
+  </div>
+</BaseLayout>
+
+<script>
+  import { calculate, validatePerson, LIMITS, type Activity, type CalorieGoal, type Sex } from '../utils/nutrition';
+
+  const STORE_KEY = 'alqosh-calc-v1';
+  const root = document.querySelector<HTMLElement>('[data-calculator]');
+  if (root) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'ar';
+    const msg = JSON.parse(root.dataset.messages ?? '{}') as Record<string, string>;
+    const form = root.querySelector<HTMLFormElement>('[data-calc-form]')!;
+    const body = root.querySelector<HTMLElement>('[data-results-body]')!;
+    const empty = root.querySelector<HTMLElement>('[data-results-empty]')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const nf = new Intl.NumberFormat(lang === 'ar' ? 'ar-IQ-u-nu-latn' : 'en-US');
+
+    const restore = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null');
+        if (!saved) return false;
+        for (const [k, v] of Object.entries(saved)) {
+          const els = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(`[name="${k}"]`);
+          els.forEach((el) => {
+            if (el instanceof HTMLInputElement && el.type === 'radio') el.checked = el.value === v;
+            else el.value = String(v);
+          });
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    const run = (showErrors: boolean) => {
+      const fd = new FormData(form);
+      const num = (k: string) => (fd.get(k) === '' || fd.get(k) === null ? Number.NaN : Number(fd.get(k)));
+      const person = {
+        sex: (fd.get('sex') as Sex) ?? 'male',
+        age: num('age'),
+        heightCm: num('heightCm'),
+        weightKg: num('weightKg'),
+      };
+      const errors = validatePerson(person);
+      for (const key of ['age', 'heightCm', 'weightKg'] as const) {
+        const input = form.querySelector<HTMLInputElement>(`[name="${key}"]`)!;
+        const err = form.querySelector<HTMLElement>(`[data-error-for="${key}"]`)!;
+        const bad = errors.includes(key);
+        input.setAttribute('aria-invalid', String(bad && showErrors));
+        err.textContent = bad && showErrors ? msg.range.replace('{min}', String(LIMITS[key].min)).replace('{max}', String(LIMITS[key].max)) : '';
+      }
+      if (errors.length) {
+        if (showErrors) form.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+      const activity = (fd.get('activity') as Activity) ?? 'moderate';
+      const goal = (fd.get('goal') as CalorieGoal) ?? 'maintain';
+      const r = calculate(person, activity, goal);
+
+      out('bmr').textContent = nf.format(r.bmr);
+      out('tdee').textContent = nf.format(r.tdee);
+      for (const g of ['loss', 'maintain', 'gain'] as const) {
+        const { min, max } = r.ranges[g];
+        out(g).textContent = min === max ? nf.format(min) : `${nf.format(min)} – ${nf.format(max)}`;
+        root.querySelector(`[data-range="${g}"]`)!.classList.toggle('is-goal', g === goal);
+      }
+      root.querySelector<HTMLElement>('[data-floor-note]')!.hidden = !Object.values(r.ranges).some((x) => x.floored);
+      const m = r.macros;
+      out('kcal').textContent = nf.format(m.kcal);
+      out('protein').textContent = nf.format(m.protein.g);
+      out('proteinNote').textContent = msg.perKg.replace('{n}', String(m.protein.perKg));
+      out('carbs').textContent = nf.format(m.carbs.g);
+      out('fat').textContent = nf.format(m.fat.g);
+      out('fatNote').textContent = msg.ofCalories.replace('{n}', String(m.fat.share));
+      const total = m.protein.g * 4 + m.carbs.g * 4 + m.fat.g * 9 || 1;
+      (root.querySelector('[data-bar="p"]') as HTMLElement).style.inlineSize = `${(m.protein.g * 400) / total}%`;
+      (root.querySelector('[data-bar="c"]') as HTMLElement).style.inlineSize = `${(m.carbs.g * 400) / total}%`;
+      (root.querySelector('[data-bar="f"]') as HTMLElement).style.inlineSize = `${(m.fat.g * 900) / total}%`;
+
+      const meals = root.querySelector<HTMLAnchorElement>('[data-meals-link]')!;
+      const u = new URL(meals.href, location.href);
+      u.search = new URLSearchParams({ kcal: String(m.kcal), sex: person.sex, goal }).toString();
+      meals.href = u.pathname + u.search;
+
+      empty.hidden = true;
+      body.hidden = false;
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify({ ...person, activity, goal }));
+      } catch {
+        /* storage unavailable — fine */
+      }
+    };
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      run(true);
+      if (!body.hidden && window.matchMedia('(max-width: 899px)').matches) {
+        body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    form.addEventListener('change', () => {
+      if (!body.hidden) run(false);
+    });
+    form.addEventListener('reset', () => {
+      window.setTimeout(() => {
+        body.hidden = true;
+        empty.hidden = false;
+        form.querySelectorAll('[aria-invalid]').forEach((el) => el.setAttribute('aria-invalid', 'false'));
+        form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => (el.textContent = ''));
+        try { localStorage.removeItem(STORE_KEY); } catch { /* ignore */ }
+      });
+    });
+    if (restore()) run(false);
+  }
+</script>
+
+<style>
+  .calc-grid { display: grid; gap: 20px; }
+  @media (min-width: 900px) {
+    .calc-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; }
+  }
+  .formula { margin-block-start: 24px; }
+  .formula summary { font-weight: 800; cursor: pointer; min-block-size: 44px; display: flex; align-items: center; }
+  .formula-body { display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--text-muted); margin-block-start: 8px; }
+  .disclaimer { margin-block-start: 18px; }
+</style>

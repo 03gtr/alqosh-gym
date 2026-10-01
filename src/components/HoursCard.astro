@@ -1,0 +1,51 @@
+---
+/**
+ * Official opening hours, straight from config/gym.ts.
+ * (No "open now" badge: official opening *days* are not published, so a live
+ * status could be wrong on a closed day.)
+ */
+import { gym } from '../config/gym';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  who: 'men' | 'women';
+  compact?: boolean;
+  /** Hide the heading when the surrounding card already names the group. */
+  hideTitle?: boolean;
+}
+const { lang, who, compact = false, hideTitle = false } = Astro.props;
+const h = gym.hours[who];
+
+function fmt(hhmm: string): string {
+  const [hour, minute] = hhmm.split(':').map(Number);
+  const suffix = hour < 12 ? 'AM' : 'PM';
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h12}:${String(minute).padStart(2, '0')} ${suffix}`;
+}
+---
+
+<article class:list={['hours-card', 'card', 'card--accent', { compact }]}>
+  {!hideTitle && <h3 class="hours-title"><span aria-hidden="true">{h.icon}</span> {h.title[lang]}</h3>}
+  <ul role="list" class="hours-list">
+    {h.ranges.map((r) => (
+      <li>
+        <span class="time" dir="ltr">{fmt(r.from)} → {fmt(r.to)}</span>
+        {!compact && <span class="time-label">{r.label[lang]}</span>}
+      </li>
+    ))}
+  </ul>
+</article>
+
+<style>
+  .hours-card { display: grid; gap: 10px; align-content: start; }
+  .hours-title { font-size: 1.15rem; display: flex; gap: 8px; align-items: center; }
+  .hours-list { display: grid; gap: 10px; }
+  .hours-list li { display: grid; gap: 2px; }
+  .time {
+    font-family: var(--font-display); font-size: 1.9rem; letter-spacing: 0.03em; line-height: 1;
+    color: var(--white); unicode-bidi: isolate; justify-self: start;
+  }
+  .compact .time { font-size: 1.5rem; }
+  .time-label { font-size: var(--fs-sm); color: var(--text-muted); }
+</style>

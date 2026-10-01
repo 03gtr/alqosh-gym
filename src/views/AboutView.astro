@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { developer, gym } from '../config/gym';
+import { exercises } from '../data/exercises';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<BaseLayout lang={lang} path="/about/" title={t('about.title')} description={t('about.intro')}>
+  <PageHeader lang={lang} title={t('about.title')} lead={t('about.intro')} crumbs={[{ label: t('nav.about') }]} />
+  <div class="container section--tight about">
+    <section class="card">
+      <h2>{gym.name[lang]}</h2>
+      <p>{t('gym.identityBody')}</p>
+      <p><a class="link-arrow" href={localePath(lang, '/gym/')}>{t('gym.more')}</a></p>
+    </section>
+
+    <section class="card">
+      <h2>{t('about.content')}</h2>
+      <p>{t('about.contentBody')}</p>
+      <p class="muted">{t('ex.count', { n: exercises.length })} · <a href={localePath(lang, '/exercises/')}>{t('ex.libraryTitle')}</a></p>
+    </section>
+
+    <section class="card">
+      <h2>{t('about.media')}</h2>
+      <p>{t('about.mediaBody')}</p>
+    </section>
+
+    <section class="card">
+      <h2>{t('disclaimer.title')}</h2>
+      <p>{t('disclaimer.short')}</p>
+    </section>
+
+    <section class="card credits" id="credits" aria-labelledby="credits-h">
+      <h2 id="credits-h">{t('about.credits')}</h2>
+      <p class="credit-line"><span lang="ar" dir="rtl">{developer.credit.ar}</span> · <span lang="en" dir="ltr">{developer.credit.en}</span></p>
+      <p class="muted">{developer.about[lang]}</p>
+      {developer.url && <p><a href={developer.url} target="_blank" rel="noopener noreferrer">IQ Group</a></p>}
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about { display: grid; gap: 14px; max-width: 860px; }
+  .about h2 { font-size: var(--fs-lg); margin-block-end: 6px; }
+  .about p + p { margin-block-start: 8px; }
+  .credits { border-inline-start: 3px solid var(--line-strong); background: var(--ink-900); }
+  .credit-line { font-weight: 800; }
+</style>
