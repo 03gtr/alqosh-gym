@@ -1,0 +1,34 @@
+---
+/** "هدفي" hub: every goal journey plus the main tools (all existing pages). */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import GoalPicker from '../components/GoalPicker.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<BaseLayout lang={lang} path="/goals/" title={t('goals.title')} description={t('goals.lead')}>
+  <PageHeader lang={lang} title={t('goals.title')} lead={t('goals.lead')} crumbs={[{ label: t('nav.goals') }]} />
+  <div class="container section--tight">
+    <GoalPicker lang={lang} />
+
+    <h2 class="section-title tools-title">{t('goals.toolsTitle')}</h2>
+    <div class="tools">
+      <NutritionCard lang={lang} path="/calculator/" icon="calculator" title={t('calc.title')} text={t('home.pathCalc')} />
+      <NutritionCard lang={lang} path="/workouts/" icon="dumbbell" title={t('workout.title')} text={t('home.pathBuilder')} />
+      <NutritionCard lang={lang} path="/nutrition/meals/" icon="nutrition" title={t('meals.title')} text={t('meals.plannerIntro')} />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tools-title { font-size: var(--fs-xl); margin-block: 36px 12px; }
+  .tools { display: grid; gap: 10px; }
+  @media (min-width: 900px) { .tools { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+</style>

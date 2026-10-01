@@ -1,4 +1,5 @@
 ---
+/** Pointer to the QR print guide — for gym staff (members reach exercises directly by scanning). */
 import Icon from './Icon.astro';
 import { localePath, useT, type Lang } from '../i18n/utils';
 
@@ -11,7 +12,7 @@ const t = useT(lang);
 
 <section class="qr-cta card card--cut" aria-labelledby="qr-cta-title">
   <div class="qr-art" aria-hidden="true">
-    <Icon name="qr" size={72} />
+    <Icon name="qr" size={48} />
   </div>
   <div class="qr-copy">
     <h2 id="qr-cta-title" class="qr-title">{t('qr.title')}</h2>
@@ -30,13 +31,13 @@ const t = useT(lang);
     border: 1px solid var(--line-strong);
   }
   .qr-art {
-    inline-size: 112px; block-size: 112px; display: grid; place-items: center;
+    inline-size: 76px; block-size: 76px; display: grid; place-items: center;
     background: var(--white); color: var(--black);
     clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   }
   .qr-copy { display: grid; gap: 8px; justify-items: start; }
-  .qr-title { font-size: var(--fs-xl); }
-  .qr-sub { font-weight: 900; color: var(--accent-text); font-size: var(--fs-lg); }
+  .qr-title { font-size: var(--fs-lg); }
+  .qr-sub { font-weight: 800; color: var(--accent-text); font-size: var(--fs-sm); }
   @media (min-width: 640px) {
     .qr-cta { grid-template-columns: auto 1fr; padding: 32px; }
   }

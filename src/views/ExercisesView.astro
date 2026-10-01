@@ -28,7 +28,7 @@ const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equ
 <BaseLayout lang={lang} path="/exercises/" title={t('ex.libraryTitle')} description={t('ex.libraryIntro')}>
   <PageHeader lang={lang} title={t('ex.libraryTitle')} lead={t('ex.libraryIntro')} crumbs={[{ label: t('nav.exercises') }]} />
 
-  <div class="container library" data-library data-lang={lang}>
+  <div class="container library" data-library data-lang={lang} data-labels={JSON.stringify({ active: t('filters.active'), remove: t('filters.remove') })}>
     <div class="toolbar">
       <SearchBar lang={lang} suggest={false} id="library-q" />
       <div class="toolbar-row">
@@ -41,6 +41,12 @@ const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equ
           </select>
         </label>
       </div>
+    </div>
+
+    <div class="active-filters" data-active-filters hidden>
+      <span class="af-label" data-active-label></span>
+      <ul class="af-chips" role="list" data-chips></ul>
+      <button type="button" class="af-clear" data-clear>{t('filters.reset')}</button>
     </div>
 
     <div class="layout">
@@ -83,6 +89,20 @@ const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equ
   .filter-panel[open] > summary { margin-block-end: 10px; }
   .active-count:not(:empty) { background: var(--accent); color: var(--white); border-radius: 999px; padding: 0 8px; font-size: var(--fs-xs); }
   .empty { margin-block-end: 12px; }
+  .active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-block: -4px 14px; }
+  .active-filters[hidden] { display: none; }
+  .af-label { font-size: var(--fs-sm); font-weight: 800; color: var(--text-muted); }
+  .af-chips { display: contents; }
+  .active-filters :global(.af-chip) {
+    display: inline-flex; align-items: center; gap: 6px; min-block-size: 36px; padding: 4px 12px;
+    background: var(--ink-700); color: var(--text); border: 1px solid var(--line-strong); border-radius: 999px;
+    font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer;
+  }
+  .active-filters :global(.af-chip:hover) { border-color: var(--accent); }
+  .af-clear {
+    min-block-size: 36px; padding: 4px 8px; background: none; border: 0; cursor: pointer;
+    color: var(--accent-text); font: inherit; font-size: var(--fs-sm); font-weight: 800; text-decoration: underline;
+  }
   @media (min-width: 1024px) {
     .toolbar { position: sticky; top: var(--header-h); z-index: 20; }
     .layout { grid-template-columns: 290px 1fr; align-items: start; }

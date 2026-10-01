@@ -5,7 +5,8 @@ import HoursCard from '../components/HoursCard.astro';
 import Icon from '../components/Icon.astro';
 import { CATEGORIES, EQUIPMENT, GOALS, MUSCLE_CATEGORIES, type Equipment, type Goal } from '../data/taxonomy';
 import { exercises } from '../data/exercises';
-import { useT, type Lang } from '../i18n/utils';
+import { gym } from '../config/gym';
+import { localePath, useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -63,8 +64,10 @@ const i18n = {
       <div class="pathways">
         {(['men', 'women'] as const).map((who) => (
           <article class="pathway card card--accent">
-            <h3 class="pw-title">{who === 'men' ? '👨 ' + t('workout.men') : '👩 ' + t('workout.women')}</h3>
+            <h3 class="pw-title">{who === 'men' ? t('workout.men') : t('workout.women')}</h3>
             <HoursCard lang={lang} who={who} compact hideTitle />
+            <p class="pw-coach">{t('gym.coaches')}: <span lang="ar" dir="rtl">{gym.coaches.find((c) => c.id === who)?.name.ar}</span></p>
+            {who === 'women' && <a class="link-arrow" href={localePath(lang, '/women/')}>{t('nav.women')}</a>}
             <p class="pw-sub">{t('workout.chooseGoal')}</p>
             <div class="chips">
               {builderGoals.map((g) => (
@@ -265,6 +268,7 @@ const i18n = {
   .pw-title { font-size: var(--fs-xl); }
   .pathway :global(.hours-card) { background: var(--ink-900); border-block-start: 0; }
   .pw-sub { font-weight: 800; color: var(--accent-text); }
+  .pw-coach { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 700; }
   .goal-notes { gap: 8px; margin-block-start: 8px; }
   .goal-note { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: var(--fs-sm); }
   .goal-note span { color: var(--text-muted); }

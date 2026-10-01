@@ -17,7 +17,7 @@ const shortUrl = (slug: string) => absoluteUrl('ar', `/exercises/${slug}/`, Astr
 ---
 
 <BaseLayout lang={lang} path="/qr/" title={t('qr.pageTitle')} description={t('qr.pageIntro')}>
-  <PageHeader lang={lang} title={t('qr.pageTitle')} lead={t('qr.pageIntro')} crumbs={[{ label: t('nav.qr') }]} />
+  <PageHeader lang={lang} title={t('qr.pageTitle')} eyebrow={t('qr.subtitle')} lead={t('qr.pageIntro')} crumbs={[{ label: t('nav.qr') }]} />
 
   <div class="container section--tight">
     <section class="how no-print" aria-labelledby="how-h">
@@ -26,6 +26,7 @@ const shortUrl = (slug: string) => absoluteUrl('ar', `/exercises/${slug}/`, Astr
         <li><span class="n">1</span>{t('qr.how1')}</li>
         <li><span class="n">2</span>{t('qr.how2')}</li>
         <li><span class="n">3</span>{t('qr.how3')}</li>
+        <li><span class="n">4</span>{t('qr.how4')}</li>
       </ol>
     </section>
 
@@ -80,7 +81,8 @@ const shortUrl = (slug: string) => absoluteUrl('ar', `/exercises/${slug}/`, Astr
 
 <style>
   .how-list { display: grid; gap: 10px; margin-block: 12px 32px; }
-  @media (min-width: 768px) { .how-list { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 768px) { .how-list { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .how-list { grid-template-columns: repeat(4, 1fr); } }
   .how-list li { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-weight: 700; }
   .n { flex: none; inline-size: 32px; block-size: 32px; display: grid; place-items: center; background: var(--accent); color: var(--white); font-family: var(--font-display); font-size: 1.3rem; }
   .qr-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-block: 14px 18px; }
@@ -92,7 +94,7 @@ const shortUrl = (slug: string) => absoluteUrl('ar', `/exercises/${slug}/`, Astr
   .qr-name { font-weight: 900; color: #000; text-decoration: none; line-height: 1.35; }
   .qr-en { font-size: var(--fs-sm); font-weight: 700; color: #333; }
   .qr-url { font-size: 0.7rem; color: #555; overflow-wrap: anywhere; }
-  .qr-dl { font-size: var(--fs-xs); color: #b80500; font-weight: 800; }
+  .qr-dl { display: inline-flex; align-items: center; min-block-size: 40px; font-size: var(--fs-xs); color: #b80500; font-weight: 800; }
   @media print {
     .qr-grid { grid-template-columns: repeat(3, 1fr); gap: 8mm; }
     .qr-card { grid-template-columns: 1fr; justify-items: center; text-align: center; border: 1px solid #000; }

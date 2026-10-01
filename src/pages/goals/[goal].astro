@@ -1,0 +1,12 @@
+---
+import GoalView from '../../views/GoalView.astro';
+import { GOAL_JOURNEYS, type GoalJourney } from '../../data/goals';
+
+export function getStaticPaths() {
+  return GOAL_JOURNEYS.map((journey) => ({ params: { goal: journey.id }, props: { journey } }));
+}
+
+const { journey } = Astro.props as { journey: GoalJourney };
+---
+
+<GoalView lang="ar" journey={journey} />

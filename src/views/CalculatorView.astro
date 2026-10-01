@@ -159,7 +159,12 @@ const messages = {
         try { localStorage.removeItem(STORE_KEY); } catch { /* ignore */ }
       });
     });
-    if (restore()) run(false);
+    const restored = restore();
+    // A goal journey link (?goal=loss|maintain|gain) preselects the goal.
+    const goalParam = new URLSearchParams(location.search).get('goal');
+    const goalRadio = goalParam ? form.querySelector<HTMLInputElement>(`input[name="goal"][value="${CSS.escape(goalParam)}"]`) : null;
+    if (goalRadio) goalRadio.checked = true;
+    if (restored) run(false);
   }
 </script>
 

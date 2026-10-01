@@ -1,0 +1,27 @@
+---
+/** The four official permanent benefits as one calm list, labelled as permanent. */
+import DiscountCard from './DiscountCard.astro';
+import { gym } from '../config/gym';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<div class="benefits">
+  <p class="benefits-label"><span class="badge permanent">{t('gym.benefitsLabel')}</span></p>
+  <ul class="benefit-list" role="list">
+    {gym.benefits.map((b) => <DiscountCard benefit={b} lang={lang} />)}
+  </ul>
+  <p class="benefits-policy">{gym.discountPolicy.headline[lang]}</p>
+</div>
+
+<style>
+  .benefits { display: grid; gap: 4px; }
+  .benefits-label { margin-block-end: 2px; }
+  .permanent { border-color: rgb(34 197 94 / 0.5); }
+  .benefits-policy { color: var(--text-muted); font-size: var(--fs-sm); font-weight: 700; margin-block-start: 6px; }
+</style>

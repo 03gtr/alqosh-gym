@@ -134,8 +134,9 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 @media (min-width: 640px) { .grid--cards { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; } }
 @media (max-width: 359px) { .grid--cards { grid-template-columns: 1fr; } }
 
-main { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 24px); }
-@media (min-width: 1180px) { main { padding-bottom: 0; } }
+/* Clearance for the fixed mobile bottom bar — on <body> so the footer is never hidden behind it. */
+body { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 1180px) { body { padding-bottom: 0; } }
 
 /* ---------------------------------------------------------------- headings */
 .eyebrow {
@@ -286,9 +287,11 @@ fieldset { border: 0; padding: 0; min-inline-size: 0; }
 
 /* ---------------------------------------------------------------- misc */
 .breadcrumb { font-size: var(--fs-sm); color: var(--text-muted); }
-.breadcrumb ol { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; }
+.breadcrumb ol { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; list-style: none; padding: 0; }
+.breadcrumb li { display: inline-flex; align-items: center; }
 .breadcrumb li + li::before { content: '/'; margin-inline-end: 6px; color: var(--text-dim); }
-.breadcrumb a { text-decoration: none; }
+/* Taller tap area without changing the visual size. */
+.breadcrumb a { display: inline-flex; align-items: center; min-block-size: 40px; text-decoration: none; }
 .breadcrumb a:hover { text-decoration: underline; color: var(--text); }
 .divider { block-size: 1px; background: var(--line); border: 0; margin-block: 24px; }
 [hidden] { display: none !important; }

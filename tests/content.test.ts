@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { exercises } from '../src/data/exercises';
 import { toLite } from '../src/utils/exercise-index';
 import { emptyFilters, filtersFromParams, matchesFilters } from '../src/scripts/filters';
-import { gym } from '../src/config/gym';
+import { developer, gym } from '../src/config/gym';
+import { GOAL_JOURNEYS } from '../src/data/goals';
 import { ui } from '../src/i18n/ui';
 
 const CONTENT = join(process.cwd(), 'src', 'content');
@@ -50,11 +51,28 @@ describe('official gym facts', () => {
     expect(gym.hours.women.ranges.map((r) => [r.from, r.to])).toEqual([['08:00', '10:00'], ['16:00', '18:00']]);
   });
 
-  it('lists the four permanent benefits and the coach', () => {
+  it('lists the four permanent benefits', () => {
     expect(gym.benefits.map((b) => b.id)).toEqual(['therapeutic', 'security', 'alqosh-employees', 'limited-income']);
     expect(gym.benefits.every((b) => b.permanent)).toBe(true);
-    expect(gym.coach.name.ar).toBe('راني اسمرو');
-    expect(gym.coach.name.en).toBe('Rani Asmaro');
+  });
+
+  it('lists the coaching team with exact official names and nothing invented', () => {
+    expect(gym.coaches.map((c) => [c.id, c.name.ar])).toEqual([
+      ['men', 'الكابتن راني اسمرو'],
+      ['women', 'الكابتن عذراء قس يونان'],
+    ]);
+    expect(gym.coaches[0].name.en).toBe('Coach Rani Asmaro');
+    // No official English spelling, credentials or photos were provided.
+    expect(gym.coaches[1].name.en).toBeNull();
+    for (const c of gym.coaches) {
+      expect(c.credentials).toEqual([]);
+      expect(c.photo).toBeNull();
+    }
+  });
+
+  it('credits IQ Group with a link to iq-group.app', () => {
+    expect(developer.url).toBe('https://iq-group.app');
+    expect(developer.credit.ar).toBe('بدعم وتطوير IQ Group');
   });
 
   it('never presents discounts as temporary offers', () => {
@@ -71,7 +89,43 @@ describe('official gym facts', () => {
     expect(gym.contact.socials).toEqual([{ id: 'facebook', url: 'https://facebook.com/share/19o136kGJc' }]);
     // No street address or opening days were provided.
     expect(gym.contact.address).toBeNull();
-    expect(gym.coach.display.ar).toBe('الكابتن راني اسمرو');
+  });
+});
+
+describe('goal journeys', () => {
+  const ARTICLES = new Set(slugs(join(CONTENT, 'articles', 'ar')));
+  const EN_ARTICLES = new Set(slugs(join(CONTENT, 'articles', 'en')));
+  const ROUTES = ['/calculator/', '/nutrition/', '/nutrition/meals/', '/workouts/', '/exercises/', '/beginner/'];
+
+  it('covers the four goals with bilingual text', () => {
+    expect(GOAL_JOURNEYS.map((g) => g.id)).toEqual(['weight-loss', 'muscle-gain', 'maintain', 'fitness']);
+    for (const g of GOAL_JOURNEYS) {
+      for (const text of [g.title, g.short, g.heading, g.intro, ...g.steps.flatMap((s) => [s.title, s.text, s.cta])]) {
+        expect(text.ar.trim() && text.en.trim(), g.id).toBeTruthy();
+      }
+      expect(g.steps.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it('every step opens an existing page or article', () => {
+    for (const g of GOAL_JOURNEYS) {
+      for (const s of g.steps) {
+        const path = s.path.split(/[?#]/)[0];
+        const article = path.match(/^\/articles\/([^/]+)\/$/)?.[1];
+        if (article) {
+          expect(ARTICLES.has(article) && EN_ARTICLES.has(article), `${g.id}: ${s.path}`).toBe(true);
+        } else {
+          expect(ROUTES, `${g.id}: ${s.path}`).toContain(path);
+        }
+      }
+    }
+  });
+
+  it('makes no promises about results', () => {
+    const text = JSON.stringify(GOAL_JOURNEYS);
+    for (const banned of [/\d+\s*(kg|كيلو|كغم)/i, /guarantee(d)? (results|loss)/i, /مضمون(ة)? النتائج/, /خلال \d+ (يوم|أيام|أسبوع)/]) {
+      expect(banned.test(text), String(banned)).toBe(false);
+    }
   });
 });
 

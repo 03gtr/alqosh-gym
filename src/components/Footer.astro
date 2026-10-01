@@ -2,7 +2,7 @@
 import Logo from './Logo.astro';
 import ContactLinks from './ContactLinks.astro';
 import { COPYRIGHT_YEAR, developer, gym } from '../config/gym';
-import { localePath, pick, useT, type Lang } from '../i18n/utils';
+import { localePath, useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -15,8 +15,10 @@ const links = [
   { label: t('footer.calculator'), path: '/calculator/' },
   { label: t('footer.health'), path: '/health/' },
   { label: t('footer.gymInfo'), path: '/gym/' },
+  { label: t('nav.women'), path: '/women/' },
 ];
 const learn = [
+  { label: t('nav.goals'), path: '/goals/' },
   { label: t('nav.beginner'), path: '/beginner/' },
   { label: t('nav.advanced'), path: '/advanced/' },
   { label: t('nav.workouts'), path: '/workouts/' },
@@ -31,8 +33,8 @@ const learn = [
       <Logo lang={lang} />
       <p class="alt-name">{gym.altName.ar}<span aria-hidden="true"> · </span><span lang="en" dir="ltr">{gym.altName.en}</span></p>
       <p class="coach">
-        <a href={localePath(lang, '/gym/#coach')}>{pick(gym.coach.display, lang)}</a>
-        {lang === 'ar' && <span class="muted ltr" lang="en"> · {gym.coach.display.en}</span>}
+        <a href={localePath(lang, '/gym/#coaches')}>{t('gym.coaches')}</a>:
+        {gym.coaches.map((c, i) => <>{i > 0 && ' · '}<span lang="ar" dir="rtl">{c.name.ar}</span></>)}
       </p>
       <ContactLinks lang={lang} compact class="footer-contact" />
     </div>
@@ -52,10 +54,11 @@ const learn = [
   <div class="container footer-bottom">
     <p class="disclaimer">{t('disclaimer.short')}</p>
     <p class="credit">
-      <a href={localePath(lang, '/about/#credits')}>
+      <a href={developer.url ?? localePath(lang, '/about/#credits')} {...(developer.url ? { target: '_blank', rel: 'noopener' } : {})}>
         <span lang="ar" dir="rtl">{developer.credit.ar}</span>
         <span class="sep" aria-hidden="true">|</span>
         <span lang="en" dir="ltr">{developer.credit.en}</span>
+        {developer.url && <span class="sr-only">{t('contact.newTab')}</span>}
       </a>
     </p>
     <p class="copy"><span class="ltr">© {COPYRIGHT_YEAR} Alqosh Gym</span> — {t('footer.rights')}</p>

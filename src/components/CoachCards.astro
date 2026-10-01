@@ -1,0 +1,53 @@
+---
+/**
+ * Coaching team — typographic cards from config/gym.ts. Official names only:
+ * no invented photos, credentials or biographies.
+ */
+import Icon from './Icon.astro';
+import { gym, type Coach } from '../config/gym';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Show only these coaches (default: all). */
+  only?: Coach['id'][];
+  class?: string;
+}
+const { lang, only, class: className } = Astro.props;
+const t = useT(lang);
+const coaches = gym.coaches.filter((c) => !only || only.includes(c.id));
+---
+
+<ul class:list={['coaches', className]} role="list">
+  {coaches.map((c) => (
+    <li class="coach">
+      <span class="coach-mark" aria-hidden="true"><Icon name="user" size={26} /></span>
+      <span class="coach-group">{c.group[lang]}</span>
+      <span class="coach-name" lang="ar" dir="rtl">{c.name.ar}</span>
+      {lang === 'en' && c.name.en && <span class="coach-en">{c.name.en}</span>}
+      {c.credentials.length > 0 && (
+        <span class="coach-creds">{c.credentials.map((cr) => cr[lang]).join(' · ')}</span>
+      )}
+    </li>
+  ))}
+</ul>
+<p class="coach-note">{t('gym.coachNote')}</p>
+
+<style>
+  .coaches { display: grid; gap: 10px; }
+  @media (min-width: 640px) { .coaches { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .coach {
+    display: grid; grid-template-columns: auto 1fr; gap: 0 14px; align-items: center;
+    padding: 16px; background: var(--ink-800); border: 1px solid var(--line);
+    border-inline-start: 3px solid var(--accent); border-radius: var(--radius-sm);
+  }
+  .coach-mark {
+    grid-row: span 3; inline-size: 48px; block-size: 48px; display: grid; place-items: center;
+    background: var(--ink-900); color: var(--text-muted); border: 1px solid var(--line-strong); border-radius: 50%;
+  }
+  .coach-group { font-size: var(--fs-sm); font-weight: 800; color: var(--accent-text); }
+  .coach-name { font-size: var(--fs-lg); font-weight: 900; line-height: 1.35; }
+  .coach-en { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 700; }
+  .coach-creds { grid-column: 2; font-size: var(--fs-sm); color: var(--text-muted); }
+  .coach-note { margin-block-start: 10px; color: var(--text-muted); font-size: var(--fs-sm); }
+</style>

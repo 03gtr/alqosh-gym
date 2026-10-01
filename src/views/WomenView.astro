@@ -1,0 +1,64 @@
+---
+/**
+ * Women's pathway: the official women's hours, the women's coach and the
+ * shared tools. Exercises are NOT split by gender — goal and level decide.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import HoursCard from '../components/HoursCard.astro';
+import CoachCards from '../components/CoachCards.astro';
+import GoalPicker from '../components/GoalPicker.astro';
+import NutritionCard from '../components/NutritionCard.astro';
+import ContactLinks from '../components/ContactLinks.astro';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<BaseLayout lang={lang} path="/women/" title={t('women.title')} description={t('women.lead')}>
+  <PageHeader lang={lang} title={t('women.title')} lead={t('women.lead')} crumbs={[{ label: t('women.title') }]} />
+
+  <div class="container section--tight">
+    <div class="top">
+      <section aria-labelledby="w-hours">
+        <h2 id="w-hours" class="sub">{t('women.hours')}</h2>
+        <HoursCard lang={lang} who="women" hideTitle />
+      </section>
+      <section aria-labelledby="w-coach">
+        <h2 id="w-coach" class="sub">{t('women.coach')}</h2>
+        <CoachCards lang={lang} only={['women']} />
+      </section>
+    </div>
+    <ContactLinks lang={lang} class="w-contact" />
+
+    <section aria-labelledby="w-goals">
+      <h2 id="w-goals" class="section-title block-title">{t('women.start')}</h2>
+      <GoalPicker lang={lang} />
+    </section>
+
+    <section aria-labelledby="w-tools">
+      <h2 id="w-tools" class="section-title block-title">{t('women.tools')}</h2>
+      <div class="tools">
+        <NutritionCard lang={lang} path="/exercises/" icon="dumbbell" title={t('women.library')} text={t('women.libraryBody')} />
+        <NutritionCard lang={lang} path="/calculator/" icon="calculator" title={t('calc.title')} text={t('home.pathCalc')} />
+        <NutritionCard lang={lang} path="/workouts/" icon="bolt" title={t('workout.title')} text={t('home.pathBuilder')} />
+        <NutritionCard lang={lang} path="/nutrition/" icon="nutrition" title={t('nutrition.title')} text={t('nutrition.intro')} />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .top { display: grid; gap: 20px; }
+  @media (min-width: 768px) { .top { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+  .sub { font-size: var(--fs-lg); margin-block-end: 10px; }
+  .top :global(.coaches) { grid-template-columns: 1fr; }
+  :global(.w-contact) { margin-block-start: 16px; }
+  .block-title { font-size: var(--fs-xl); margin-block: 36px 12px; }
+  .tools { display: grid; gap: 10px; }
+  @media (min-width: 900px) { .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

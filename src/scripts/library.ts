@@ -20,6 +20,10 @@ async function init(root: HTMLElement) {
   const panel = root.querySelector<HTMLDetailsElement>('[data-filter-panel]');
   const reset = root.querySelector<HTMLAnchorElement>('[data-reset]');
   const sortSel = root.querySelector<HTMLSelectElement>('[data-sort]');
+  const activeBox = root.querySelector<HTMLElement>('[data-active-filters]');
+  const chipList = root.querySelector<HTMLElement>('[data-chips]');
+  const activeLabel = root.querySelector<HTMLElement>('[data-active-label]');
+  const labels = JSON.parse(root.dataset.labels ?? '{}') as { active?: string; remove?: string };
 
   let index: ExerciseLite[];
   try {
@@ -82,6 +86,7 @@ async function init(root: HTMLElement) {
       const c = form.querySelector<HTMLElement>(`[data-count-for="${key}"]`);
       if (c) c.textContent = f[key].length ? String(f[key].length) : '';
     }
+    renderChips(n);
 
     if (push) {
       const next = new URLSearchParams();
@@ -91,6 +96,30 @@ async function init(root: HTMLElement) {
       const qs = next.toString();
       history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
     }
+  };
+
+  // Active filters as removable chips, visible without opening the panel.
+  const renderChips = (n: number) => {
+    if (!activeBox || !chipList) return;
+    activeBox.hidden = n === 0;
+    if (activeLabel) activeLabel.textContent = (labels.active ?? '').replace('{n}', String(n));
+    chipList.replaceChildren(
+      ...[...form.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked')].map((box) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'af-chip';
+        const text = box.closest('label')?.textContent?.trim() ?? box.value;
+        btn.textContent = `${text} ✕`;
+        btn.setAttribute('aria-label', `${labels.remove ?? ''} ${text}`.trim());
+        btn.addEventListener('click', () => {
+          box.checked = false;
+          apply();
+        });
+        li.append(btn);
+        return li;
+      }),
+    );
   };
 
   const name = (slug: string) => {
@@ -116,12 +145,15 @@ async function init(root: HTMLElement) {
     grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   sortSel?.addEventListener('change', () => apply());
-  reset?.addEventListener('click', (ev) => {
+  const clearFilters = (keepQuery: boolean) => (ev: Event) => {
     ev.preventDefault();
     for (const box of form.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')) box.checked = false;
-    qInput.value = '';
+    if (!keepQuery) qInput.value = '';
     apply();
-  });
+  };
+  reset?.addEventListener('click', clearFilters(false));
+  // The chip row's "clear all" removes filters but keeps the search text.
+  root.querySelector('[data-clear]')?.addEventListener('click', clearFilters(true));
 
   apply(false);
   root.classList.add('is-ready');

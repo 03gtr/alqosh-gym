@@ -2,13 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import HoursCard from '../components/HoursCard.astro';
-import DiscountCard from '../components/DiscountCard.astro';
+import BenefitList from '../components/BenefitList.astro';
 import GymInfoCard from '../components/GymInfoCard.astro';
-import QRCTA from '../components/QRCTA.astro';
-import Icon from '../components/Icon.astro';
+import CoachCards from '../components/CoachCards.astro';
 import ContactLinks from '../components/ContactLinks.astro';
 import { gym } from '../config/gym';
-import { useT, type Lang } from '../i18n/utils';
+import { localePath, useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -19,7 +18,7 @@ const c = gym.contact;
 const hasContact = Boolean(c.phone || c.whatsapp || c.address || c.mapUrl || c.socials.length);
 ---
 
-<BaseLayout lang={lang} path="/gym/" title={t('gym.title')} description={`${t('gym.hours')} · ${t('gym.benefits')} · ${gym.coach.display[lang]}`}>
+<BaseLayout lang={lang} path="/gym/" title={t('hero.ctaGym')} description={`${t('gym.hours')} · ${t('gym.benefits')} · ${t('gym.coaches')}`}>
   <PageHeader lang={lang} title={gym.name[lang]} eyebrow={gym.altName[lang]} lead={t('gym.identityBody')} crumbs={[{ label: t('nav.gym') }]}>
     <p class="pillars">{t('gym.pillars')}</p>
   </PageHeader>
@@ -31,36 +30,13 @@ const hasContact = Boolean(c.phone || c.whatsapp || c.address || c.mapUrl || c.s
         <HoursCard lang={lang} who="men" />
         <HoursCard lang={lang} who="women" />
       </div>
-    </section>
-
-    <section class="section--tight" aria-labelledby="benefits-h" id="benefits">
-      <h2 id="benefits-h" class="section-title">{t('gym.benefits')}</h2>
-      <div class="grid grid--2">
-        {gym.benefits.map((b) => <DiscountCard benefit={b} lang={lang} />)}
-      </div>
-      <div class="policy-wrap"><GymInfoCard lang={lang} /></div>
-      <p class="notice">{t('gym.therapeuticNote')}</p>
-    </section>
-
-    <section class="section--tight" aria-labelledby="coach-h" id="coach">
-      <h2 id="coach-h" class="section-title">{t('gym.coach')}</h2>
-      <div class="coach card card--cut">
-        <div class="coach-mark" aria-hidden="true"><Icon name="user" size={56} /></div>
-        <div>
-          <p class="coach-name">{gym.coach.display.ar}</p>
-          <p class="coach-en" lang="en" dir="ltr">{gym.coach.display.en}</p>
-          {gym.coach.credentials.length > 0 && (
-            <ul class="creds">{gym.coach.credentials.map((cr) => <li>{cr[lang]}</li>)}</ul>
-          )}
-          <p class="muted">{t('gym.coachNote')}</p>
-        </div>
-      </div>
+      <a class="link-arrow" href={localePath(lang, '/women/')}>{t('home.womenLink')}</a>
     </section>
 
     <section class="section--tight" aria-labelledby="contact-h" id="contact">
       <h2 id="contact-h" class="section-title">{t('gym.contact')}</h2>
       {hasContact ? (
-        <div class="contact card">
+        <div class="contact">
           {c.address && <p>{c.address[lang]}</p>}
           <ContactLinks lang={lang} />
         </div>
@@ -69,26 +45,24 @@ const hasContact = Boolean(c.phone || c.whatsapp || c.address || c.mapUrl || c.s
       )}
     </section>
 
-    <section class="section--tight">
-      <QRCTA lang={lang} />
+    <section class="section--tight" aria-labelledby="benefits-h" id="benefits">
+      <h2 id="benefits-h" class="section-title">{t('gym.benefits')}</h2>
+      <BenefitList lang={lang} />
+      <div class="policy-wrap"><GymInfoCard lang={lang} /></div>
+      <p class="notice">{t('gym.therapeuticNote')}</p>
+    </section>
+
+    <section class="section--tight" aria-labelledby="coaches-h" id="coaches">
+      <h2 id="coaches-h" class="section-title">{t('gym.coaches')}</h2>
+      <CoachCards lang={lang} />
     </section>
   </div>
 </BaseLayout>
 
 <style>
   .pillars { font-weight: 800; color: var(--accent-text); margin-block-start: 10px; }
-  .hours { margin-block-start: 12px; }
+  .hours { margin-block: 12px 4px; }
   .section-title { margin-block-end: 12px; }
   .policy-wrap { margin-block: 16px; }
-  .coach { display: grid; gap: 18px; align-items: center; background: var(--ink-700); padding: 24px; }
-  @media (min-width: 640px) { .coach { grid-template-columns: auto 1fr; } }
-  .coach-mark {
-    inline-size: 96px; block-size: 96px; display: grid; place-items: center; color: var(--white);
-    background: var(--accent);
-    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-  }
-  .coach-name { font-size: var(--fs-2xl); font-weight: 900; }
-  .coach-en { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.03em; color: var(--text-muted); }
-  .creds { margin-block: 8px; }
-  .contact { display: grid; gap: 12px; padding: 18px; }
+  .contact { display: grid; gap: 12px; }
 </style>

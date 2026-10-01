@@ -1,21 +1,32 @@
 ---
+/**
+ * Difficulty as 1–3 neutral level bars. (Deliberately not green/yellow/red:
+ * across the site GREEN means only "target muscle".)
+ */
 import { DIFFICULTY, type Difficulty } from '../data/taxonomy';
 import type { Lang } from '../i18n/utils';
 
 interface Props {
   level: Difficulty;
   lang: Lang;
+  /** Plain inline text instead of a pill (exercise cards). */
+  plain?: boolean;
 }
-const { level, lang } = Astro.props;
+const { level, lang, plain = false } = Astro.props;
 const d = DIFFICULTY[level];
 ---
 
-<span class:list={['badge', 'difficulty', `difficulty--${level}`]}>
-  <span aria-hidden="true">{d.dot}</span>{d.label[lang]}
+<span class:list={['difficulty', { badge: !plain, 'difficulty--plain': plain }]}>
+  <span class="bars" aria-hidden="true">{[1, 2, 3].map((i) => <i class:list={{ on: i <= d.level }}></i>)}</span>{d.label[lang]}
 </span>
 
 <style>
-  .difficulty--beginner { border-color: rgb(34 197 94 / 0.5); }
-  .difficulty--intermediate { border-color: rgb(250 204 21 / 0.5); }
-  .difficulty--advanced { border-color: rgb(225 6 0 / 0.7); }
+  .difficulty { display: inline-flex; align-items: center; gap: 6px; }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; block-size: 12px; }
+  .bars i { inline-size: 4px; background: var(--ink-500, #3a3b45); border-radius: 1px; }
+  .bars i:nth-child(1) { block-size: 5px; }
+  .bars i:nth-child(2) { block-size: 8px; }
+  .bars i:nth-child(3) { block-size: 12px; }
+  .bars i.on { background: var(--white); }
+  .difficulty--plain { font-size: var(--fs-xs); font-weight: 700; color: var(--text-muted); }
 </style>

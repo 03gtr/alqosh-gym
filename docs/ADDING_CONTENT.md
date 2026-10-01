@@ -54,7 +54,13 @@ Guidelines:
 - Keep files small: 3–6 s loops, ≤ 720 px wide, ideally < 1 MB (WebM/MP4 H.264, muted). Posters ≤ 60 KB WebP.
 - Videos autoplay only when visible and never when the user prefers reduced motion; a play/pause button is always shown.
 
-## 3. Add an article
+## 3. Goal journeys, women's pathway and coaching team
+
+- **Goal journeys** (`/goals/<goal>/`) are data in `src/data/goals.ts`: each goal is an ordered list of steps that link to existing pages (calculator with `?goal=`, meal planner with `?goal=`, workout builder with `?goal=…#builder`, the exercise library with filters, articles). Keep wording neutral: no promised weight change, no timelines, no medical claims. `npm test` checks that every step opens an existing page or article.
+- **Women's pathway** (`/women/`) reuses the official women's hours, the women's coach and the same tools. Exercises are never split by gender — goal and level decide.
+- **Coaching team** lives in `gym.coaches` (`src/config/gym.ts`). Add names, credentials or photos only when officially provided; empty values are simply not shown.
+
+## 4. Add an article
 
 Create the same slug in both languages:
 
@@ -88,16 +94,16 @@ sources:
 
 Guides (Beginner, PRO, Classic vs Modern) live in `src/content/guides/{ar,en}/`.
 
-## 4. Tips, meals and UI text
+## 5. Tips, meals and UI text
 
 - Daily tips: `src/data/tips.ts` (bilingual, short, no medical claims).
 - Meal examples: `src/data/meals.ts` (familiar local foods; no calorie numbers per meal).
 - Interface text: `src/i18n/ui.ts` — Arabic first; TypeScript fails the build if an English key is missing.
 
-## 5. Gym information
+## 6. Gym information
 
 Edit `src/config/gym.ts` only with officially confirmed information (hours, benefits, coach details, contact, map, social links). Empty values are simply not shown.
 
-## 6. QR codes
+## 7. QR codes
 
 `/qr/` lists every exercise with a print-ready QR code (filter by category, then print or save as PDF). Each SVG is also available at `/qr/<slug>.svg`. QR codes encode the canonical Arabic page; it links to English.

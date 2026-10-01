@@ -1,0 +1,73 @@
+---
+/**
+ * One goal journey: numbered steps, each opening an existing tool or article.
+ * Educational guidance only — no promised results.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import GoalPicker from '../components/GoalPicker.astro';
+import Icon from '../components/Icon.astro';
+import type { GoalJourney } from '../data/goals';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  journey: GoalJourney;
+}
+const { lang, journey: g } = Astro.props;
+const t = useT(lang);
+const href = (path: string) => {
+  // Keep query string / hash intact while localising the path.
+  const m = path.match(/^([^?#]*)(.*)$/)!;
+  return localePath(lang, m[1]) + m[2];
+};
+---
+
+<BaseLayout lang={lang} path={`/goals/${g.id}/`} title={g.heading[lang]} description={g.intro[lang].slice(0, 158)}>
+  <PageHeader lang={lang} title={g.heading[lang]} eyebrow={g.title[lang]} lead={g.intro[lang]} crumbs={[{ label: t('nav.goals'), path: '/goals/' }, { label: g.title[lang] }]} />
+
+  <div class="container section--tight">
+    <h2 class="section-title steps-title">{t('goals.steps')}</h2>
+    <ol class="journey" role="list">
+      {g.steps.map((s, i) => (
+        <li class="step">
+          <span class="step-n" aria-hidden="true">{i + 1}</span>
+          <div class="step-body">
+            <h3 class="step-title">{s.title[lang]}</h3>
+            <p class="step-text">{s.text[lang]}</p>
+            <a class="step-cta" href={href(s.path)}>{s.cta[lang]}<Icon name="arrow" size={16} flip /></a>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="coach-hint">{t('goals.coachNote')}</p>
+    <p class="notice">{t('disclaimer.short')}</p>
+
+    <h2 class="section-title other-title">{t('goals.other')}</h2>
+    <GoalPicker lang={lang} exclude={g.id} />
+  </div>
+</BaseLayout>
+
+<style>
+  .steps-title { font-size: var(--fs-xl); margin-block-end: 14px; }
+  .journey { display: grid; gap: 0; counter-reset: none; }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 14px; position: relative; padding-block-end: 22px; }
+  /* Vertical connector between the numbered steps. */
+  .step:not(:last-child)::before {
+    content: ''; position: absolute; inset-block: 40px 0; inset-inline-start: 17px; inline-size: 2px; background: var(--line-strong);
+  }
+  .step-n {
+    inline-size: 36px; block-size: 36px; display: grid; place-items: center; border-radius: 50%;
+    background: var(--accent); color: var(--white); font-family: var(--font-display); font-size: 1.35rem; line-height: 1;
+  }
+  .step-body { display: grid; gap: 4px; justify-items: start; padding-block-start: 4px; }
+  .step-title { font-size: var(--fs-md); font-weight: 900; }
+  .step-text { color: var(--text-muted); font-size: var(--fs-sm); line-height: 1.6; max-inline-size: 60ch; }
+  .step-cta {
+    display: inline-flex; align-items: center; gap: 6px; min-block-size: 44px;
+    color: var(--accent-text); font-weight: 800; text-decoration: none;
+  }
+  .step-cta:hover { text-decoration: underline; }
+  .coach-hint { font-weight: 700; margin-block: 6px 12px; }
+  .other-title { font-size: var(--fs-xl); margin-block: 36px 12px; }
+</style>

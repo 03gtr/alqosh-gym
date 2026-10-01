@@ -25,11 +25,22 @@ export interface ContactNumber {
 
 export interface Benefit {
   id: string;
-  icon: string;
   title: Localized;
   detail: Localized;
   /** Permanent benefit, never a temporary promotion. */
   permanent: true;
+}
+
+export interface Coach {
+  id: 'men' | 'women';
+  /** Which members the coach trains (matches the official hours groups). */
+  group: Localized;
+  /** Name exactly as officially provided; `en` is null when no official English spelling was given. */
+  name: { ar: string; en: string | null };
+  /** Verified qualifications only — none have been provided. */
+  credentials: Localized[];
+  /** Official photo path — none provided, so a typographic card is shown. */
+  photo: string | null;
 }
 
 export const gym = {
@@ -39,7 +50,6 @@ export const gym = {
   hours: {
     men: {
       title: { ar: 'الرجال', en: 'Men' },
-      icon: '👨',
       ranges: [
         {
           from: '05:00',
@@ -49,8 +59,7 @@ export const gym = {
       ] satisfies TimeRange[],
     },
     women: {
-      title: { ar: 'البنات', en: 'Women' },
-      icon: '👩',
+      title: { ar: 'السيدات', en: 'Women' },
       ranges: [
         {
           from: '08:00',
@@ -69,21 +78,18 @@ export const gym = {
   benefits: [
     {
       id: 'therapeutic',
-      icon: '🩺',
       title: { ar: 'تمارين علاجية', en: 'Therapeutic exercises' },
       detail: { ar: 'مجانية', en: 'Free' },
       permanent: true,
     },
     {
       id: 'security',
-      icon: '🛡️',
       title: { ar: 'الأجهزة الأمنية', en: 'Security personnel' },
       detail: { ar: 'خصومات خاصة', en: 'Special discounts' },
       permanent: true,
     },
     {
       id: 'alqosh-employees',
-      icon: '🏢',
       title: {
         ar: 'موظفو القوش من القرى المجاورة',
         en: 'Alqosh employees from neighboring villages',
@@ -93,7 +99,6 @@ export const gym = {
     },
     {
       id: 'limited-income',
-      icon: '🤝',
       title: { ar: 'ذوو الدخل المحدود', en: 'People with limited income' },
       detail: { ar: 'خصومات خاصة', en: 'Special discounts' },
       permanent: true,
@@ -111,17 +116,23 @@ export const gym = {
     },
   },
 
-  coach: {
-    name: { ar: 'راني اسمرو', en: 'Rani Asmaro' },
-    title: { ar: 'الكابتن', en: 'Coach' },
-    display: { ar: 'الكابتن راني اسمرو', en: 'Coach Rani Asmaro' },
-    /**
-     * Intentionally empty: no qualifications, certificates, experience or
-     * achievements have been officially provided. Add verified items only.
-     */
-    credentials: [] as Localized[],
-    photo: null as string | null,
-  },
+  /** Coaching team (official names only — no invented credentials, photos or bios). */
+  coaches: [
+    {
+      id: 'men',
+      group: { ar: 'الرجال', en: 'Men' },
+      name: { ar: 'الكابتن راني اسمرو', en: 'Coach Rani Asmaro' },
+      credentials: [],
+      photo: null,
+    },
+    {
+      id: 'women',
+      group: { ar: 'السيدات', en: 'Women' },
+      name: { ar: 'الكابتن عذراء قس يونان', en: null },
+      credentials: [],
+      photo: null,
+    },
+  ] satisfies Coach[] as Coach[],
 
   /**
    * Official contact details (supplied by the gym). The phone number is also
@@ -146,7 +157,7 @@ export const developer = {
     ar: 'هذا المشروع جزء من أعمال IQ Group الرقمية، وتم تطويره لدعم التجربة الرقمية لقاعة القوش جم.',
     en: "This project is part of IQ Group's digital work, developed to support Alqosh Gym's digital experience.",
   },
-  url: null as string | null,
+  url: 'https://iq-group.app' as string | null,
 } as const;
 
 export const COPYRIGHT_YEAR = 2026;

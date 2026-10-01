@@ -30,7 +30,7 @@ const groups: { name: string; title: UIKey; options: { value: string; label: str
   },
   {
     name: 'difficulty', title: 'filters.difficulty',
-    options: Object.entries(DIFFICULTY).map(([k, v]) => ({ value: k, label: `${v.dot} ${v.label[lang]}` })),
+    options: Object.entries(DIFFICULTY).map(([k, v]) => ({ value: k, label: v.label[lang] })),
   },
   { name: 'goal', title: 'filters.goal', options: Object.entries(GOALS).map(([k, v]) => ({ value: k, label: v.label[lang] })) },
   { name: 'pattern', title: 'filters.pattern', options: Object.entries(PATTERNS).map(([k, v]) => ({ value: k, label: v.label[lang] })) },

@@ -38,7 +38,7 @@ const t = useT(lang);
 
 <style>
   .page-header {
-    padding-block: 28px 32px;
+    padding-block: 18px 22px;
     border-block-end: 1px solid var(--line);
     background:
       linear-gradient(115deg, transparent 0 72%, rgb(225 6 0 / 0.14) 72% 73.5%, transparent 73.5% 76%, rgb(225 6 0 / 0.08) 76% 82%, transparent 82%),
@@ -49,7 +49,12 @@ const t = useT(lang);
       linear-gradient(245deg, transparent 0 72%, rgb(225 6 0 / 0.14) 72% 73.5%, transparent 73.5% 76%, rgb(225 6 0 / 0.08) 76% 82%, transparent 82%),
       var(--ink-900);
   }
-  .breadcrumb { margin-block-end: 14px; }
-  .page-title { margin-block: 6px 10px; }
+  .breadcrumb { margin-block-end: 10px; }
+  .page-title { margin-block: 4px 8px; }
+  /* Phones: keep the header short so the page's content starts on the first screen. */
+  @media (max-width: 767px) {
+    .page-title { font-size: clamp(1.75rem, 1.2rem + 3vw, 2.25rem); }
+    .page-header :global(.lead) { font-size: var(--fs-md); }
+  }
   @media (min-width: 768px) { .page-header { padding-block: 40px 44px; } }
 </style>

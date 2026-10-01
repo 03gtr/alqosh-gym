@@ -2,13 +2,15 @@
 
 The official website of **ALQOSH GYM** (نادي القوش الرياضي): gym information, a bilingual exercise encyclopedia, and fitness & nutrition education — built mobile-first for members using their phones inside the gym.
 
-> Supported & developed by IQ Group · بدعم وتطوير IQ Group
+> Supported & developed by [IQ Group](https://iq-group.app) · بدعم وتطوير IQ Group
 
 ## What's inside
 
 | Area | Route (Arabic · English) |
 | --- | --- |
-| Home — hero, quick gym info, search, QR guide, muscles, tips | `/` · `/en/` |
+| Home — hero, goal entry points, exercise search, beginner start, tools, gym info, permanent benefits, coaching team | `/` · `/en/` |
+| My goal (هدفي) — goal journeys over the existing tools (weight loss, muscle gain, maintain, fitness) | `/goals/`, `/goals/<goal>/` |
+| Women's pathway — women's hours, women's coach, goals and tools | `/women/` |
 | Exercise library — bilingual search + 7 filters | `/exercises/` |
 | Exercise pages (one per exercise, QR-ready) | `/exercises/<slug>/` (alias `/exercise/<slug>/`) |
 | Muscle explorer | `/muscles/`, `/muscles/<category>/` |
@@ -17,8 +19,8 @@ The official website of **ALQOSH GYM** (نادي القوش الرياضي): gym
 | Simple meal planner (Iraqi foods, hand portions) | `/nutrition/meals/` |
 | Nutrition guide & Health articles | `/nutrition/`, `/health/`, `/articles/<slug>/` |
 | Beginner hub · PRO hub · Classic vs Modern | `/beginner/`, `/advanced/`, `/classic-vs-modern/` |
-| Gym information (hours, permanent benefits, coach) | `/gym/` |
-| Printable QR codes for equipment | `/qr/` (SVGs at `/qr/<slug>.svg`) |
+| Gym information (hours, contact, permanent benefits, coaching team) | `/gym/` |
+| QR guide for gym staff — print-ready codes for equipment | `/qr/` (SVGs at `/qr/<slug>.svg`) |
 
 Arabic (RTL) is the default language at the root; English (LTR) lives under `/en/`.
 
@@ -61,7 +63,7 @@ The workflow passes the Pages origin and base path to the build (`SITE_URL`, `BA
 
 ## Official gym information
 
-All gym facts live in **`src/config/gym.ts`** — hours, permanent benefits, the permanent-discount statement, coach, and the official phone/WhatsApp, Google Maps and Facebook links. A street address, opening days and coach credentials have not been provided and stay empty; the UI renders nothing for missing values.
+All gym facts live in **`src/config/gym.ts`** — hours, permanent benefits, the permanent-discount statement, the coaching team, and the official phone/WhatsApp, Google Maps and Facebook links. A street address, opening days and coach credentials have not been provided and stay empty; the UI renders nothing for missing values.
 
 ## Architecture notes (future work — not part of V1)
 

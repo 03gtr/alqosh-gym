@@ -60,63 +60,28 @@ const jsonLd = [
       </ol>
     </nav>
 
+    <header class="ex-head">
+      <h1 class="ex-name">{title}</h1>
+      <p class="ex-other" lang={lang === 'ar' ? 'en' : 'ar'} dir={lang === 'ar' ? 'ltr' : 'rtl'}>{otherName}</p>
+      <p class="ex-target"><span class="dot" aria-hidden="true"></span><span class="muted">{t('ex.target')}:</span> <strong>{e.primaryMuscles.map((m) => MUSCLES[m].label[lang]).join(lang === 'ar' ? '، ' : ', ')}</strong></p>
+      {aka.length > 0 && aka.length <= 3 && (
+        <p class="ex-aka"><span class="muted">{t('ex.aka')}:</span> {aka.join(' · ')}</p>
+      )}
+      {aka.length > 3 && (
+        <details class="ex-aka">
+          <summary><span class="muted">{t('ex.aka')}:</span> {aka.slice(0, 2).join(' · ')} <span class="more">+{aka.length - 2}</span></summary>
+          <p>{aka.slice(2).join(' · ')}</p>
+        </details>
+      )}
+    </header>
+
     <div class="detail-grid">
       <div class="media-col">
         <ExerciseVisual exercise={e} lang={lang} />
       </div>
 
       <div class="info-col">
-        <header class="ex-head">
-          <h1 class="ex-name">{title}</h1>
-          <p class="ex-other" lang={lang === 'ar' ? 'en' : 'ar'} dir={lang === 'ar' ? 'ltr' : 'rtl'}>{otherName}</p>
-          {aka.length > 0 && aka.length <= 3 && (
-            <p class="ex-aka"><span class="muted">{t('ex.aka')}:</span> {aka.join(' · ')}</p>
-          )}
-          {aka.length > 3 && (
-            <details class="ex-aka">
-              <summary><span class="muted">{t('ex.aka')}:</span> {aka.slice(0, 2).join(' · ')} <span class="more">+{aka.length - 2}</span></summary>
-              <p>{aka.slice(2).join(' · ')}</p>
-            </details>
-          )}
-        </header>
 
-        <dl class="facts">
-          <div class="fact fact--wide">
-            <dt>{t('ex.target')}</dt>
-            <dd class="chips">{e.primaryMuscles.map((m) => <span class="badge badge--red">{MUSCLES[m].label[lang]}</span>)}</dd>
-          </div>
-          {e.secondaryMuscles.length > 0 && (
-            <div class="fact fact--wide">
-              <dt>{t('ex.secondary')}</dt>
-              <dd class="chips">{e.secondaryMuscles.map((m) => <span class="badge">{MUSCLES[m].label[lang]}</span>)}</dd>
-            </div>
-          )}
-          <div class="fact">
-            <dt>{t('ex.difficulty')}</dt>
-            <dd><DifficultyBadge level={e.difficulty} lang={lang} /></dd>
-          </div>
-          <div class="fact">
-            <dt>{t('ex.equipment')}</dt>
-            <dd>{e.equipment.map((q) => EQUIPMENT[q].label[lang]).join(lang === 'ar' ? '، ' : ', ')}</dd>
-          </div>
-          {e.movementPattern && (
-            <div class="fact">
-              <dt>{t('ex.pattern')}</dt>
-              <dd>{PATTERNS[e.movementPattern].label[lang]}</dd>
-            </div>
-          )}
-          <div class="fact">
-            <dt>{t('ex.type')}</dt>
-            <dd>{EXERCISE_TYPES[e.exerciseType].label[lang]}</dd>
-          </div>
-          {e.era && (
-            <div class="fact">
-              <dt>{t('ex.era')}</dt>
-              <dd><a href={localePath(lang, '/classic-vs-modern/')}>{ERAS[e.era].label[lang]}</a></dd>
-            </div>
-          )}
-        </dl>
-        <p class="diff-note">{t('ex.difficultyNote')}</p>
 
         <section class="block" aria-labelledby="setup-h">
           <h2 id="setup-h" class="block-title">{t('ex.setup')}</h2>
@@ -143,8 +108,45 @@ const jsonLd = [
         </section>
 
         <section class="block block--tip" aria-labelledby="tip-h">
-          <h2 id="tip-h" class="block-title">💡 {t('ex.tip')}</h2>
+          <h2 id="tip-h" class="block-title">{t('ex.tip')}</h2>
           <ul class="plain">{c.tips.map((tip) => <li>{tip}</li>)}</ul>
+        </section>
+
+        <section class="block" aria-labelledby="facts-h">
+          <h2 id="facts-h" class="block-title">{t('ex.details')}</h2>
+          <dl class="facts">
+            {e.secondaryMuscles.length > 0 && (
+              <div class="fact fact--wide">
+                <dt>{t('ex.secondary')}</dt>
+                <dd class="chips">{e.secondaryMuscles.map((m) => <span class="badge">{MUSCLES[m].label[lang]}</span>)}</dd>
+              </div>
+            )}
+            <div class="fact">
+              <dt>{t('ex.difficulty')}</dt>
+              <dd><DifficultyBadge level={e.difficulty} lang={lang} /></dd>
+            </div>
+            <div class="fact">
+              <dt>{t('ex.equipment')}</dt>
+              <dd>{e.equipment.map((q) => EQUIPMENT[q].label[lang]).join(lang === 'ar' ? '، ' : ', ')}</dd>
+            </div>
+            {e.movementPattern && (
+              <div class="fact">
+                <dt>{t('ex.pattern')}</dt>
+                <dd>{PATTERNS[e.movementPattern].label[lang]}</dd>
+              </div>
+            )}
+            <div class="fact">
+              <dt>{t('ex.type')}</dt>
+              <dd>{EXERCISE_TYPES[e.exerciseType].label[lang]}</dd>
+            </div>
+            {e.era && (
+              <div class="fact">
+                <dt>{t('ex.era')}</dt>
+                <dd><a href={localePath(lang, '/classic-vs-modern/')}>{ERAS[e.era].label[lang]}</a></dd>
+              </div>
+            )}
+          </dl>
+          <p class="diff-note">{t('ex.difficultyNote')}</p>
         </section>
 
         <section class="block" aria-labelledby="reps-h">
@@ -218,6 +220,10 @@ const jsonLd = [
   .ex-name { font-size: clamp(1.7rem, 1.3rem + 2vw, 2.6rem); line-height: 1.2; }
   .ex-other { color: var(--text-muted); font-weight: 700; font-size: var(--fs-lg); }
   .ex-aka { font-size: var(--fs-sm); }
+  .ex-target { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-block-start: 6px; font-size: var(--fs-md); }
+  .ex-target strong { color: var(--mus-primary); }
+  .dot { inline-size: 12px; block-size: 12px; border-radius: 50%; background: var(--mus-primary); }
+  .detail > .ex-head { margin-block-end: 16px; }
   details.ex-aka summary { cursor: pointer; list-style: none; min-block-size: 32px; }
   details.ex-aka summary::-webkit-details-marker { display: none; }
   .more { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--ink-600); font-weight: 800; font-size: var(--fs-xs); }

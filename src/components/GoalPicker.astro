@@ -1,0 +1,61 @@
+---
+/** Goal entry points: one row per goal journey, plus the beginner hub. */
+import Icon from './Icon.astro';
+import { GOAL_JOURNEYS, type GoalId } from '../data/goals';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Leave out the goal the visitor is already on. */
+  exclude?: GoalId;
+  /** Include the "I'm a beginner" row (default true). */
+  beginner?: boolean;
+}
+const { lang, exclude, beginner = true } = Astro.props;
+const t = useT(lang);
+const goals = GOAL_JOURNEYS.filter((g) => g.id !== exclude);
+---
+
+<ul class="goal-picker" role="list">
+  {goals.map((g) => (
+    <li>
+      <a class="goal" href={localePath(lang, `/goals/${g.id}/`)}>
+        <span class="goal-icon"><Icon name={g.icon} size={22} /></span>
+        <span class="goal-title">{g.title[lang]}</span>
+        <span class="goal-short">{g.short[lang]}</span>
+        <span class="goal-arrow" aria-hidden="true"><Icon name="arrow" size={18} flip /></span>
+      </a>
+    </li>
+  ))}
+  {beginner && (
+    <li>
+      <a class="goal goal--beginner" href={localePath(lang, '/beginner/')}>
+        <span class="goal-icon"><Icon name="user" size={22} /></span>
+        <span class="goal-title">{t('nav.beginner')}</span>
+        <span class="goal-short">{t('home.beginnerShort')}</span>
+        <span class="goal-arrow" aria-hidden="true"><Icon name="arrow" size={18} flip /></span>
+      </a>
+    </li>
+  )}
+</ul>
+
+<style>
+  .goal-picker { display: grid; gap: 8px; }
+  @media (min-width: 768px) { .goal-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .goal-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .goal {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 0 12px; align-items: center;
+    min-block-size: 64px; padding: 12px 14px; text-decoration: none; color: var(--text);
+    background: var(--ink-800); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  }
+  .goal:hover { border-color: var(--accent); }
+  .goal:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .goal-icon {
+    grid-row: span 2; inline-size: 42px; block-size: 42px; display: grid; place-items: center;
+    color: var(--accent-text); background: var(--ink-900); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  }
+  .goal-title { font-weight: 900; font-size: var(--fs-md); line-height: 1.3; }
+  .goal-short { grid-column: 2; font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.4; }
+  .goal-arrow { grid-column: 3; grid-row: 1 / span 2; color: var(--text-dim); }
+  .goal--beginner .goal-icon { background: var(--accent); color: var(--white); border-color: var(--accent); }
+</style>

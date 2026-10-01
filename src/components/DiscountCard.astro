@@ -1,37 +1,35 @@
 ---
-/** One official gym benefit. All benefits are permanent — never shown as a promotion. */
+/**
+ * One official gym benefit, as a list row (use inside <ul class="benefit-list">).
+ * All benefits are permanent — never shown as a promotion.
+ */
+import Icon from './Icon.astro';
 import type { Benefit } from '../config/gym';
-import { useT, type Lang } from '../i18n/utils';
+import type { Lang } from '../i18n/utils';
 
 interface Props {
   benefit: Benefit;
   lang: Lang;
 }
 const { benefit, lang } = Astro.props;
-const t = useT(lang);
 ---
 
-<article class="benefit card card--cut">
-  <span class="benefit-icon" aria-hidden="true">{benefit.icon}</span>
-  <div>
-    <h3 class="benefit-title">{benefit.title[lang]}</h3>
-    <p class="benefit-detail">{benefit.detail[lang]}</p>
-  </div>
-  <span class="badge permanent">{t('gym.permanent')}</span>
-</article>
+<li class="benefit">
+  <span class="benefit-icon" aria-hidden="true"><Icon name="check" size={18} /></span>
+  <span class="benefit-title">{benefit.title[lang]}</span>
+  <span class="benefit-detail">{benefit.detail[lang]}</span>
+</li>
 
 <style>
   .benefit {
-    display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center;
-    background: linear-gradient(160deg, var(--ink-700), var(--ink-800));
-    padding: 18px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+    padding-block: 12px; border-block-end: 1px solid var(--line);
   }
+  .benefit:last-child { border-block-end: 0; }
   .benefit-icon {
-    font-size: 1.6rem; inline-size: 52px; block-size: 52px; display: grid; place-items: center;
-    background: var(--red-glow); border: 1px solid rgb(225 6 0 / 0.5); border-radius: var(--radius-sm);
-    grid-row: span 2;
+    inline-size: 30px; block-size: 30px; display: grid; place-items: center; border-radius: 50%;
+    color: var(--white); background: var(--red-glow); border: 1px solid rgb(225 6 0 / 0.5);
   }
-  .benefit-title { font-size: 1.02rem; line-height: 1.4; }
-  .benefit-detail { color: var(--accent-text); font-weight: 800; font-size: 1.05rem; }
-  .permanent { justify-self: start; grid-column: 2; border-color: rgb(34 197 94 / 0.5); }
+  .benefit-title { font-weight: 800; line-height: 1.45; }
+  .benefit-detail { color: var(--accent-text); font-weight: 800; font-size: var(--fs-sm); white-space: nowrap; }
 </style>
