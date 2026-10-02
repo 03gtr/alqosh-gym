@@ -1,0 +1,296 @@
+---
+/**
+ * MY IQ GYM — local progress dashboard. Everything is read from and saved to
+ * this device only (no account, no server). Numbers are the user's own
+ * records; nothing here is estimated or invented.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import BeginnerToggle from '../components/BeginnerToggle.astro';
+import Icon from '../components/Icon.astro';
+import { GOAL_JOURNEYS } from '../data/goals';
+import { DIFFICULTY } from '../data/taxonomy';
+import { MESSAGES } from '../utils/motivation';
+import { product } from '../config/product';
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const goals = Object.fromEntries(GOAL_JOURNEYS.map((g) => [g.id, g.title[lang]]));
+const levels = Object.fromEntries(Object.entries(DIFFICULTY).map(([k, v]) => [k, v.card[lang]]));
+const i18n = {
+  none: t('progress.none'),
+  restart: MESSAGES.restart[lang],
+  remove: t('progress.remove'),
+  repaired: t('progress.repaired'),
+  reset: t('progress.resetNotice'),
+  noStorage: t('progress.noStorage'),
+  confirmReset: t('progress.confirmReset'),
+  confirmImport: t('progress.confirmImport'),
+  imported: t('progress.imported'),
+  importError: t('progress.importError'),
+  cleared: t('progress.cleared'),
+  openPlan: t('progress.openPlan'),
+};
+---
+
+<BaseLayout lang={lang} path="/progress/" title={t('progress.title')} description={t('progress.lead')}>
+  <PageHeader lang={lang} title={t('progress.title')} eyebrow={`MY ${product.name}`} lead={t('progress.lead')} crumbs={[{ label: t('nav.progress') }]} />
+
+  <div class="container section--tight progress" data-progress data-lang={lang} data-goals={JSON.stringify(goals)} data-levels={JSON.stringify(levels)} data-builder-url={localePath(lang, '/workouts/')} data-i18n={JSON.stringify(i18n)}>
+    <p class="notice local-note"><Icon name="info" size={18} />{t('progress.localNote')}</p>
+    <p class="notice notice--red" data-status hidden></p>
+    <noscript><p class="notice">{t('progress.noscript')}</p></noscript>
+
+    <section aria-labelledby="sum-h">
+      <h2 id="sum-h" class="section-title sub">{t('progress.summary')}</h2>
+      <dl class="stats">
+        <div class="stat stat--wide"><dt>{t('progress.goal')}</dt><dd data-out="goal">—</dd></div>
+        <div class="stat"><dt>{t('progress.level')}</dt><dd data-out="level">—</dd></div>
+        <div class="stat"><dt>{t('progress.streak')}</dt><dd data-out="streak">—</dd></div>
+        <div class="stat"><dt>{t('progress.completed')}</dt><dd data-out="completed">—</dd></div>
+        <div class="stat"><dt>{t('progress.workouts')}</dt><dd data-out="workouts">—</dd></div>
+        <div class="stat"><dt>{t('progress.favorites')}</dt><dd data-out="favorites">—</dd></div>
+        <div class="stat"><dt>{t('progress.activeDays')}</dt><dd data-out="active">—</dd></div>
+        <div class="stat stat--wide"><dt>{t('progress.last')}</dt><dd data-out="last">—</dd></div>
+      </dl>
+      <p class="streak-note" data-out="streakNote" hidden></p>
+      <p class="muted small">{t('progress.streakRule')}</p>
+    </section>
+
+    <section aria-labelledby="plan-h">
+      <h2 id="plan-h" class="section-title sub">{t('progress.plan')}</h2>
+      <div data-out="plan"><p class="muted">{t('progress.noPlan')}</p></div>
+      <p class="links">
+        <a class="link-arrow" href={localePath(lang, '/workouts/#builder')}>{t('workout.title')}</a>
+        <a class="link-arrow" href={localePath(lang, '/workouts/home/')}>{t('nav.homeWorkout')}</a>
+        <a class="link-arrow" href={localePath(lang, '/goals/')}>{t('nav.goals')}</a>
+      </p>
+    </section>
+
+    <section aria-labelledby="fav-h">
+      <h2 id="fav-h" class="section-title sub">{t('progress.favTitle')}</h2>
+      <ul class="xlist" role="list" data-list="favorites"></ul>
+      <p class="muted" data-empty="favorites">{t('progress.favEmpty')}</p>
+    </section>
+
+    <section aria-labelledby="recent-h">
+      <h2 id="recent-h" class="section-title sub">{t('progress.recentTitle')}</h2>
+      <ul class="xlist" role="list" data-list="recent"></ul>
+      <p class="muted" data-empty="recent">{t('progress.recentEmpty')}</p>
+    </section>
+
+    <section aria-labelledby="set-h">
+      <h2 id="set-h" class="section-title sub">{t('progress.settings')}</h2>
+      <form class="settings card" data-settings>
+        <div class="field">
+          <label for="pref-goal">{t('progress.goal')}</label>
+          <select class="select" id="pref-goal" name="goal">
+            <option value="">{t('progress.none')}</option>
+            {GOAL_JOURNEYS.map((g) => <option value={g.id}>{g.title[lang]}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="pref-level">{t('progress.level')}</label>
+          <select class="select" id="pref-level" name="level">
+            <option value="">{t('progress.none')}</option>
+            {Object.entries(levels).map(([k, v]) => <option value={k}>{v}</option>)}
+          </select>
+        </div>
+        <label class="toggle-line"><input type="checkbox" name="motivation" checked /><span>{t('progress.motivation')}</span></label>
+      </form>
+      <div class="bm-wrap"><BeginnerToggle lang={lang} /></div>
+    </section>
+
+    <section aria-labelledby="data-h">
+      <h2 id="data-h" class="section-title sub">{t('progress.dataTitle')}</h2>
+      <ul class="limits">
+        <li>{t('progress.limit1')}</li>
+        <li>{t('progress.limit2')}</li>
+        <li>{t('progress.limit3')}</li>
+      </ul>
+      <div class="data-actions">
+        <button type="button" class="btn btn--sm" data-export><Icon name="share" size={18} />{t('progress.export')}</button>
+        <label class="btn btn--sm file-btn"><Icon name="replay" size={18} />{t('progress.import')}<input type="file" accept="application/json,.json" data-import class="sr-only" /></label>
+        <button type="button" class="btn btn--sm danger" data-reset>{t('progress.reset')}</button>
+      </div>
+      <p class="muted small">{t('progress.resetExplain')}</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { load, save, clearAll, storageAvailable, today, toast } from '../scripts/progress-store';
+  import { exportState, importState, localDate, setPrefs, summarize, toggleFavorite, type LocalState } from '../utils/progress';
+  import { loadIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
+  import { daysLabel } from '../utils/motivation';
+  import type { ExerciseLite } from '../utils/exercise-index';
+  import type { GoalId } from '../data/goal-ids';
+  import type { Difficulty } from '../data/taxonomy';
+
+  const root = document.querySelector<HTMLElement>('[data-progress]');
+  if (root) void init(root);
+
+  async function init(root: HTMLElement) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'ar';
+    const i18n = JSON.parse(root.dataset.i18n ?? '{}') as Record<string, string>;
+    const goals = JSON.parse(root.dataset.goals ?? '{}') as Record<string, string>;
+    const levels = JSON.parse(root.dataset.levels ?? '{}') as Record<string, string>;
+    const statusEl = root.querySelector<HTMLElement>('[data-status]')!;
+    const settings = root.querySelector<HTMLFormElement>('[data-settings]')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const nf = new Intl.NumberFormat(lang === 'ar' ? 'ar-IQ-u-nu-latn' : 'en-US');
+    const noPlan = out('plan').innerHTML;
+    let names = new Map<string, ExerciseLite>();
+
+    const showStatus = (text: string) => {
+      statusEl.textContent = text;
+      statusEl.hidden = !text;
+    };
+    if (!storageAvailable()) showStatus(i18n.noStorage);
+    const first = load();
+    if (first.status === 'repaired') showStatus(i18n.repaired);
+    if (first.status === 'reset') showStatus(i18n.reset);
+
+    const exName = (slug: string) => {
+      const e = names.get(slug);
+      return e ? (lang === 'ar' ? e.ar : e.name) : slug.replace(/-/g, ' ');
+    };
+
+    const renderList = (key: 'favorites' | 'recent', slugs: string[]) => {
+      const ul = root.querySelector<HTMLElement>(`[data-list="${key}"]`)!;
+      root.querySelector<HTMLElement>(`[data-empty="${key}"]`)!.hidden = slugs.length > 0;
+      ul.innerHTML = slugs.map((s) => `<li class="xi"><a href="${exerciseHref(lang, s)}">${escapeHtml(exName(s))}</a>${
+        key === 'favorites' ? `<button type="button" class="xi-rm" data-unfav="${escapeHtml(s)}" aria-label="${escapeHtml(`${i18n.remove} ${exName(s)}`)}">✕</button>` : ''}</li>`).join('');
+    };
+
+    const render = (s: LocalState) => {
+      const sum = summarize(s, today());
+      out('goal').textContent = s.prefs.goal ? goals[s.prefs.goal] ?? i18n.none : i18n.none;
+      out('level').textContent = s.prefs.level ? levels[s.prefs.level] ?? i18n.none : i18n.none;
+      out('streak').textContent = daysLabel(sum.streak, lang);
+      out('completed').textContent = nf.format(sum.completedTotal);
+      out('workouts').textContent = nf.format(sum.workoutsTotal);
+      out('favorites').textContent = nf.format(sum.favorites);
+      out('active').textContent = nf.format(sum.activeDays);
+      const last = s.completed.at(-1);
+      out('last').textContent = last ? exName(last.slug) : i18n.none;
+      const note = out('streakNote');
+      note.hidden = !sum.restart;
+      note.textContent = sum.restart ? i18n.restart : '';
+      const plan = out('plan');
+      plan.innerHTML = s.plan
+        ? `<p class="plan-line"><strong>${escapeHtml(s.plan.label)}</strong> · ${escapeHtml(goals[s.plan.goal] ?? s.plan.goal)}</p>
+           <a class="btn btn--sm" href="${escapeHtml(root.dataset.builderUrl ?? '')}?plan=saved#builder">${escapeHtml(i18n.openPlan)}</a>`
+        : noPlan;
+      renderList('favorites', s.favorites);
+      renderList('recent', s.recent);
+      (settings.elements.namedItem('goal') as HTMLSelectElement).value = s.prefs.goal ?? '';
+      (settings.elements.namedItem('level') as HTMLSelectElement).value = s.prefs.level ?? '';
+      (settings.elements.namedItem('motivation') as HTMLInputElement).checked = s.prefs.motivation;
+    };
+
+    render(first.state);
+    // Exercise names come from the shared index (only needed when there is something to list).
+    const st = first.state;
+    if (st.favorites.length || st.recent.length || st.completed.length) {
+      try {
+        names = new Map((await loadIndex()).map((e) => [e.slug, e]));
+        render(load().state);
+      } catch {
+        /* names fall back to slugs */
+      }
+    }
+
+    settings.addEventListener('change', () => {
+      const fd = new FormData(settings);
+      const s = setPrefs(load().state, {
+        goal: (fd.get('goal') || null) as GoalId | null,
+        level: (fd.get('level') || null) as Difficulty | null,
+        motivation: fd.get('motivation') === 'on',
+      });
+      save(s);
+      render(s);
+    });
+
+    root.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-unfav]');
+      if (!btn) return;
+      const s = toggleFavorite(load().state, btn.dataset.unfav!);
+      save(s);
+      render(s);
+    });
+
+    root.querySelector('[data-export]')!.addEventListener('click', () => {
+      const blob = new Blob([exportState(load().state, new Date().toISOString())], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `iq-gym-progress-${localDate()}.json`;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+
+    const fileInput = root.querySelector<HTMLInputElement>('[data-import]')!;
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      fileInput.value = '';
+      if (!file) return;
+      const res = importState(await file.text(), document.documentElement.dataset.gym ?? 'unknown');
+      if (!res.ok) {
+        showStatus(i18n.importError);
+        return;
+      }
+      if (!window.confirm(i18n.confirmImport)) return;
+      save(res.state);
+      showStatus('');
+      render(res.state);
+      toast(i18n.imported);
+    });
+
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      if (!window.confirm(i18n.confirmReset)) return;
+      clearAll();
+      const s = load().state;
+      showStatus('');
+      render(s);
+      toast(i18n.cleared);
+    });
+  }
+</script>
+
+<style>
+  .progress { display: grid; gap: 26px; max-inline-size: 900px; }
+  .local-note { display: flex; gap: 8px; align-items: flex-start; }
+  .local-note :global(.icon) { flex: none; margin-block-start: 3px; }
+  .sub { font-size: var(--fs-xl); margin-block-end: 12px; }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (min-width: 768px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px; display: grid; gap: 4px; }
+  .stat--wide { grid-column: span 2; }
+  .stat dt { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+  .stat dd { margin: 0; font-weight: 900; font-size: var(--fs-lg); overflow-wrap: anywhere; }
+  .streak-note { margin-block-start: 10px; font-weight: 800; }
+  .small { font-size: var(--fs-xs); margin-block-start: 6px; }
+  .links { display: flex; flex-wrap: wrap; gap: 0 20px; margin-block-start: 8px; }
+  .progress :global(.plan-line) { margin-block-end: 8px; }
+  .xlist { display: grid; gap: 6px; }
+  .progress :global(.xi) { display: flex; align-items: center; gap: 8px; background: var(--ink-800); border: 1px solid var(--line); border-radius: var(--radius-sm); padding-inline: 14px 4px; }
+  .progress :global(.xi a) { flex: 1; min-block-size: 48px; display: flex; align-items: center; font-weight: 800; color: var(--text); text-decoration: none; }
+  .progress :global(.xi-rm) { min-inline-size: 44px; min-block-size: 44px; background: none; border: 0; color: var(--text-muted); cursor: pointer; font: inherit; }
+  .progress :global(.xi-rm:hover) { color: var(--white); }
+  .settings { display: grid; gap: 14px; }
+  @media (min-width: 768px) { .settings { grid-template-columns: 1fr 1fr; } .toggle-line { grid-column: 1 / -1; } }
+  .toggle-line { display: flex; align-items: center; gap: 10px; min-block-size: 44px; font-weight: 700; cursor: pointer; }
+  .toggle-line input { inline-size: 22px; block-size: 22px; accent-color: var(--accent); }
+  .bm-wrap { margin-block-start: 12px; max-inline-size: 560px; }
+  .limits { display: grid; gap: 6px; padding-inline-start: 1.2em; list-style: disc; color: var(--text-muted); }
+  .data-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 14px 6px; }
+  .file-btn { cursor: pointer; }
+  .file-btn:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .danger { border-color: var(--red-400, #ff5a52); color: var(--red-400, #ff5a52); }
+</style>

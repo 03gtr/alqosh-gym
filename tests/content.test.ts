@@ -4,7 +4,10 @@ import { join } from 'node:path';
 import { exercises } from '../src/data/exercises';
 import { toLite } from '../src/utils/exercise-index';
 import { emptyFilters, filtersFromParams, matchesFilters } from '../src/scripts/filters';
-import { developer, gym } from '../src/config/gym';
+import { gym } from '../src/config/gym';
+import { company } from '../src/config/product';
+import { getExercise } from '../src/data/exercises';
+import { LEARN_GUIDES } from '../src/data/learn';
 import { GOAL_JOURNEYS } from '../src/data/goals';
 import { ui } from '../src/i18n/ui';
 
@@ -71,8 +74,9 @@ describe('official gym facts', () => {
   });
 
   it('credits IQ Group with a link to iq-group.app', () => {
-    expect(developer.url).toBe('https://iq-group.app');
-    expect(developer.credit.ar).toBe('بدعم وتطوير IQ Group');
+    expect(company.url).toBe('https://iq-group.app');
+    expect(company.credit.ar).toBe('بدعم وتطوير IQ Group');
+    expect(company.credit.en).toBe('Supported & Developed by IQ Group');
   });
 
   it('never presents discounts as temporary offers', () => {
@@ -95,10 +99,14 @@ describe('official gym facts', () => {
 describe('goal journeys', () => {
   const ARTICLES = new Set(slugs(join(CONTENT, 'articles', 'ar')));
   const EN_ARTICLES = new Set(slugs(join(CONTENT, 'articles', 'en')));
-  const ROUTES = ['/calculator/', '/nutrition/', '/nutrition/meals/', '/workouts/', '/exercises/', '/beginner/'];
+  const ROUTES = ['/calculator/', '/nutrition/', '/nutrition/meals/', '/workouts/', '/workouts/home/', '/exercises/', '/beginner/', '/advanced/', '/progress/'];
+  const GUIDES = new Set(slugs(join(CONTENT, 'guides', 'ar')).filter((s) => slugs(join(CONTENT, 'guides', 'en')).includes(s)));
+  const LEARN = new Set<string>(LEARN_GUIDES.map((g) => g.slug));
 
-  it('covers the four goals with bilingual text', () => {
-    expect(GOAL_JOURNEYS.map((g) => g.id)).toEqual(['weight-loss', 'muscle-gain', 'maintain', 'fitness']);
+  it('covers the eight goals with bilingual text', () => {
+    expect(GOAL_JOURNEYS.map((g) => g.id)).toEqual([
+      'weight-loss', 'muscle-gain', 'maintain', 'fitness', 'beginner', 'powerlifting', 'conditioning', 'home',
+    ]);
     for (const g of GOAL_JOURNEYS) {
       for (const text of [g.title, g.short, g.heading, g.intro, ...g.steps.flatMap((s) => [s.title, s.text, s.cta])]) {
         expect(text.ar.trim() && text.en.trim(), g.id).toBeTruthy();
@@ -112,13 +120,35 @@ describe('goal journeys', () => {
       for (const s of g.steps) {
         const path = s.path.split(/[?#]/)[0];
         const article = path.match(/^\/articles\/([^/]+)\/$/)?.[1];
-        if (article) {
+        const learn = path.match(/^\/learn\/([^/]+)\/$/)?.[1];
+        if (learn) {
+          expect(LEARN.has(learn) && GUIDES.has(learn), `${g.id}: ${s.path}`).toBe(true);
+        } else if (article) {
           expect(ARTICLES.has(article) && EN_ARTICLES.has(article), `${g.id}: ${s.path}`).toBe(true);
         } else {
           expect(ROUTES, `${g.id}: ${s.path}`).toContain(path);
         }
       }
     }
+  });
+
+  it('pathway exercise lists only use existing exercises', () => {
+    for (const g of GOAL_JOURNEYS) {
+      for (const grp of g.exerciseGroups ?? []) {
+        for (const s of grp.slugs ?? []) expect(getExercise(s), `${g.id}: ${s}`).toBeTruthy();
+        if (grp.match) expect(exercises.filter(grp.match).length, g.id).toBeGreaterThan(0);
+      }
+    }
+    const starter = GOAL_JOURNEYS.find((g) => g.id === 'beginner')!.exerciseGroups![0].slugs!;
+    for (const s of starter) expect(getExercise(s)!.difficulty, s).toBe('beginner');
+  });
+
+  it('never implies federation or CrossFit affiliation', () => {
+    const text = JSON.stringify(GOAL_JOURNEYS).toLowerCase();
+    expect(text).not.toContain('crossfit');
+    const pl = GOAL_JOURNEYS.find((g) => g.id === 'powerlifting')!;
+    expect(pl.intro.en).toContain('not affiliated with any federation');
+    expect(pl.intro.ar).toContain('لا يرتبط بأي اتحاد');
   });
 
   it('makes no promises about results', () => {

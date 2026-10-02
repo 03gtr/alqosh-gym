@@ -33,15 +33,18 @@ export const bottomNav: NavItem[] = [
 
 /** Items inside the mobile "More" sheet. */
 export const moreNav: NavItem[] = [
+  { key: 'nav.progress', path: '/progress/', icon: 'chart' },
   { key: 'nav.gym', path: '/gym/', icon: 'clock' },
   { key: 'nav.women', path: '/women/', icon: 'user' },
   { key: 'nav.calculator', path: '/calculator/', icon: 'calculator' },
   { key: 'nav.workouts', path: '/workouts/', icon: 'bolt' },
+  { key: 'nav.homeWorkout', path: '/workouts/home/', icon: 'home' },
   { key: 'nav.muscles', path: '/muscles/', icon: 'muscle' },
   { key: 'nav.beginner', path: '/beginner/', icon: 'user' },
   { key: 'nav.advanced', path: '/advanced/', icon: 'bolt' },
   { key: 'nav.meals', path: '/nutrition/meals/', icon: 'nutrition' },
   { key: 'nav.health', path: '/health/', icon: 'heart' },
+  { key: 'nav.learnRecovery', path: '/learn/recovery/', icon: 'book' },
   { key: 'nav.eras', path: '/classic-vs-modern/', icon: 'book' },
   { key: 'nav.qr', path: '/qr/', icon: 'qr' },
   { key: 'nav.about', path: '/about/', icon: 'info' },
@@ -50,5 +53,7 @@ export const moreNav: NavItem[] = [
 /** Is `current` (language-neutral path) inside the section `path`? */
 export function isActive(path: string, current: string): boolean {
   if (path === '/') return current === '/';
+  // /workouts/home/ has its own item; don't also mark /workouts/ for it.
+  if (path === '/workouts/' && current.startsWith('/workouts/home/')) return false;
   return current.startsWith(path);
 }

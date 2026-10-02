@@ -19,7 +19,7 @@ const hasContact = Boolean(c.phone || c.whatsapp || c.address || c.mapUrl || c.s
 ---
 
 <BaseLayout lang={lang} path="/gym/" title={t('hero.ctaGym')} description={`${t('gym.hours')} · ${t('gym.benefits')} · ${t('gym.coaches')}`}>
-  <PageHeader lang={lang} title={gym.name[lang]} eyebrow={gym.altName[lang]} lead={t('gym.identityBody')} crumbs={[{ label: t('nav.gym') }]}>
+  <PageHeader lang={lang} title={gym.name[lang]} eyebrow={gym.altName[lang]} lead={gym.copy.identity[lang]} crumbs={[{ label: t('nav.gym') }]}>
     <p class="pillars">{t('gym.pillars')}</p>
   </PageHeader>
 

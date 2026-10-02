@@ -4,7 +4,8 @@ import PageHeader from '../components/PageHeader.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import TipCard from '../components/TipCard.astro';
 import NutritionCard from '../components/NutritionCard.astro';
-import { getArticles, readingMinutes, splitId } from '../utils/content';
+import { getArticles, getGuide, readingMinutes, splitId } from '../utils/content';
+import { LEARN_GUIDES } from '../data/learn';
 import { useT, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -13,11 +14,18 @@ interface Props {
 const { lang } = Astro.props;
 const t = useT(lang);
 const articles = await getArticles(lang, 'health');
+const guides = await Promise.all(LEARN_GUIDES.map(async (g) => ({ ...g, guide: (await getGuide(lang, g.slug))! })));
 ---
 
 <BaseLayout lang={lang} path="/health/" title={t('health.title')} description={t('health.intro')}>
   <PageHeader lang={lang} title={t('health.title')} lead={t('health.intro')} crumbs={[{ label: t('nav.health') }]} />
   <div class="container section--tight">
+    <section aria-labelledby="learn-h" class="learn">
+      <h2 id="learn-h" class="section-title learn-title">{t('learn.title')}</h2>
+      <div class="grid grid--3">
+        {guides.map((g, i) => <NutritionCard lang={lang} path={`/learn/${g.slug}/`} icon={g.icon} title={g.guide.data.title} text={g.guide.data.description} accent={i === 0} />)}
+      </div>
+    </section>
     <TipCard lang={lang} />
     <div class="grid grid--3 list">
       {articles.map((a) => (
@@ -33,5 +41,7 @@ const articles = await getArticles(lang, 'health');
 
 <style>
   .list { margin-block-start: 28px; }
+  .learn { margin-block-end: 28px; }
+  .learn-title { font-size: var(--fs-xl); margin-block-end: 12px; }
   .hubs { margin-block-start: 28px; }
 </style>

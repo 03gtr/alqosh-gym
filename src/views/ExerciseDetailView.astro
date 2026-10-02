@@ -50,7 +50,7 @@ const jsonLd = [
 ];
 ---
 
-<BaseLayout lang={lang} path={path} title={title} description={description} ogType="article" jsonLd={jsonLd}>
+<BaseLayout lang={lang} path={path} title={title} description={description} ogType="article" jsonLd={jsonLd} splash={false}>
   <article class="container detail">
     <nav class="breadcrumb crumbs" aria-label={t('a11y.breadcrumb')}>
       <ol>
@@ -73,6 +73,15 @@ const jsonLd = [
           <p>{aka.slice(2).join(' · ')}</p>
         </details>
       )}
+      <div class="ex-actions" data-ex-actions data-slug={e.slug} data-msg-saved={t('ex.savedMsg')} data-msg-unsaved={t('ex.unsavedMsg')} hidden>
+        <button type="button" class="btn btn--sm act" aria-pressed="false" data-fav>
+          <Icon name="heart" size={18} /><span>{t('ex.save')}</span>
+        </button>
+        <button type="button" class="btn btn--sm act" aria-pressed="false" data-done>
+          <Icon name="check" size={18} /><span>{t('ex.doneToday')}</span>
+        </button>
+        <a class="act-link" href={localePath(lang, '/progress/')}>{t('nav.progress')}</a>
+      </div>
     </header>
 
     <div class="detail-grid">
@@ -186,6 +195,41 @@ const jsonLd = [
 </BaseLayout>
 
 <script>
+  import { load, save, update, encourage, toast, today } from '../scripts/progress-store';
+  import { addRecent, isCompletedOn, isFavorite, markCompleted, toggleFavorite, unmarkCompleted } from '../utils/progress';
+
+  // Favourites, "done today" and recently viewed — saved on this device only.
+  const actions = document.querySelector<HTMLElement>('[data-ex-actions]');
+  if (actions) {
+    const slug = actions.dataset.slug!;
+    const fav = actions.querySelector<HTMLButtonElement>('[data-fav]')!;
+    const done = actions.querySelector<HTMLButtonElement>('[data-done]')!;
+    const reflect = () => {
+      const s = load().state;
+      fav.setAttribute('aria-pressed', String(isFavorite(s, slug)));
+      done.setAttribute('aria-pressed', String(isCompletedOn(s, slug, today())));
+    };
+    if (save(addRecent(load().state, slug))) {
+      actions.hidden = false;
+      reflect();
+      fav.addEventListener('click', () => {
+        const [, after] = update((s) => toggleFavorite(s, slug));
+        toast((isFavorite(after, slug) ? actions.dataset.msgSaved : actions.dataset.msgUnsaved) ?? '');
+        reflect();
+      });
+      done.addEventListener('click', () => {
+        const d = today();
+        if (isCompletedOn(load().state, slug, d)) {
+          update((s) => unmarkCompleted(s, slug, d));
+        } else {
+          const [before, after] = update((s) => markCompleted(s, slug, d));
+          encourage(before, after, 'exercise-complete');
+        }
+        reflect();
+      });
+    }
+  }
+
   for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-share]')) {
     const canShare = typeof navigator.share === 'function';
     const canCopy = !!navigator.clipboard;
@@ -220,6 +264,12 @@ const jsonLd = [
   .ex-name { font-size: clamp(1.7rem, 1.3rem + 2vw, 2.6rem); line-height: 1.2; }
   .ex-other { color: var(--text-muted); font-weight: 700; font-size: var(--fs-lg); }
   .ex-aka { font-size: var(--fs-sm); }
+  .ex-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-block-start: 10px; }
+  .ex-actions[hidden] { display: none; }
+  .act { min-block-size: 44px; }
+  .act[aria-pressed='true'] { background: var(--white); color: var(--black); border-color: var(--white); }
+  .act[aria-pressed='true'] :global(.icon) { color: var(--accent); }
+  .act-link { font-size: var(--fs-sm); font-weight: 700; color: var(--text-muted); min-block-size: 44px; display: inline-flex; align-items: center; }
   .ex-target { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-block-start: 6px; font-size: var(--fs-md); }
   .ex-target strong { color: var(--mus-primary); }
   .dot { inline-size: 12px; block-size: 12px; border-radius: 50%; background: var(--mus-primary); }

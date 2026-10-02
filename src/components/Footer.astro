@@ -1,7 +1,9 @@
 ---
 import Logo from './Logo.astro';
 import ContactLinks from './ContactLinks.astro';
-import { COPYRIGHT_YEAR, developer, gym } from '../config/gym';
+import ProductMark from './ProductMark.astro';
+import { COPYRIGHT_YEAR, gym } from '../config/gym';
+import { company } from '../config/product';
 import { localePath, useT, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -19,6 +21,8 @@ const links = [
 ];
 const learn = [
   { label: t('nav.goals'), path: '/goals/' },
+  { label: t('nav.progress'), path: '/progress/' },
+  { label: t('nav.homeWorkout'), path: '/workouts/home/' },
   { label: t('nav.beginner'), path: '/beginner/' },
   { label: t('nav.advanced'), path: '/advanced/' },
   { label: t('nav.workouts'), path: '/workouts/' },
@@ -53,15 +57,18 @@ const learn = [
   </div>
   <div class="container footer-bottom">
     <p class="disclaimer">{t('disclaimer.short')}</p>
+    <p class="platform">
+      <a href={localePath(lang, '/about/#product')}><span>{t('footer.platform')}</span><ProductMark class="footer-mark" /></a>
+    </p>
     <p class="credit">
-      <a href={developer.url ?? localePath(lang, '/about/#credits')} {...(developer.url ? { target: '_blank', rel: 'noopener' } : {})}>
-        <span lang="ar" dir="rtl">{developer.credit.ar}</span>
+      <a href={company.url ?? localePath(lang, '/about/#credits')} {...(company.url ? { target: '_blank', rel: 'noopener' } : {})}>
+        <span lang="ar" dir="rtl">{company.credit.ar}</span>
         <span class="sep" aria-hidden="true">|</span>
-        <span lang="en" dir="ltr">{developer.credit.en}</span>
-        {developer.url && <span class="sr-only">{t('contact.newTab')}</span>}
+        <span lang="en" dir="ltr">{company.credit.en}</span>
+        {company.url && <span class="sr-only">{t('contact.newTab')}</span>}
       </a>
     </p>
-    <p class="copy"><span class="ltr">© {COPYRIGHT_YEAR} Alqosh Gym</span> — {t('footer.rights')}</p>
+    <p class="copy"><span class="ltr">© {COPYRIGHT_YEAR} {gym.brand.shortName}</span> — {t('footer.rights')}</p>
   </div>
 </footer>
 
@@ -90,5 +97,11 @@ const learn = [
   .credit a { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; font-size: var(--fs-sm); color: var(--text-muted); text-decoration: none; min-block-size: 40px; align-items: center; }
   .credit a:hover { color: var(--white); }
   .sep { color: var(--text-dim); }
+  .platform a {
+    display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-block-size: 44px;
+    color: var(--text-muted); font-size: var(--fs-sm); font-weight: 700; text-decoration: none;
+  }
+  .platform a:hover { color: var(--white); }
+  .platform :global(.footer-mark) { grid-auto-flow: column; gap: 10px; align-items: baseline; }
   .copy { font-size: var(--fs-xs); color: var(--text-dim); }
 </style>

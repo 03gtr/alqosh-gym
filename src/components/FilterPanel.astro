@@ -7,6 +7,7 @@ import {
   CATEGORIES, DIFFICULTY, EQUIPMENT, ERAS, EXERCISE_TYPES, GOALS, MUSCLE_CATEGORIES, PATTERNS,
   PRIMARY_EQUIPMENT_FILTERS, TRAINING_CATEGORIES, type Equipment,
 } from '../data/taxonomy';
+import { PROGRAMS } from '../data/programs';
 import { localePath, useT, type Lang } from '../i18n/utils';
 import type { UIKey } from '../i18n/ui';
 
@@ -20,6 +21,10 @@ const t = useT(lang);
 
 const extraEquipment = usedEquipment.filter((q) => !PRIMARY_EQUIPMENT_FILTERS.includes(q));
 const groups: { name: string; title: UIKey; options: { value: string; label: string }[]; open?: boolean }[] = [
+  {
+    name: 'program', title: 'filters.program', open: true,
+    options: Object.entries(PROGRAMS).map(([k, v]) => ({ value: k, label: v.label[lang] })),
+  },
   {
     name: 'category', title: 'filters.category', open: true,
     options: [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES].map((c) => ({ value: c, label: CATEGORIES[c].label[lang] })),

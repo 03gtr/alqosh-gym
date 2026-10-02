@@ -1,0 +1,12 @@
+---
+import GuideView from '../../../views/GuideView.astro';
+import { LEARN_GUIDES, type LearnSlug } from '../../../data/learn';
+
+export function getStaticPaths() {
+  return LEARN_GUIDES.map((g) => ({ params: { guide: g.slug } }));
+}
+
+const slug = Astro.params.guide as LearnSlug;
+---
+
+<GuideView lang="en" slug={slug} path={`/learn/${slug}/`} />

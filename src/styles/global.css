@@ -304,3 +304,37 @@ fieldset { border: 0; padding: 0; min-inline-size: 0; }
   main { padding: 0 !important; }
   .card { border-color: #999; background: #fff; }
 }
+
+/* ---------------------------------------------------------------- product splash */
+/* Hidden unless the inline head script marks the first page of a session. */
+.splash { display: none; }
+html[data-splash] .splash {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center; justify-items: center; gap: 14px;
+  padding: 24px; background: var(--black); pointer-events: none; text-align: center;
+  animation: splash-out 250ms ease-in calc(var(--splash-ms, 900ms) - 250ms) forwards;
+}
+html[data-splash] .splash > * { animation: splash-in 260ms ease-out both; }
+html[data-splash] .splash > :nth-child(2) { animation-delay: 70ms; }
+html[data-splash] .splash > :nth-child(3) { animation-delay: 140ms; }
+html[data-splash] .splash > :nth-child(4) { animation-delay: 180ms; }
+.splash-company { font-family: var(--font-display); letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.95rem; color: var(--text-muted); }
+.splash-rule { inline-size: 56px; block-size: 3px; background: var(--accent); transform: skewX(-20deg); }
+.splash-gym { display: grid; gap: 2px; }
+.splash-gym-en { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.04em; color: var(--white); }
+.splash-gym-en em { font-style: normal; color: var(--accent-text); }
+.splash-gym-ar { font-weight: 800; color: var(--text-muted); }
+@keyframes splash-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes splash-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { html[data-splash] .splash { display: none; } }
+@media print { .splash { display: none !important; } }
+
+/* ---------------------------------------------------------------- local-progress toast */
+.toast {
+  position: fixed; z-index: 90; inset-inline: 16px; inset-block-end: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  margin-inline: auto; max-inline-size: 420px; padding: 12px 16px;
+  background: var(--ink-700); color: var(--white); border: 1px solid var(--line-strong); border-inline-start: 4px solid var(--accent);
+  border-radius: var(--radius-sm); box-shadow: 0 8px 30px rgb(0 0 0 / 0.5); font-weight: 800;
+  animation: toast-in 200ms ease-out both;
+}
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@media (min-width: 1180px) { .toast { inset-block-end: 24px; } }

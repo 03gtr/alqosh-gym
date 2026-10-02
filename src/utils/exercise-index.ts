@@ -10,6 +10,7 @@ import {
   CATEGORIES, DIFFICULTY, EQUIPMENT, ERAS, EXERCISE_TYPES, GOALS, MUSCLES, PATTERNS,
 } from '../data/taxonomy';
 import { goalsFor, primaryGroups } from '../data/exercises';
+import { PROGRAMS, programsFor, type ProgramId } from '../data/programs';
 import { buildSearchDoc, type SearchDoc } from './search';
 
 export interface ExerciseLite {
@@ -25,6 +26,8 @@ export interface ExerciseLite {
   type: ExerciseType;
   era?: Era;
   goals: Goal[];
+  /** Discovery pathways (powerlifting, conditioning, home). */
+  programs: ProgramId[];
   doc: SearchDoc;
 }
 
@@ -34,6 +37,7 @@ const terms = (t: Termish | undefined): string[] => (t ? [t.label.ar, t.label.en
 export function toLite(e: Exercise): ExerciseLite {
   const goals = goalsFor(e);
   const groups = primaryGroups(e);
+  const programs = programsFor(e);
   const meta: string[] = [
     ...groups.flatMap((g) => terms(CATEGORIES[g])),
     ...e.primaryMuscles.flatMap((m) => terms(MUSCLES[m])),
@@ -44,6 +48,7 @@ export function toLite(e: Exercise): ExerciseLite {
     ...(e.movementPattern ? terms(PATTERNS[e.movementPattern]) : []),
     ...(e.era ? terms(ERAS[e.era]) : []),
     ...goals.flatMap((g) => terms(GOALS[g])),
+    ...programs.flatMap((p) => terms(PROGRAMS[p])),
     ...e.tags,
   ];
   return {
@@ -59,6 +64,7 @@ export function toLite(e: Exercise): ExerciseLite {
     type: e.exerciseType,
     era: e.era,
     goals,
+    programs,
     doc: buildSearchDoc({
       names: [e.name, e.arabicName],
       aliases: [

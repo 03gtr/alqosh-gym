@@ -1,0 +1,26 @@
+---
+/** IQ GYM product wordmark with its Syriac name (product identity, not the gym's). */
+import { product } from '../config/product';
+
+interface Props {
+  size?: 'sm' | 'lg';
+  class?: string;
+}
+const { size = 'sm', class: className } = Astro.props;
+---
+
+<span class:list={['product-mark', `product-mark--${size}`, className]}>
+  <span class="pm-name" lang="en" dir="ltr">{product.name}</span>
+  <span class="pm-syr" lang="syr" dir="rtl">{product.syriacName}</span>
+</span>
+
+<style>
+  .product-mark { display: inline-grid; justify-items: center; gap: 2px; line-height: 1.1; }
+  .pm-name { font-family: var(--font-display); letter-spacing: 0.06em; font-size: 1.25rem; color: var(--white); }
+  .pm-syr {
+    font-family: 'Noto Sans Syriac', 'Noto Sans Syriac Eastern', 'Estrangelo Edessa', 'Segoe UI Historic', serif;
+    font-size: 0.95rem; color: var(--text-muted);
+  }
+  .product-mark--lg .pm-name { font-size: clamp(2.4rem, 1.6rem + 4vw, 3.6rem); }
+  .product-mark--lg .pm-syr { font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem); }
+</style>

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import SourceList from '../components/SourceList.astro';
+import { gym } from '../config/gym';
 import { getArticles, readingMinutes, splitId, type Article } from '../utils/content';
 import { absoluteUrl, formatNumber, useT, type Lang } from '../i18n/utils';
 
@@ -31,7 +32,7 @@ const jsonLd = [
     inLanguage: lang,
     dateModified: updated.toISOString().slice(0, 10),
     mainEntityOfPage: absoluteUrl(lang, path, Astro.site),
-    publisher: { '@type': 'Organization', name: 'ALQOSH GYM' },
+    publisher: { '@type': 'Organization', name: gym.name.en },
   },
 ];
 ---

@@ -123,10 +123,10 @@ export const PRIMARY_EQUIPMENT_FILTERS: Equipment[] = [
 /* ------------------------------------------------------------------ */
 
 export const DIFFICULTY = {
-  beginner: { label: { en: 'Beginner', ar: 'مبتدئ' }, level: 1, search: ['easy', 'سهل', 'مبتدئ', 'مبتدئين'] },
-  intermediate: { label: { en: 'Intermediate', ar: 'متوسط' }, level: 2, search: ['medium', 'متوسط'] },
-  advanced: { label: { en: 'Advanced', ar: 'متقدم' }, level: 3, search: ['hard', 'pro', 'صعب', 'متقدم', 'محترف'] },
-} as const satisfies Record<string, Term & { level: 1 | 2 | 3 }>;
+  beginner: { label: { en: 'Beginner', ar: 'مبتدئ' }, card: { en: 'Beginner-friendly', ar: 'مناسب للمبتدئين' }, level: 1, search: ['easy', 'سهل', 'مبتدئ', 'مبتدئين'] },
+  intermediate: { label: { en: 'Intermediate', ar: 'متوسط' }, card: { en: 'Intermediate', ar: 'متوسط' }, level: 2, search: ['medium', 'متوسط'] },
+  advanced: { label: { en: 'Advanced', ar: 'متقدم' }, card: { en: 'Advanced', ar: 'متقدم' }, level: 3, search: ['hard', 'pro', 'صعب', 'متقدم', 'محترف'] },
+} as const satisfies Record<string, Term & { card: Localized; level: 1 | 2 | 3 }>;
 export type Difficulty = keyof typeof DIFFICULTY;
 
 /* ------------------------------------------------------------------ */

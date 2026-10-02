@@ -1,0 +1,197 @@
+---
+/**
+ * Home workout ("ما كدرت تروح للجم اليوم؟ تمرّن من البيت"): time → equipment →
+ * goal → one ready session, built in the browser from the shared exercise index.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Icon from '../components/Icon.astro';
+import { EQUIPMENT } from '../data/taxonomy';
+import { HOME_DURATIONS, HOME_GEAR, HOME_GOALS } from '../utils/home-workout';
+import { localePath, useT, type Lang } from '../i18n/utils';
+import type { UIKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const goalKey = (g: string) => `hw.goal.${g}` as UIKey;
+const i18n = {
+  minutes: t('workout.minutes', { n: '{n}' }),
+  rounds: t('hw.rounds', { n: '{n}' }),
+  done: t('hw.done'),
+  doneSaved: t('hw.doneSaved'),
+  label: t('hw.sessionLabel', { n: '{n}' }),
+  empty: t('hw.noMatch'),
+};
+---
+
+<BaseLayout lang={lang} path="/workouts/home/" title={t('hw.title')} description={t('hw.lead')}>
+  <PageHeader lang={lang} title={t('hw.title')} eyebrow={t('home.cantGo')} lead={t('hw.lead')} crumbs={[{ label: t('nav.workouts'), path: '/workouts/' }, { label: t('nav.homeWorkout') }]} />
+
+  <div class="container section--tight" data-home-builder data-lang={lang} data-i18n={JSON.stringify(i18n)}>
+    <form class="hb-form card" data-home-form>
+      <fieldset>
+        <legend>{t('hw.step1')}</legend>
+        <div class="segmented">
+          {HOME_DURATIONS.map((m) => <label><input type="radio" name="minutes" value={m} checked={m === 20} /><span>{t('workout.minutes', { n: m })}</span></label>)}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{t('hw.step2')}</legend>
+        <p class="hint">{t('hw.gearHint')}</p>
+        <div class="checks">
+          {HOME_GEAR.map((q) => <label class="check"><input type="checkbox" name="equipment" value={q} /><span>{EQUIPMENT[q].label[lang]}</span></label>)}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{t('hw.step3')}</legend>
+        <div class="segmented goals">
+          {HOME_GOALS.map((g) => <label><input type="radio" name="goal" value={g} checked={g === 'fat-loss'} /><span>{t(goalKey(g))}</span></label>)}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{t('workout.experience')}</legend>
+        <div class="segmented">
+          <label><input type="radio" name="experience" value="beginner" checked /><span>{t('workout.exp.beginner')}</span></label>
+          <label><input type="radio" name="experience" value="intermediate" /><span>{t('workout.exp.intermediate')}</span></label>
+          <label><input type="radio" name="experience" value="advanced" /><span>{t('workout.exp.advanced')}</span></label>
+        </div>
+      </fieldset>
+      <div class="actions">
+        <button type="submit" class="btn btn--primary">{t('hw.build')}</button>
+        <button type="button" class="btn" data-shuffle hidden><Icon name="shuffle" size={18} />{t('workout.shuffle')}</button>
+      </div>
+    </form>
+
+    <div class="session" data-session aria-live="polite">
+      <p class="card empty">{t('hw.empty')}</p>
+    </div>
+
+    <p class="notice notice--red">{t('hw.safety')}</p>
+    <p class="more"><a class="link-arrow" href={localePath(lang, '/workouts/?location=home#builder')}>{t('hw.weekly')}</a></p>
+  </div>
+</BaseLayout>
+
+<script>
+  import { loadIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
+  import { buildHomeSession, HOME_GOALS, type HomeInput, type HomeSession } from '../utils/home-workout';
+  import { load, update, encourage, today } from '../scripts/progress-store';
+  import { recordWorkout } from '../utils/progress';
+  import type { ExerciseLite } from '../utils/exercise-index';
+
+  const root = document.querySelector<HTMLElement>('[data-home-builder]');
+  if (root) void init(root);
+
+  async function init(root: HTMLElement) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'ar';
+    const i18n = JSON.parse(root.dataset.i18n ?? '{}') as Record<string, string>;
+    const form = root.querySelector<HTMLFormElement>('[data-home-form]')!;
+    const out = root.querySelector<HTMLElement>('[data-session]')!;
+    const shuffleBtn = root.querySelector<HTMLButtonElement>('[data-shuffle]')!;
+    let pool: ExerciseLite[] = [];
+    let seed = 0;
+    let session: HomeSession | null = null;
+    let input: HomeInput | null = null;
+
+    // Preselect from the URL (?goal=) and the saved level.
+    const params = new URLSearchParams(location.search);
+    const g = params.get('goal');
+    if (g && (HOME_GOALS as readonly string[]).includes(g)) form.querySelector<HTMLInputElement>(`input[name="goal"][value="${g}"]`)!.checked = true;
+    const prefs = load().state.prefs;
+    if (prefs.level) form.querySelector<HTMLInputElement>(`input[name="experience"][value="${prefs.level}"]`)!.checked = true;
+
+    const read = (): HomeInput => {
+      const fd = new FormData(form);
+      return {
+        minutes: Number(fd.get('minutes')) as HomeInput['minutes'],
+        equipment: fd.getAll('equipment') as HomeInput['equipment'],
+        goal: fd.get('goal') as HomeInput['goal'],
+        experience: fd.get('experience') as HomeInput['experience'],
+        seed,
+      };
+    };
+
+    const render = () => {
+      if (!session || !input) return;
+      const blocks = session.blocks.map((b) => {
+        const items = b.items.map((it) => `<li class="hi">
+            <span class="hi-slot">${escapeHtml(it.slot[lang])}</span>
+            <a href="${exerciseHref(lang, it.exercise.slug)}">${escapeHtml(lang === 'ar' ? it.exercise.ar : it.exercise.name)}</a>
+            <b class="hi-dose">${escapeHtml(it.dose[lang])}</b></li>`).join('');
+        const rounds = b.rounds > 1 ? `<span class="hb-rounds">${escapeHtml(i18n.rounds.replace('{n}', String(b.rounds)))}</span>` : '';
+        return `<li class="hb"><div class="hb-head"><h3 class="hb-title">${escapeHtml(b.title[lang])}</h3>${rounds}
+            <span class="hb-min">~${escapeHtml(i18n.minutes.replace('{n}', String(b.minutes)))}</span></div>
+            <p class="hb-format">${escapeHtml(b.format[lang])}</p>
+            ${items ? `<ol class="his" role="list">${items}</ol>` : `<p class="muted">${escapeHtml(i18n.empty)}</p>`}</li>`;
+      }).join('');
+      out.innerHTML = `<p class="hs-total"><strong>~${escapeHtml(i18n.minutes.replace('{n}', String(session.minutes)))}</strong></p>
+        <ol class="hbs" role="list">${blocks}</ol>
+        <div class="done-row"><button type="button" class="btn btn--primary" data-done>${escapeHtml(i18n.done)}</button>
+        <p class="done-msg" data-done-msg hidden>${escapeHtml(i18n.doneSaved)}</p></div>`;
+      shuffleBtn.hidden = false;
+    };
+
+    const build = async () => {
+      if (!pool.length) {
+        try {
+          pool = await loadIndex();
+        } catch {
+          return;
+        }
+      }
+      input = read();
+      session = buildHomeSession(input, pool);
+      render();
+    };
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      seed = 0;
+      void build().then(() => out.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    });
+    shuffleBtn.addEventListener('click', () => {
+      seed = Math.floor(Math.random() * 1e9) + 1;
+      void build();
+    });
+    out.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-done]');
+      if (!btn || !input) return;
+      const label = i18n.label.replace('{n}', String(input.minutes));
+      const [before, after] = update((s) => recordWorkout(s, label, today()));
+      btn.disabled = true;
+      out.querySelector<HTMLElement>('[data-done-msg]')!.hidden = false;
+      encourage(before, after, 'workout-complete');
+    });
+    if (g) void build();
+  }
+</script>
+
+<style>
+  .hb-form { display: grid; gap: 16px; }
+  .hint { font-size: var(--fs-sm); color: var(--text-muted); margin-block-end: 8px; }
+  .goals span { min-inline-size: 7em; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .session { margin-block: 18px; scroll-margin-top: calc(var(--header-h) + 8px); }
+  .empty { color: var(--text-muted); text-align: center; border-style: dashed; }
+  .more { margin-block-start: 12px; }
+  .session :global(.hs-total) { margin-block-end: 10px; color: var(--text-muted); }
+  .session :global(.hbs) { display: grid; gap: 10px; }
+  .session :global(.hb) { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .session :global(.hb-head) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .session :global(.hb-title) { font-size: var(--fs-lg); }
+  .session :global(.hb-rounds) { font-weight: 900; color: var(--accent-text); }
+  .session :global(.hb-min) { color: var(--text-muted); font-size: var(--fs-xs); }
+  .session :global(.hb-format) { color: var(--text-muted); font-size: var(--fs-sm); margin-block: 4px 8px; }
+  .session :global(.his) { display: grid; gap: 6px; }
+  .session :global(.hi) {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center;
+    padding: 10px; background: var(--ink-900); border-radius: var(--radius-sm);
+  }
+  .session :global(.hi-slot) { grid-column: 1 / -1; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+  .session :global(.hi a) { font-weight: 800; color: var(--white); min-block-size: 32px; display: inline-flex; align-items: center; }
+  .session :global(.hi-dose) { font-size: var(--fs-sm); white-space: nowrap; }
+  .session :global(.done-row) { display: grid; gap: 8px; justify-items: start; margin-block-start: 14px; }
+  .session :global(.done-msg) { font-weight: 800; color: var(--text-muted); }
+</style>

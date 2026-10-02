@@ -17,7 +17,7 @@ const d = DIFFICULTY[level];
 ---
 
 <span class:list={['difficulty', { badge: !plain, 'difficulty--plain': plain }]}>
-  <span class="bars" aria-hidden="true">{[1, 2, 3].map((i) => <i class:list={{ on: i <= d.level }}></i>)}</span>{d.label[lang]}
+  <span class="bars" aria-hidden="true">{[1, 2, 3].map((i) => <i class:list={{ on: i <= d.level }}></i>)}</span>{d.card[lang]}
 </span>
 
 <style>

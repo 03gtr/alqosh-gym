@@ -7,7 +7,9 @@ import { muscleCss } from '../visual/anatomy';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
 import BodyMapSprite from '../components/BodyMapSprite.astro';
+import ProductMark from '../components/ProductMark.astro';
 import { gym } from '../config/gym';
+import { company, splash as splashConfig } from '../config/product';
 import { absoluteUrl, DIR, LANGS, url, useT, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -25,13 +27,18 @@ interface Props {
   noAlternates?: boolean;
   /** Language prefix of this page's own URL when it differs from `lang` (single-language internal pages). */
   urlLang?: Lang;
+  /** Allow the once-per-session product splash (off for QR landing pages). */
+  splash?: boolean;
 }
 
-const { lang, path, title, description, noindex = false, ogType = 'website', jsonLd = [], noAlternates = false, urlLang = lang } = Astro.props;
+const { lang, path, title, description, noindex = false, ogType = 'website', jsonLd = [], noAlternates = false, urlLang = lang, splash: allowSplash = true } = Astro.props;
+const showSplash = splashConfig.enabled && allowSplash;
+const splashKey = splashConfig.sessionKey;
+const splashMs = splashConfig.durationMs;
 const t = useT(lang);
 const siteName = lang === 'ar' ? `${gym.name.ar} | ${gym.name.en}` : `${gym.name.en} | ${gym.name.ar}`;
 const fullTitle = title ? `${title} — ${lang === 'ar' ? gym.name.ar : gym.name.en}` : siteName;
-const desc = description ?? t('site.description');
+const desc = description ?? gym.copy.description[lang];
 const site = Astro.site;
 const canonical = absoluteUrl(urlLang, path, site);
 const ogLocale = lang === 'ar' ? 'ar_IQ' : 'en_US';
@@ -44,7 +51,9 @@ const orgLd = {
   url: absoluteUrl('ar', '/', site),
   // Opening *days* are not part of the official information, so no
   // openingHoursSpecification is emitted (it would require inventing them).
-  description: 'Men: 5:00 AM – 1:00 AM. Women: 8:00 AM – 10:00 AM and 4:00 PM – 6:00 PM.',
+  description: [gym.hours.men, gym.hours.women]
+    .map((h) => `${h.title.en}: ${h.ranges.map((r) => r.label.en).join(' and ')}.`)
+    .join(' '),
   ...(gym.contact.phone ? { telephone: gym.contact.phone.e164 } : {}),
   ...(gym.contact.mapUrl ? { hasMap: gym.contact.mapUrl } : {}),
   ...(gym.contact.socials.length ? { sameAs: gym.contact.socials.map((s) => s.url) } : {}),
@@ -53,7 +62,7 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
 ---
 
 <!doctype html>
-<html lang={lang} dir={DIR[lang]}>
+<html lang={lang} dir={DIR[lang]} data-gym={gym.id}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -63,7 +72,7 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
     {!noAlternates && LANGS.map((l) => <link rel="alternate" hreflang={l} href={absoluteUrl(l, path, site)} />)}
     {!noAlternates && <link rel="alternate" hreflang="x-default" href={absoluteUrl('ar', path, site)} />}
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#070708" />
+    <meta name="theme-color" content={gym.brand.colors.background} />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
@@ -81,9 +90,34 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
 
     {structured.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
     <style is:inline set:html={muscleCss()} />
+    {showSplash && (
+      <script is:inline define:vars={{ splashKey, splashMs }}>
+        // Product splash: first page of a browser session only, never with
+        // reduced motion. Content renders underneath; nothing waits for it.
+        try {
+          if (!sessionStorage.getItem(splashKey) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            const root = document.documentElement;
+            root.setAttribute('data-splash', '');
+            setTimeout(function () { root.removeAttribute('data-splash'); }, splashMs + 50);
+          }
+          sessionStorage.setItem(splashKey, '1');
+        } catch { /* storage blocked: no splash */ }
+      </script>
+    )}
     <slot name="head" />
   </head>
   <body>
+    {showSplash && (
+      <div class="splash" aria-hidden="true" style={`--splash-ms:${splashMs}ms`}>
+        <p class="splash-company" lang="en" dir="ltr">{company.name}</p>
+        <ProductMark size="lg" />
+        <span class="splash-rule"></span>
+        <p class="splash-gym">
+          <span class="splash-gym-en" lang="en" dir="ltr">{gym.brand.wordmark.lead} <em>{gym.brand.wordmark.accent}</em></span>
+          <span class="splash-gym-ar" lang="ar" dir="rtl">{gym.name.ar}</span>
+        </p>
+      </div>
+    )}
     <a class="skip-link" href="#main">{t('a11y.skip')}</a>
     <BodyMapSprite />
     <Navigation lang={lang} path={path} />

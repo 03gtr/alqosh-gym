@@ -34,6 +34,9 @@ const moreActive = moreNav.some((i) => isActive(i.path, path)) && !bottomNav.som
       </ul>
     </nav>
     <div class="header-actions">
+      <a class="icon-btn progress-btn" href={localePath(lang, '/progress/')} aria-label={t('nav.progress')} aria-current={isActive('/progress/', path) ? 'page' : undefined}>
+        <Icon name="chart" />
+      </a>
       <a class="icon-btn" href={localePath(lang, '/exercises/')} aria-label={t('search.label')}>
         <Icon name="search" />
       </a>
@@ -117,6 +120,10 @@ const moreActive = moreNav.some((i) => isActive(i.path, path)) && !bottomNav.som
     color: var(--text); text-decoration: none;
   }
   .icon-btn:hover { border-color: var(--text-muted); }
+  /* Phones reach "My progress" from the More sheet; keeps the header from overflowing at 320px. */
+  .progress-btn { display: none; }
+  @media (min-width: 768px) { .progress-btn { display: inline-grid; } }
+  .progress-btn[aria-current='page'] { border-color: var(--accent); }
   .lang-btn {
     display: inline-flex; align-items: center; gap: 6px; min-block-size: 44px; padding: 6px 12px;
     border: 1px solid var(--line-strong); border-radius: var(--radius-sm); text-decoration: none; font-weight: 800; font-size: 0.9rem;

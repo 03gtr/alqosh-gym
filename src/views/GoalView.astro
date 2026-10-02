@@ -7,6 +7,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import GoalPicker from '../components/GoalPicker.astro';
 import Icon from '../components/Icon.astro';
+import GoalSave from '../components/GoalSave.astro';
+import BeginnerToggle from '../components/BeginnerToggle.astro';
+import ExerciseList from '../components/ExerciseList.astro';
+import { exercises, getExercise } from '../data/exercises';
+import type { Exercise } from '../data/exercises/types';
 import type { GoalJourney } from '../data/goals';
 import { localePath, useT, type Lang } from '../i18n/utils';
 
@@ -21,12 +26,27 @@ const href = (path: string) => {
   const m = path.match(/^([^?#]*)(.*)$/)!;
   return localePath(lang, m[1]) + m[2];
 };
+const groups = (g.exerciseGroups ?? []).map((grp) => ({
+  ...grp,
+  items: (grp.slugs
+    ? grp.slugs.map((s) => getExercise(s)).filter((e): e is Exercise => Boolean(e))
+    : exercises.filter((e) => grp.match?.(e))
+  ).slice(0, grp.limit ?? 12),
+})).filter((grp) => grp.items.length > 0);
 ---
 
 <BaseLayout lang={lang} path={`/goals/${g.id}/`} title={g.heading[lang]} description={g.intro[lang].slice(0, 158)}>
   <PageHeader lang={lang} title={g.heading[lang]} eyebrow={g.title[lang]} lead={g.intro[lang]} crumbs={[{ label: t('nav.goals'), path: '/goals/' }, { label: g.title[lang] }]} />
 
   <div class="container section--tight">
+    <GoalSave lang={lang} goal={g.id} />
+    {g.beginnerMode && <div class="lead-box"><BeginnerToggle lang={lang} /></div>}
+    {g.homeBuilder && (
+      <a class="home-cta card--cut" href={localePath(lang, '/workouts/home/')}>
+        <span class="hc-q">{t('home.cantGo')}</span>
+        <span class="hc-a">{t('home.trainAtHome')}<Icon name="arrow" size={18} flip /></span>
+      </a>
+    )}
     <h2 class="section-title steps-title">{t('goals.steps')}</h2>
     <ol class="journey" role="list">
       {g.steps.map((s, i) => (
@@ -40,6 +60,18 @@ const href = (path: string) => {
         </li>
       ))}
     </ol>
+    {groups.length > 0 && (
+      <section class="groups" aria-labelledby="groups-h">
+        <h2 id="groups-h" class="section-title steps-title">{t('goals.exercises')}</h2>
+        {groups.map((grp) => (
+          <div class="group">
+            <h3 class="group-title">{grp.title[lang]}</h3>
+            <ExerciseList lang={lang} exercises={grp.items} />
+            {grp.more && <a class="link-arrow group-more" href={href(grp.more)}>{t('goals.seeAll')}</a>}
+          </div>
+        ))}
+      </section>
+    )}
     <p class="coach-hint">{t('goals.coachNote')}</p>
     <p class="notice">{t('disclaimer.short')}</p>
 
@@ -70,4 +102,15 @@ const href = (path: string) => {
   .step-cta:hover { text-decoration: underline; }
   .coach-hint { font-weight: 700; margin-block: 6px 12px; }
   .other-title { font-size: var(--fs-xl); margin-block: 36px 12px; }
+  .lead-box { margin-block-end: 22px; max-inline-size: 560px; }
+  .home-cta {
+    display: grid; gap: 4px; margin-block-end: 22px; padding: 18px 20px; text-decoration: none; color: var(--text);
+    background: linear-gradient(135deg, rgb(225 6 0 / 0.22), var(--ink-800) 65%); border: 1px solid rgb(225 6 0 / 0.45);
+  }
+  .hc-q { color: var(--text-muted); font-weight: 700; }
+  .hc-a { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-lg); font-weight: 900; }
+  .groups { margin-block: 12px 18px; }
+  .group { display: grid; gap: 8px; margin-block-end: 20px; }
+  .group-title { font-size: var(--fs-md); font-weight: 900; }
+  .group-more { font-size: var(--fs-sm); justify-self: start; }
 </style>

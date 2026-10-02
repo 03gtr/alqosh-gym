@@ -43,6 +43,15 @@ const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equ
       </div>
     </div>
 
+    <div class="bm-banner" data-bm-banner data-filtered={t('beginner.banner')} data-all={t('beginner.bannerAll')} hidden>
+      <p><strong>{t('beginner.modeActive')}</strong> <span data-bm-text>{t('beginner.banner')}</span></p>
+      <div class="bm-actions">
+        <button type="button" class="btn btn--sm" data-bm-all>{t('beginner.showAll')}</button>
+        <button type="button" class="btn btn--sm" data-bm-only hidden>{t('beginner.showBeginner')}</button>
+        <button type="button" class="af-clear" data-bm-off>{t('beginner.turnOff')}</button>
+      </div>
+    </div>
+
     <div class="active-filters" data-active-filters hidden>
       <span class="af-label" data-active-label></span>
       <ul class="af-chips" role="list" data-chips></ul>
@@ -89,6 +98,14 @@ const usedEquipment = [...new Set(exercises.flatMap((e) => e.equipment))] as Equ
   .filter-panel[open] > summary { margin-block-end: 10px; }
   .active-count:not(:empty) { background: var(--accent); color: var(--white); border-radius: 999px; padding: 0 8px; font-size: var(--fs-xs); }
   .empty { margin-block-end: 12px; }
+  .bm-banner {
+    display: grid; gap: 8px; margin-block: -4px 14px; padding: 12px 14px;
+    background: var(--ink-800); border: 1px solid var(--line-strong); border-inline-start: 4px solid var(--accent); border-radius: var(--radius-sm);
+  }
+  .bm-banner[hidden] { display: none; }
+  .bm-banner p span { color: var(--text-muted); }
+  .bm-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .bm-actions .btn { min-block-size: 40px; }
   .active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-block: -4px 14px; }
   .active-filters[hidden] { display: none; }
   .af-label { font-size: var(--fs-sm); font-weight: 800; color: var(--text-muted); }

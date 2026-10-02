@@ -8,7 +8,7 @@ import type { Category, Difficulty, Equipment, ExerciseType, Goal, MovementPatte
 import type { ExerciseLite } from './exercise-index';
 
 export type Experience = Difficulty;
-export type BuilderGoal = Exclude<Goal, 'mobility'>;
+export type BuilderGoal = Exclude<Goal, 'mobility'> | 'powerlifting';
 
 export interface BuilderInput {
   goal: BuilderGoal;
@@ -30,6 +30,8 @@ export interface SlotSpec {
   prefer?: string[];
   /** Slugs never chosen for this slot. */
   avoid?: string[];
+  /** Powerlifting: competition lift or close variation (default: accessory). */
+  role?: 'main' | 'variation';
 }
 
 export interface Prescription {
@@ -86,10 +88,17 @@ const S = {
   core: { id: 'core', label: { ar: 'بطن / جذع', en: 'Core' }, categories: ['abs'], prefer: ['plank', 'dead-bug', 'cable-crunch', 'hanging-knee-raise', 'pallof-press', 'side-plank', 'reverse-crunch'] },
   power: { id: 'power', label: { ar: 'قوة انفجارية', en: 'Power' }, types: ['plyometric'], prefer: ['medicine-ball-slam', 'box-jump', 'kettlebell-swing'] },
   carry: { id: 'carry', label: { ar: 'حمل ومشي', en: 'Loaded carry' }, patterns: ['carry'], prefer: ['farmers-carry'] },
+  plSquat: { id: 'pl-squat', label: { ar: 'سكوات (رفعة أساسية)', en: 'Squat (main lift)' }, role: 'main', patterns: ['squat'], types: ['compound'], categories: ['legs', 'glutes'], prefer: ['back-squat', 'front-squat', 'goblet-squat', 'leg-press'], avoid: ['sissy-squat', 'wall-sit', 'bodyweight-squat', 'deep-squat-hold', 'dumbbell-thruster'] },
+  plBench: { id: 'pl-bench', label: { ar: 'بنش برس (رفعة أساسية)', en: 'Bench press (main lift)' }, role: 'main', categories: ['chest'], patterns: ['push'], types: ['compound'], prefer: ['barbell-bench-press', 'dumbbell-bench-press', 'machine-chest-press'] },
+  plDeadlift: { id: 'pl-deadlift', label: { ar: 'ديدلفت (رفعة أساسية)', en: 'Deadlift (main lift)' }, role: 'main', patterns: ['hinge'], types: ['compound'], prefer: ['deadlift', 'sumo-deadlift', 'trap-bar-deadlift', 'romanian-deadlift'], avoid: ['kettlebell-swing', 'power-clean', 'good-morning', 'hip-thrust', 'glute-bridge', 'single-leg-glute-bridge', 'cable-pull-through', 'back-extension', 'inchworm'] },
+  plSquatVar: { id: 'pl-squat-var', label: { ar: 'تنويع السكوات', en: 'Squat variation' }, role: 'variation', patterns: ['squat', 'lunge'], types: ['compound'], categories: ['legs', 'glutes'], prefer: ['front-squat', 'bulgarian-split-squat', 'leg-press', 'goblet-squat'], avoid: ['back-squat', 'sissy-squat', 'wall-sit', 'bodyweight-squat', 'deep-squat-hold', 'dumbbell-thruster'] },
+  plBenchVar: { id: 'pl-bench-var', label: { ar: 'تنويع البنش', en: 'Bench variation' }, role: 'variation', categories: ['chest', 'triceps'], patterns: ['push'], types: ['compound'], prefer: ['close-grip-bench-press', 'floor-press', 'dumbbell-bench-press', 'incline-barbell-bench-press'], avoid: ['barbell-bench-press'] },
+  plHingeVar: { id: 'pl-hinge-var', label: { ar: 'تنويع الديدلفت', en: 'Deadlift variation' }, role: 'variation', patterns: ['hinge'], types: ['compound'], prefer: ['romanian-deadlift', 'rack-pull', 'sumo-deadlift', 'hip-thrust', 'good-morning'], avoid: ['deadlift', 'kettlebell-swing', 'power-clean', 'inchworm'] },
+  plPress: { id: 'pl-press', label: { ar: 'ضغط علوي', en: 'Overhead press' }, categories: ['shoulders'], patterns: ['push'], types: ['compound'], prefer: ['overhead-press', 'dumbbell-shoulder-press', 'machine-shoulder-press'], avoid: ['push-press'] },
   conditioning: { id: 'conditioning', label: { ar: 'تحمّل', en: 'Conditioning' }, categories: ['full-body', 'cardio'], prefer: ['kettlebell-swing', 'rowing-machine', 'burpee', 'battle-rope-waves', 'mountain-climber'] },
 } satisfies Record<string, SlotSpec>;
 
-type TemplateKey = 'fbA' | 'fbB' | 'fbC' | 'upper' | 'lower' | 'push' | 'pull' | 'legs';
+type TemplateKey = 'fbA' | 'fbB' | 'fbC' | 'upper' | 'lower' | 'push' | 'pull' | 'legs' | 'plA' | 'plB' | 'plC' | 'plD';
 
 const TEMPLATES: Record<TemplateKey, { title: Localized; slots: SlotSpec[] }> = {
   fbA: { title: { ar: 'جسم كامل (أ)', en: 'Full body A' }, slots: [S.squat, S.hPush, S.hPull, S.hinge, S.sideDelt, S.core] },
@@ -100,6 +109,10 @@ const TEMPLATES: Record<TemplateKey, { title: Localized; slots: SlotSpec[] }> = 
   push: { title: { ar: 'دفع (صدر، أكتاف، ترايسبس)', en: 'Push (chest, shoulders, triceps)' }, slots: [S.hPush, S.vPush, S.inclinePush, S.chestIso, S.sideDelt, S.triceps, S.triceps2] },
   pull: { title: { ar: 'سحب (ظهر، بايسبس)', en: 'Pull (back, biceps)' }, slots: [S.vPull, S.hPull, S.rearDelt, S.biceps, S.biceps2, S.core] },
   legs: { title: { ar: 'أرجل', en: 'Legs' }, slots: [S.squat, S.hinge, S.lunge, S.quadIso, S.hamIso, S.calves] },
+  plA: { title: { ar: 'سكوات + بنش', en: 'Squat + bench' }, slots: [S.plSquat, S.plBench, S.hPull, S.core] },
+  plB: { title: { ar: 'ديدلفت + ضغط علوي', en: 'Deadlift + overhead press' }, slots: [S.plDeadlift, S.plPress, S.vPull, S.triceps] },
+  plC: { title: { ar: 'بنش + تنويع السكوات', en: 'Bench + squat variation' }, slots: [S.plBench, S.plSquatVar, S.plHingeVar, S.hPull, S.core] },
+  plD: { title: { ar: 'تنويعات + ظهر', en: 'Variations + upper back' }, slots: [S.plBenchVar, S.plHingeVar, S.vPull, S.rearDelt] },
 };
 
 const LIGHT_DAY: Session = {
@@ -120,6 +133,18 @@ const DAY_SLOTS: Record<number, number[]> = {
 
 function splitFor(input: BuilderInput): { split: Localized; sessions: (TemplateKey | 'light')[] } {
   const d = Math.min(6, Math.max(2, Math.round(input.days)));
+  if (input.goal === 'powerlifting') {
+    // The three lifts on 2–4 days a week; any extra days are easy cardio/mobility.
+    const order = (['plA', 'plB', 'plC', 'plD'] as TemplateKey[]).slice(0, Math.min(d, 4));
+    const sessions: (TemplateKey | 'light')[] = [...order];
+    for (let i = order.length; i < d; i++) sessions.push('light');
+    return {
+      split: d > 4
+        ? { ar: `باورلفتنك ×4 + ${d - 4} أيام كارديو خفيف ومرونة`, en: `Powerlifting ×4 + ${d - 4} easy cardio/mobility day(s)` }
+        : { ar: `باورلفتنك ×${order.length} (سكوات، بنش، ديدلفت)`, en: `Powerlifting ×${order.length} (squat, bench, deadlift)` },
+      sessions,
+    };
+  }
   const novice = input.experience === 'beginner' || input.goal === 'beginner-fitness';
   if (d <= 3 || (novice && d > 3)) {
     const strength = Math.min(d, 3);
@@ -150,13 +175,17 @@ const REST = {
   vshort: { ar: '45–60 ثانية', en: '45–60 s' },
 } satisfies Record<string, Localized>;
 
-function prescriptionFor(goal: BuilderGoal, experience: Experience, type: ExerciseType | undefined): Prescription {
+function prescriptionFor(goal: BuilderGoal, experience: Experience, type: ExerciseType | undefined, role?: SlotSpec['role']): Prescription {
   const heavy = type === 'compound' || type === 'plyometric';
   const novice = experience === 'beginner';
   if (type === 'isometric') return { sets: novice ? '2' : '3', reps: { ar: '20–40 ثانية', en: '20–40 s' }, rest: REST.short };
   if (type === 'cardio') return { sets: '1', reps: { ar: '5–10 دقائق', en: '5–10 min' }, rest: REST.short };
   if (type === 'plyometric') return { sets: '3', reps: n('3–5'), rest: REST.mid };
   switch (goal) {
+    case 'powerlifting':
+      if (role === 'main') return { sets: novice ? '3' : '3–5', reps: n(novice ? '5' : '3–5'), rest: REST.long };
+      if (role === 'variation') return { sets: '3', reps: n('5–8'), rest: REST.mid };
+      return heavy ? { sets: '3', reps: n('6–10'), rest: REST.mid } : { sets: '2–3', reps: n('8–12'), rest: REST.short };
     case 'strength':
       return heavy
         ? { sets: novice ? '3' : '3–5', reps: n(novice ? '5–8' : '3–6'), rest: REST.long }
@@ -188,6 +217,7 @@ const CARDIO_NOTE: Partial<Record<BuilderGoal, Localized>> = {
   conditioning: { ar: 'أضف 1–2 حصة تمارين متقطعة (Intervals) أسبوعياً بعد بناء أساس من الكارديو المتوسط.', en: 'Add 1–2 interval sessions per week once you have a base of moderate cardio.' },
   'general-fitness': { ar: 'استهدف مجموع نشاط هوائي متوسط 150–300 دقيقة بالأسبوع (مشي سريع مثلاً).', en: 'Aim for 150–300 minutes of moderate aerobic activity per week in total (e.g. brisk walking).' },
   'beginner-fitness': { ar: 'مشي 20–30 دقيقة في أغلب الأيام يساعد على اللياقة والاستشفاء.', en: 'A 20–30 minute walk on most days supports fitness and recovery.' },
+  powerlifting: { ar: 'كارديو خفيف 2–3 مرات بالأسبوع يدعم الاستشفاء والصحة العامة. تعلّم الرفعات الأساسية مع المدرب قبل رفع أوزان ثقيلة.', en: 'Light cardio 2–3 times a week supports recovery and general health. Learn the main lifts with a coach before lifting heavy.' },
   athletic: { ar: 'أضف تمارين سرعة وتحمل خاصة برياضتك حسب توجيه المدرب.', en: 'Add sport-specific speed and conditioning work with your coach.' },
 };
 
@@ -273,6 +303,7 @@ const FOCUS_FITS: Record<TemplateKey, Category[]> = {
   push: ['chest', 'shoulders', 'triceps'],
   pull: ['back', 'biceps', 'forearms'],
   legs: ['legs', 'glutes', 'calves', 'abs'],
+  plA: [], plB: [], plC: [], plD: [],
 };
 
 function minutesFor(items: PlannedExercise[]): number {
@@ -309,7 +340,7 @@ export function buildPlan(input: BuilderInput, pool: ExerciseLite[]): Plan {
       const cands = candidatesFor(slot, pool, input);
       const ex = choose(cands, usedHere, usedBefore, random, shuffle || usedBefore.size > 0);
       if (ex) usedHere.add(ex.slug);
-      return { slot, exercise: ex, prescription: prescriptionFor(input.goal, input.experience, ex?.type) };
+      return { slot, exercise: ex, prescription: prescriptionFor(input.goal, input.experience, ex?.type, slot.role) };
     });
     usedByTemplate.set(repeatKey, new Set([...usedBefore, ...usedHere]));
     return { key: `${key}-${idx}`, title: tpl.title, items, minutes: minutesFor(items) };

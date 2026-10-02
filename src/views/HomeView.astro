@@ -1,8 +1,8 @@
 ---
 /**
  * Home — organised around what the visitor wants to do (value first, gym
- * information second): hero → goals → exercise discovery → beginner →
- * tools → gym information → permanent benefits → coaching team.
+ * information second): hero → goals → home training → exercise discovery →
+ * beginner → tools & guides → gym information → permanent benefits → coaching team.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -35,7 +35,7 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
     </div>
     <div class="container hero-inner">
       <h1 class="hero-brand">
-        <span class="hero-en display" lang="en" dir="ltr">ALQOSH <em>GYM</em></span>
+        <span class="hero-en display" lang="en" dir="ltr">{gym.brand.wordmark.lead} <em>{gym.brand.wordmark.accent}</em></span>
         <span class="hero-ar" lang="ar" dir="rtl">{gym.name.ar}</span>
       </h1>
       <p class="hero-title">{t('hero.title')}</p>
@@ -45,7 +45,7 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
         <a class="btn btn--ghost" href="#goals">{t('hero.ctaGoal')}</a>
       </div>
       <p class="hero-links">
-        <a href={localePath(lang, '/beginner/')}><Icon name="user" size={18} />{t('nav.beginner')}</a>
+        <a href={localePath(lang, '/goals/beginner/')}><Icon name="user" size={18} />{t('nav.beginner')}</a>
         <a href={localePath(lang, '/calculator/')}><Icon name="calculator" size={18} />{t('hero.ctaCalories')}</a>
         <a href={localePath(lang, '/gym/')}><Icon name="clock" size={18} />{t('hero.ctaGym')}</a>
       </p>
@@ -58,6 +58,21 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
       <h2 id="goals-title" class="section-title">{t('home.goalsTitle')}</h2>
       <p class="section-lead">{t('home.goalsLead')}</p>
       <GoalPicker lang={lang} />
+    </div>
+  </section>
+
+  <!-- CAN'T GO TO THE GYM? -->
+  <section class="section--tight" aria-labelledby="home-train-title">
+    <div class="container">
+      <a class="home-band card--cut" href={localePath(lang, '/workouts/home/')}>
+        <span class="hb-icon" aria-hidden="true"><Icon name="home" size={26} /></span>
+        <span class="hb-text">
+          <span class="hb-q" id="home-train-title">{t('home.cantGo')}</span>
+          <span class="hb-a">{t('home.trainAtHome')}</span>
+          <span class="hb-sub">{t('home.bandSub')}</span>
+        </span>
+        <span class="hb-arrow" aria-hidden="true"><Icon name="arrow" size={20} flip /></span>
+      </a>
     </div>
   </section>
 
@@ -86,7 +101,7 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
           <h2 id="beginner-title" class="beginner-title">{t('home.beginnerTitle')}</h2>
           <p class="beginner-body">{t('home.beginnerBody')}</p>
         </div>
-        <a class="btn btn--primary" href={localePath(lang, '/beginner/')}>{t('home.beginnerCta')}</a>
+        <a class="btn btn--primary" href={localePath(lang, '/goals/beginner/')}>{t('home.beginnerCta')}</a>
       </div>
     </div>
   </section>
@@ -101,9 +116,12 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
         <NutritionCard lang={lang} path="/workouts/" icon="dumbbell" title={t('workout.title')} text={t('home.pathBuilder')} />
       </div>
       <p class="more-links">
+        <a class="link-arrow" href={localePath(lang, '/learn/weight-loss/')}>{t('learn.weightLoss')}</a>
+        <a class="link-arrow" href={localePath(lang, '/learn/muscle-gain/')}>{t('learn.muscleGain')}</a>
+        <a class="link-arrow" href={localePath(lang, '/learn/recovery/')}>{t('learn.recovery')}</a>
         <a class="link-arrow" href={localePath(lang, '/nutrition/')}>{t('nutrition.title')}</a>
         <a class="link-arrow" href={localePath(lang, '/health/')}>{t('home.allArticles')}</a>
-        <a class="link-arrow" href={localePath(lang, '/advanced/')}>{t('nav.advanced')}</a>
+        <a class="link-arrow" href={localePath(lang, '/progress/')}>{t('nav.progress')}</a>
       </p>
     </div>
   </section>
@@ -194,6 +212,17 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
   .beginner-title { font-size: var(--fs-xl); }
   .beginner-body { color: var(--text-muted); margin-block-start: 6px; max-inline-size: 60ch; }
 
+  .home-band {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 18px;
+    text-decoration: none; color: var(--text); background: var(--ink-800); border: 1px solid var(--line-strong);
+  }
+  .home-band:hover { border-color: var(--accent); }
+  .hb-icon { inline-size: 48px; block-size: 48px; display: grid; place-items: center; background: var(--accent); color: var(--white); border-radius: var(--radius-sm); }
+  .hb-text { display: grid; gap: 2px; }
+  .hb-q { color: var(--text-muted); font-weight: 700; font-size: var(--fs-sm); }
+  .hb-a { font-weight: 900; font-size: var(--fs-lg); line-height: 1.3; }
+  .hb-sub { color: var(--text-muted); font-size: var(--fs-sm); }
+  .hb-arrow { color: var(--text-dim); }
   .tools { display: grid; gap: 10px; margin-block-start: 12px; }
   @media (min-width: 900px) { .tools { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .more-links { display: flex; flex-wrap: wrap; gap: 0 20px; margin-block-start: 8px; }

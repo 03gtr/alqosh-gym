@@ -3,7 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import HoursCard from '../components/HoursCard.astro';
 import Icon from '../components/Icon.astro';
-import { CATEGORIES, EQUIPMENT, GOALS, MUSCLE_CATEGORIES, type Equipment, type Goal } from '../data/taxonomy';
+import { CATEGORIES, EQUIPMENT, GOALS, MUSCLE_CATEGORIES, type Equipment } from '../data/taxonomy';
+import { HOME_EQUIPMENT, PROGRAMS } from '../data/programs';
+import type { BuilderGoal } from '../utils/workout';
 import { exercises } from '../data/exercises';
 import { gym } from '../config/gym';
 import { localePath, useT, type Lang } from '../i18n/utils';
@@ -14,12 +16,14 @@ interface Props {
 const { lang } = Astro.props;
 const t = useT(lang);
 
-const builderGoals: Goal[] = ['muscle-gain', 'fat-loss', 'general-fitness', 'strength', 'conditioning', 'beginner-fitness', 'athletic'];
+const builderGoals: BuilderGoal[] = ['muscle-gain', 'fat-loss', 'general-fitness', 'strength', 'powerlifting', 'conditioning', 'beginner-fitness', 'athletic'];
+const goalLabel = (g: BuilderGoal) => (g === 'powerlifting' ? PROGRAMS.powerlifting.label[lang] : GOALS[g].label[lang]);
 const goalBlurb: Record<string, { ar: string; en: string }> = {
   'muscle-gain': { ar: 'حجم تدريبي متوسط إلى عالٍ، 6–15 تكرار، وتغذية كافية.', en: 'Moderate-to-high volume, 6–15 reps and enough food.' },
   'fat-loss': { ar: 'حافظ على تمارين المقاومة، أضف حركة يومية، ونقص سعرات معتدل.', en: 'Keep lifting, add daily movement and a moderate calorie deficit.' },
   'general-fitness': { ar: 'قوة + تحمل + مرونة بشكل متوازن للصحة.', en: 'Balanced strength, endurance and mobility for health.' },
   strength: { ar: 'تمارين مركّبة، تكرارات أقل، وراحة أطول.', en: 'Compound lifts, lower reps and longer rest.' },
+  powerlifting: { ar: 'السكوات والبنش والديدلفت بتكرارات قليلة وراحة أطول، مع تمارين داعمة.', en: 'Squat, bench and deadlift with low reps and longer rest, plus supporting work.' },
   conditioning: { ar: 'دوائر وتمارين تحمل لتحسين النفس واللياقة القلبية.', en: 'Circuits and conditioning to improve your engine.' },
   'beginner-fitness': { ar: 'بداية آمنة: جسم كامل 2–3 أيام وتقنية أولاً.', en: 'A safe start: full body 2–3 days, technique first.' },
   athletic: { ar: 'قوة انفجارية وقوة عامة وحركة متعددة الاتجاهات.', en: 'Power, general strength and multi-directional movement.' },
@@ -33,6 +37,7 @@ const EQUIPMENT_CHOICES: Equipment[] = [
 const usedEquipment = new Set(exercises.flatMap((e) => e.equipment));
 const equipmentChoices = EQUIPMENT_CHOICES.filter((q) => usedEquipment.has(q));
 const fullGymDefault = new Set<Equipment>(equipmentChoices);
+const homeEquipment = equipmentChoices.filter((q) => HOME_EQUIPMENT.includes(q));
 
 const i18n = {
   day: t('workout.day', { n: '{n}' }),
@@ -47,6 +52,9 @@ const i18n = {
   cardio: t('workout.cardioNote', { text: '{text}' }),
   warmup: t('workout.warmup'),
   progression: t('workout.progression'),
+  dayDone: t('workout.dayDone'),
+  dayDoneSaved: t('workout.dayDoneSaved'),
+  planSaved: t('workout.planSaved'),
   weekdays: lang === 'ar'
     ? ['يوم 1', 'يوم 2', 'يوم 3', 'يوم 4', 'يوم 5', 'يوم 6', 'يوم 7']
     : ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
@@ -71,7 +79,7 @@ const i18n = {
             <p class="pw-sub">{t('workout.chooseGoal')}</p>
             <div class="chips">
               {builderGoals.map((g) => (
-                <a class="chip" href={`?goal=${g}#builder`} data-preset={g}>{GOALS[g].label[lang]}</a>
+                <a class="chip" href={`?goal=${g}#builder`} data-preset={g}>{goalLabel(g)}</a>
               ))}
             </div>
           </article>
@@ -80,7 +88,7 @@ const i18n = {
       <div class="grid grid--3 goal-notes">
         {builderGoals.map((g) => (
           <div class="goal-note">
-            <strong>{GOALS[g].label[lang]}</strong>
+            <strong>{goalLabel(g)}</strong>
             <span>{goalBlurb[g][lang]}</span>
           </div>
         ))}
@@ -90,13 +98,20 @@ const i18n = {
     <!-- BUILDER -->
     <section class="section--tight builder" id="builder" aria-labelledby="builder-h" data-builder data-lang={lang} data-i18n={JSON.stringify(i18n)}>
       <h2 id="builder-h" class="section-title">{t('workout.title')}</h2>
-      <form class="builder-form card" data-builder-form>
+      <form class="builder-form card" data-builder-form data-home-equipment={JSON.stringify(homeEquipment)}>
         <div class="field">
           <label for="goal">{t('workout.goal')}</label>
           <select class="select" id="goal" name="goal">
-            {builderGoals.map((g) => <option value={g} selected={g === 'general-fitness'}>{GOALS[g].label[lang]}</option>)}
+            {builderGoals.map((g) => <option value={g} selected={g === 'general-fitness'}>{goalLabel(g)}</option>)}
           </select>
         </div>
+        <fieldset>
+          <legend>{t('workout.location')}</legend>
+          <div class="segmented">
+            <label><input type="radio" name="location" value="gym" checked /><span>{t('workout.atGym')}</span></label>
+            <label><input type="radio" name="location" value="home" /><span>{t('workout.atHome')}</span></label>
+          </div>
+        </fieldset>
         <fieldset>
           <legend>{t('workout.experience')}</legend>
           <div class="segmented">
@@ -131,6 +146,7 @@ const i18n = {
           <button type="submit" class="btn btn--primary">{t('workout.build')}</button>
           <button type="button" class="btn" data-shuffle hidden><Icon name="shuffle" size={18} />{t('workout.shuffle')}</button>
           <button type="button" class="btn" data-print hidden><Icon name="print" size={18} />{t('workout.print')}</button>
+          <button type="button" class="btn" data-save-plan hidden><Icon name="star" size={18} />{t('workout.savePlan')}</button>
         </div>
       </form>
 
@@ -146,6 +162,8 @@ const i18n = {
   import { loadIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
   import { buildPlan, swapExercise, type BuilderInput, type Plan } from '../utils/workout';
   import type { ExerciseLite } from '../utils/exercise-index';
+  import { load, save, update, encourage, toast, today } from '../scripts/progress-store';
+  import { recordWorkout, savePlan } from '../utils/progress';
 
   const root = document.querySelector<HTMLElement>('[data-builder]');
   if (root) void init(root);
@@ -157,12 +175,43 @@ const i18n = {
     const out = root.querySelector<HTMLElement>('[data-plan]')!;
     const shuffleBtn = root.querySelector<HTMLButtonElement>('[data-shuffle]')!;
     const printBtn = root.querySelector<HTMLButtonElement>('[data-print]')!;
+    const savePlanBtn = root.querySelector<HTMLButtonElement>('[data-save-plan]')!;
+    const homeEquipment = JSON.parse(form.dataset.homeEquipment ?? '[]') as string[];
     let pool: ExerciseLite[] = [];
     let plan: Plan | null = null;
     let input: BuilderInput | null = null;
     let seed = 0;
 
-    const preset = new URLSearchParams(location.search).get('goal');
+    const params = new URLSearchParams(location.search);
+    const preset = params.get('goal');
+    const setRadio = (name: string, value: string) => {
+      const r = form.querySelector<HTMLInputElement>(`input[name="${name}"][value="${CSS.escape(value)}"]`);
+      if (r) r.checked = true;
+    };
+    // Home vs gym only changes which equipment boxes are ticked.
+    const setLocation = (loc: string) => {
+      setRadio('location', loc);
+      for (const box of form.querySelectorAll<HTMLInputElement>('input[name="equipment"]')) {
+        box.checked = loc === 'home' ? homeEquipment.includes(box.value) : true;
+      }
+    };
+    form.addEventListener('change', (ev) => {
+      const t = ev.target as HTMLInputElement;
+      if (t.name === 'location') setLocation(t.value);
+    });
+    const local = load().state;
+    if (local.prefs.level) setRadio('experience', local.prefs.level);
+    const saved = params.get('plan') === 'saved' ? local.plan : null;
+    if (saved) {
+      form.querySelector<HTMLSelectElement>('select[name="goal"]')!.value = saved.goal;
+      setRadio('experience', saved.experience);
+      setRadio('days', String(saved.days));
+      setRadio('location', saved.location);
+      for (const box of form.querySelectorAll<HTMLInputElement>('input[name="equipment"]')) box.checked = saved.equipment.includes(box.value);
+      for (const box of form.querySelectorAll<HTMLInputElement>('input[name="focus"]')) box.checked = saved.focus.includes(box.value);
+    } else if (params.get('location') === 'home') {
+      setLocation('home');
+    }
     if (preset) {
       const sel = form.querySelector<HTMLSelectElement>('select[name="goal"]')!;
       if ([...sel.options].some((o) => o.value === preset)) sel.value = preset;
@@ -198,9 +247,10 @@ const i18n = {
             <span>${escapeHtml(i18n.sets)} × ${escapeHtml(i18n.reps)} · ${escapeHtml(i18n.restBetween)}: ${escapeHtml(it.prescription.rest[lang])}</span></div>
             ${ex ? `<button type="button" class="btn btn--sm pi-swap" data-swap="${i}:${j}" aria-label="${escapeHtml(i18n.swap)}">⇄</button>` : ''}</li>`;
         }).join('');
+        const doneBtn = s.items.length ? `<button type="button" class="btn btn--sm wd-done no-print" data-day-done="${i}">${escapeHtml(i18n.dayDone)}</button>` : '';
         const minutes = s.items.length ? `<span class="wd-min">~${escapeHtml(i18n.minutes.replace('{n}', String(s.minutes)))}</span>` : '';
         return `<li class="wd"><div class="wd-head"><span class="wd-day">${escapeHtml(label)}</span><span class="wd-title">${escapeHtml(s.title[lang])}</span>${minutes}</div>
-          ${items ? `<ol class="pis" role="list">${items}</ol>` : ''}</li>`;
+          ${items ? `<ol class="pis" role="list">${items}</ol>` : ''}${doneBtn}</li>`;
       }).join('');
       out.innerHTML = `
         <div class="plan-head card">
@@ -212,6 +262,7 @@ const i18n = {
         <ol class="week" role="list">${days}</ol>`;
       shuffleBtn.hidden = false;
       printBtn.hidden = false;
+      savePlanBtn.hidden = false;
     };
 
     const build = async () => {
@@ -237,7 +288,26 @@ const i18n = {
       void build();
     });
     printBtn.addEventListener('click', () => window.print());
+    savePlanBtn.addEventListener('click', () => {
+      if (!plan || !input) return;
+      const loc = (new FormData(form).get('location') as 'gym' | 'home') ?? 'gym';
+      const ok = save(savePlan(load().state, {
+        goal: input.goal, experience: input.experience, days: input.days, equipment: input.equipment, focus: input.focus,
+        location: loc, label: plan.split[lang], savedAt: today(),
+      }));
+      if (ok) toast(i18n.planSaved);
+    });
     out.addEventListener('click', (ev) => {
+      const doneBtn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-day-done]');
+      if (doneBtn && plan) {
+        const session = plan.week[Number(doneBtn.dataset.dayDone)].session;
+        if (!session) return;
+        const [before, after] = update((s) => recordWorkout(s, session.title[lang], today()));
+        doneBtn.disabled = true;
+        doneBtn.textContent = i18n.dayDoneSaved;
+        encourage(before, after, 'workout-complete');
+        return;
+      }
       const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-swap]');
       if (!btn || !plan || !input) return;
       const [di, ii] = btn.dataset.swap!.split(':').map(Number);
@@ -257,7 +327,7 @@ const i18n = {
         void build().then(() => root.scrollIntoView({ behavior: 'smooth', block: 'start' }));
       });
     }
-    if (preset) void build();
+    if (preset || saved) void build();
   }
 </script>
 
@@ -295,6 +365,7 @@ const i18n = {
   .plan-out :global(.pi-rx) { grid-column: 1; display: grid; font-size: var(--fs-xs); color: var(--text-muted); }
   .plan-out :global(.pi-rx b) { color: var(--white); font-size: var(--fs-sm); justify-self: start; }
   .plan-out :global(.pi-swap) { grid-column: 2; grid-row: 1 / span 2; min-inline-size: 44px; }
+  .plan-out :global(.wd-done) { margin-block-start: 10px; min-block-size: 44px; }
   @media (min-width: 1024px) { .plan-out :global(.week) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media print {
     .pathways, .goal-notes, .builder-form, .section-title, :global(.page-header) { display: none !important; }

@@ -1,25 +1,24 @@
 ---
-/** Goal entry points: one row per goal journey, plus the beginner hub. */
+/** Goal entry points: one row per goal journey (data-driven, see data/goals.ts). */
 import Icon from './Icon.astro';
 import { GOAL_JOURNEYS, type GoalId } from '../data/goals';
-import { localePath, useT, type Lang } from '../i18n/utils';
+import { localePath, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
   /** Leave out the goal the visitor is already on. */
   exclude?: GoalId;
-  /** Include the "I'm a beginner" row (default true). */
-  beginner?: boolean;
+  /** Show only these goals (in this order). */
+  only?: GoalId[];
 }
-const { lang, exclude, beginner = true } = Astro.props;
-const t = useT(lang);
-const goals = GOAL_JOURNEYS.filter((g) => g.id !== exclude);
+const { lang, exclude, only } = Astro.props;
+const goals = (only ? only.map((id) => GOAL_JOURNEYS.find((g) => g.id === id)!).filter(Boolean) : GOAL_JOURNEYS).filter((g) => g.id !== exclude);
 ---
 
 <ul class="goal-picker" role="list">
   {goals.map((g) => (
     <li>
-      <a class="goal" href={localePath(lang, `/goals/${g.id}/`)}>
+      <a class:list={['goal', { 'goal--beginner': g.id === 'beginner' }]} href={localePath(lang, `/goals/${g.id}/`)} data-goal-link={g.id}>
         <span class="goal-icon"><Icon name={g.icon} size={22} /></span>
         <span class="goal-title">{g.title[lang]}</span>
         <span class="goal-short">{g.short[lang]}</span>
@@ -27,25 +26,15 @@ const goals = GOAL_JOURNEYS.filter((g) => g.id !== exclude);
       </a>
     </li>
   ))}
-  {beginner && (
-    <li>
-      <a class="goal goal--beginner" href={localePath(lang, '/beginner/')}>
-        <span class="goal-icon"><Icon name="user" size={22} /></span>
-        <span class="goal-title">{t('nav.beginner')}</span>
-        <span class="goal-short">{t('home.beginnerShort')}</span>
-        <span class="goal-arrow" aria-hidden="true"><Icon name="arrow" size={18} flip /></span>
-      </a>
-    </li>
-  )}
 </ul>
 
 <style>
   .goal-picker { display: grid; gap: 8px; }
   @media (min-width: 768px) { .goal-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (min-width: 1100px) { .goal-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .goal-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .goal {
     display: grid; grid-template-columns: auto 1fr auto; gap: 0 12px; align-items: center;
-    min-block-size: 64px; padding: 12px 14px; text-decoration: none; color: var(--text);
+    min-block-size: 64px; block-size: 100%; padding: 12px 14px; text-decoration: none; color: var(--text);
     background: var(--ink-800); border: 1px solid var(--line); border-radius: var(--radius-sm);
   }
   .goal:hover { border-color: var(--accent); }

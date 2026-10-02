@@ -1,16 +1,18 @@
 ---
-/** Long-form hubs: beginner, advanced (PRO), classic vs modern. */
+/** Long-form hubs: beginner, advanced (PRO), classic vs modern, and the /learn/ guides. */
 import { render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import NutritionCard from '../components/NutritionCard.astro';
 import SourceList from '../components/SourceList.astro';
+import BeginnerToggle from '../components/BeginnerToggle.astro';
 import { getGuide } from '../utils/content';
+import { LEARN_GUIDES, type LearnSlug } from '../data/learn';
 import { useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
-  slug: 'beginner' | 'advanced' | 'eras';
+  slug: 'beginner' | 'advanced' | 'eras' | LearnSlug;
   /** Language-neutral route path. */
   path: string;
 }
@@ -20,11 +22,17 @@ const guide = await getGuide(lang, slug);
 if (!guide) throw new Error(`Missing guide content: ${lang}/${slug}`);
 const { Content, headings } = await render(guide);
 const toc = headings.filter((h) => h.depth === 2);
-const crumbLabel = slug === 'beginner' ? t('beginner.title') : slug === 'advanced' ? t('advanced.title') : t('eras.title');
+const learn = LEARN_GUIDES.some((g) => g.slug === slug);
+const crumbs = learn
+  ? [{ label: t('nav.health'), path: '/health/' }, { label: guide.data.title }]
+  : [{ label: slug === 'beginner' ? t('beginner.title') : slug === 'advanced' ? t('advanced.title') : t('eras.title') }];
+const otherLearn = await Promise.all(
+  LEARN_GUIDES.filter((g) => g.slug !== slug).map(async (g) => ({ ...g, guide: await getGuide(lang, g.slug) })),
+);
 ---
 
 <BaseLayout lang={lang} path={path} title={guide.data.title} description={guide.data.description}>
-  <PageHeader lang={lang} title={guide.data.title} lead={guide.data.description} crumbs={[{ label: crumbLabel }]} />
+  <PageHeader lang={lang} title={guide.data.title} lead={guide.data.description} crumbs={crumbs} />
 
   <div class="container section--tight guide">
     {toc.length > 2 && (
@@ -36,6 +44,7 @@ const crumbLabel = slug === 'beginner' ? t('beginner.title') : slug === 'advance
       </nav>
     )}
     <div class="body">
+      {slug === 'beginner' && <div class="bm-wrap"><BeginnerToggle lang={lang} /></div>}
       <div class="prose">
         <Content />
       </div>
@@ -43,8 +52,9 @@ const crumbLabel = slug === 'beginner' ? t('beginner.title') : slug === 'advance
       <div class="prose-like"><SourceList lang={lang} sources={guide.data.sources} /></div>
 
       <div class="grid grid--2 next">
-        {slug !== 'beginner' && <NutritionCard lang={lang} path="/beginner/" icon="user" title={t('nav.beginner')} text={t('home.pathBeginner')} />}
-        {slug !== 'advanced' && <NutritionCard lang={lang} path="/advanced/" icon="bolt" title={t('nav.advanced')} text={t('home.pathAdvanced')} />}
+        {otherLearn.map((g) => g.guide && <NutritionCard lang={lang} path={`/learn/${g.slug}/`} icon={g.icon} title={g.guide.data.title} text={g.guide.data.description} />)}
+        {slug !== 'beginner' && !learn && <NutritionCard lang={lang} path="/beginner/" icon="user" title={t('nav.beginner')} text={t('home.pathBeginner')} />}
+        {slug !== 'advanced' && !learn && <NutritionCard lang={lang} path="/advanced/" icon="bolt" title={t('nav.advanced')} text={t('home.pathAdvanced')} />}
         <NutritionCard lang={lang} path="/workouts/" icon="dumbbell" title={t('workout.title')} text={t('home.pathBuilder')} accent />
         <NutritionCard lang={lang} path="/exercises/" icon="search" title={t('ex.libraryTitle')} text={t('ex.libraryIntro')} />
       </div>
@@ -65,4 +75,5 @@ const crumbLabel = slug === 'beginner' ? t('beginner.title') : slug === 'advance
   .guide-note { margin-block-start: 28px; max-width: 72ch; }
   .prose-like { max-width: 72ch; }
   .next { margin-block-start: 32px; }
+  .bm-wrap { margin-block-end: 20px; max-inline-size: 560px; }
 </style>

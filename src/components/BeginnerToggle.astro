@@ -1,0 +1,73 @@
+---
+/**
+ * Beginner mode switch. A saved preference (on this device) that makes the
+ * exercise library show beginner-friendly exercises first. It never deletes
+ * or permanently hides anything — "show all" is always one tap away.
+ */
+import { localePath, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<div class="bm card" data-beginner-toggle data-on-msg={t('beginner.modeActive')} data-off-msg={t('beginner.modeOff')}>
+  <div class="bm-row">
+    <span class="bm-label" id={`bm-label-${lang}`}>{t('beginner.mode')}</span>
+    <button type="button" class="bm-switch" role="switch" aria-checked="false" aria-labelledby={`bm-label-${lang}`} data-bm-switch disabled>
+      <span class="bm-knob" aria-hidden="true"></span>
+    </button>
+  </div>
+  <p class="bm-status" aria-live="polite" data-bm-status>{t('beginner.modeHint')}</p>
+  <a class="link-arrow bm-lib" href={localePath(lang, '/exercises/')} data-bm-library hidden>{t('beginner.modeLibrary')}</a>
+</div>
+
+<script>
+  import { load, save, toast } from '../scripts/progress-store';
+  import { setPrefs } from '../utils/progress';
+
+  for (const box of document.querySelectorAll<HTMLElement>('[data-beginner-toggle]')) {
+    const sw = box.querySelector<HTMLButtonElement>('[data-bm-switch]')!;
+    const status = box.querySelector<HTMLElement>('[data-bm-status]')!;
+    const lib = box.querySelector<HTMLElement>('[data-bm-library]')!;
+    const hint = status.textContent ?? '';
+    const reflect = (on: boolean) => {
+      sw.setAttribute('aria-checked', String(on));
+      status.textContent = on ? box.dataset.onMsg ?? '' : hint;
+      lib.hidden = !on;
+    };
+    reflect(load().state.prefs.beginnerMode);
+    sw.disabled = false;
+    sw.addEventListener('click', () => {
+      const s = load().state;
+      const on = !s.prefs.beginnerMode;
+      const saved = save(setPrefs(s, on ? { beginnerMode: true, level: s.prefs.level ?? 'beginner' } : { beginnerMode: false }));
+      reflect(on);
+      if (saved) toast((on ? box.dataset.onMsg : box.dataset.offMsg) ?? '');
+    });
+  }
+</script>
+
+<style>
+  .bm { display: grid; gap: 6px; border-inline-start: 4px solid var(--accent); }
+  .bm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .bm-label { font-weight: 900; font-size: var(--fs-md); }
+  .bm-switch {
+    position: relative; flex: none; inline-size: 60px; block-size: 34px; border-radius: 999px; cursor: pointer;
+    background: var(--ink-600); border: 1px solid var(--line-strong); padding: 0;
+  }
+  /* 44px tap target without changing the visual size. */
+  .bm-switch::before { content: ''; position: absolute; inset: -6px -2px; }
+  .bm-knob {
+    position: absolute; inset-block-start: 3px; inset-inline-start: 3px; inline-size: 26px; block-size: 26px;
+    border-radius: 50%; background: var(--white); transition: inset-inline-start 150ms ease;
+  }
+  .bm-switch[aria-checked='true'] { background: var(--accent); border-color: var(--accent); }
+  .bm-switch[aria-checked='true'] .bm-knob { inset-inline-start: 29px; }
+  .bm-switch:disabled { opacity: 0.5; cursor: default; }
+  .bm-switch:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .bm-status { color: var(--text-muted); font-size: var(--fs-sm); }
+  .bm-lib { font-size: var(--fs-sm); }
+</style>

@@ -56,7 +56,9 @@ Guidelines:
 
 ## 3. Goal journeys, women's pathway and coaching team
 
-- **Goal journeys** (`/goals/<goal>/`) are data in `src/data/goals.ts`: each goal is an ordered list of steps that link to existing pages (calculator with `?goal=`, meal planner with `?goal=`, workout builder with `?goal=…#builder`, the exercise library with filters, articles). Keep wording neutral: no promised weight change, no timelines, no medical claims. `npm test` checks that every step opens an existing page or article.
+- **Goal journeys** (`/goals/<goal>/`) are data in `src/data/goals.ts`: each goal is an ordered list of steps that link to existing pages (calculator with `?goal=`, meal planner with `?goal=`, workout builder with `?goal=…#builder`, the exercise library with filters, articles). Keep wording neutral: no promised weight change, no timelines, no medical claims. `npm test` checks that every step opens an existing page, article or `/learn/` guide. To add a goal: add its id to `src/data/goal-ids.ts` and one object to `GOAL_JOURNEYS` (optional `beginnerMode`, `homeBuilder`, `exerciseGroups` with existing slugs or a rule) — the page is generated automatically.
+- **Pathways** (powerlifting, conditioning, home) live in `src/data/programs.ts`. Powerlifting is a curated list of existing slugs; the others are derived from equipment/category/type, so new exercises join automatically. They power the library's "Pathway" filter (`?program=`).
+- **Learning guides** (`/learn/<slug>/`) are Markdown in `src/content/guides/<lang>/<slug>.md`, listed in `src/data/learn.ts`. Education only: cite sources, no promised results, no drug protocols.
 - **Women's pathway** (`/women/`) reuses the official women's hours, the women's coach and the same tools. Exercises are never split by gender — goal and level decide.
 - **Coaching team** lives in `gym.coaches` (`src/config/gym.ts`). Add names, credentials or photos only when officially provided; empty values are simply not shown.
 

@@ -2,6 +2,8 @@
 import { loadIndex, searchIndex } from './exercise-index';
 import { activeCount, emptyFilters, FILTER_KEYS, filtersFromParams, matchesFilters, type FilterState } from './filters';
 import type { ExerciseLite } from '../utils/exercise-index';
+import { load, save } from './progress-store';
+import { setPrefs } from '../utils/progress';
 
 const root = document.querySelector<HTMLElement>('[data-library]');
 if (root) void init(root);
@@ -43,6 +45,36 @@ async function init(root: HTMLElement) {
     }
   }
   if (sortSel && params.get('sort') === 'name') sortSel.value = 'name';
+
+  // Beginner mode: start with beginner-friendly exercises (a normal, removable
+  // filter) unless the URL already asks for something specific.
+  const banner = root.querySelector<HTMLElement>('[data-bm-banner]');
+  const levelBoxes = () => form.querySelectorAll<HTMLInputElement>('input[name="difficulty"]');
+  const syncBanner = () => {
+    if (!banner || banner.hidden) return;
+    const onlyBeginner = [...levelBoxes()].every((b) => b.checked === (b.value === 'beginner'));
+    banner.querySelector<HTMLElement>('[data-bm-text]')!.textContent = (onlyBeginner ? banner.dataset.filtered : banner.dataset.all) ?? '';
+    banner.querySelector<HTMLElement>('[data-bm-all]')!.hidden = !onlyBeginner;
+    banner.querySelector<HTMLElement>('[data-bm-only]')!.hidden = onlyBeginner;
+  };
+  if (banner && load().state.prefs.beginnerMode) {
+    banner.hidden = false;
+    if (![...params.keys()].length) for (const box of levelBoxes()) box.checked = box.value === 'beginner';
+    banner.querySelector('[data-bm-all]')?.addEventListener('click', () => {
+      for (const box of levelBoxes()) box.checked = false;
+      apply();
+    });
+    banner.querySelector('[data-bm-only]')?.addEventListener('click', () => {
+      for (const box of levelBoxes()) box.checked = box.value === 'beginner';
+      apply();
+    });
+    banner.querySelector('[data-bm-off]')?.addEventListener('click', () => {
+      save(setPrefs(load().state, { beginnerMode: false }));
+      banner.hidden = true;
+      for (const box of levelBoxes()) box.checked = false;
+      apply();
+    });
+  }
 
   const readFilters = (): FilterState => {
     const f = emptyFilters();
@@ -87,6 +119,7 @@ async function init(root: HTMLElement) {
       if (c) c.textContent = f[key].length ? String(f[key].length) : '';
     }
     renderChips(n);
+    syncBanner();
 
     if (push) {
       const next = new URLSearchParams();

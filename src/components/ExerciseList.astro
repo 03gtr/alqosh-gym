@@ -1,0 +1,46 @@
+---
+/**
+ * Compact exercise rows (name, other-language name, primary muscle in green,
+ * level). Lighter than the card grid — used on pathway pages.
+ */
+import DifficultyBadge from './DifficultyBadge.astro';
+import type { Exercise } from '../data/exercises/types';
+import { MUSCLES } from '../data/taxonomy';
+import { localePath, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  exercises: Exercise[];
+}
+const { lang, exercises } = Astro.props;
+---
+
+<ul class="ex-list" role="list">
+  {exercises.map((e) => (
+    <li>
+      <a class="ex-row" href={localePath(lang, `/exercises/${e.slug}/`)}>
+        <span class="er-name">{lang === 'ar' ? e.arabicName : e.name}</span>
+        <span class="er-other" lang={lang === 'ar' ? 'en' : 'ar'} dir={lang === 'ar' ? 'ltr' : 'rtl'}>{lang === 'ar' ? e.name : e.arabicName}</span>
+        <span class="er-meta">
+          <span class="er-muscle">{MUSCLES[e.primaryMuscles[0]].label[lang]}</span>
+          <DifficultyBadge level={e.difficulty} lang={lang} plain />
+        </span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .ex-list { display: grid; gap: 6px; }
+  @media (min-width: 768px) { .ex-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .ex-row {
+    display: grid; gap: 2px; min-block-size: 56px; padding: 10px 14px; block-size: 100%;
+    background: var(--ink-800); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    color: var(--text); text-decoration: none;
+  }
+  .ex-row:hover { border-color: var(--accent); }
+  .er-name { font-weight: 900; }
+  .er-other { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
+  .er-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: var(--fs-xs); }
+  .er-muscle { color: var(--mus-primary); font-weight: 800; }
+</style>

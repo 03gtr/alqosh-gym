@@ -2,6 +2,8 @@
 
 The official website of **ALQOSH GYM** (نادي القوش الرياضي): gym information, a bilingual exercise encyclopedia, and fitness & nutrition education — built mobile-first for members using their phones inside the gym.
 
+It runs on **IQ GYM** (ܒܹܝܬ ܕۊܪܵܫܵܐ), IQ Group's reusable fitness-companion product; Alqosh Gym is its first gym instance. See **[docs/PRODUCT.md](docs/PRODUCT.md)** for the product/gym architecture.
+
 > Supported & developed by [IQ Group](https://iq-group.app) · بدعم وتطوير IQ Group
 
 ## What's inside
@@ -9,12 +11,15 @@ The official website of **ALQOSH GYM** (نادي القوش الرياضي): gym
 | Area | Route (Arabic · English) |
 | --- | --- |
 | Home — hero, goal entry points, exercise search, beginner start, tools, gym info, permanent benefits, coaching team | `/` · `/en/` |
-| My goal (هدفي) — goal journeys over the existing tools (weight loss, muscle gain, maintain, fitness) | `/goals/`, `/goals/<goal>/` |
+| My goal (هدفي) — 8 data-driven journeys: weight loss, muscle gain, maintain, fitness, beginner (beginner mode), powerlifting, fitness & conditioning, home training | `/goals/`, `/goals/<goal>/` |
+| Home workout — time → equipment → goal → a ready session from the same library | `/workouts/home/` |
+| My progress (MY IQ GYM) — goal, level, favourites, completed exercises, streak, saved plan, export/restore/clear; on-device only, no account | `/progress/` |
+| Learning guides — gradual weight loss, natural muscle gain, recovery & sleep | `/learn/<slug>/` |
 | Women's pathway — women's hours, women's coach, goals and tools | `/women/` |
-| Exercise library — bilingual search + 7 filters | `/exercises/` |
+| Exercise library — bilingual search + 8 filters (incl. pathway: powerlifting, conditioning, home), beginner mode | `/exercises/` |
 | Exercise pages (one per exercise, QR-ready) | `/exercises/<slug>/` (alias `/exercise/<slug>/`) |
 | Muscle explorer | `/muscles/`, `/muscles/<category>/` |
-| Workout builder + men/women goal pathways | `/workouts/` |
+| Workout builder (incl. powerlifting, gym/home equipment, save as my plan) + men/women pathways | `/workouts/` |
 | Calorie (BMR/TDEE) & macro calculator | `/calculator/` |
 | Simple meal planner (Iraqi foods, hand portions) | `/nutrition/meals/` |
 | Nutrition guide & Health articles | `/nutrition/`, `/health/`, `/articles/<slug>/` |
@@ -26,7 +31,7 @@ Arabic (RTL) is the default language at the root; English (LTR) lives under `/en
 
 ## Stack
 
-- [Astro](https://astro.build) static site (no backend, no accounts, no tracking) — deploys to GitHub Pages or any static host.
+- [Astro](https://astro.build) static site (no backend, no accounts, no tracking) — deploys to GitHub Pages or any static host. Local progress uses `localStorage` on the visitor's device only.
 - TypeScript everywhere; data separated from presentation (`src/data`, `src/content`).
 - Vanilla TypeScript islands for search, filters, calculator, meal planner and workout builder (no UI framework shipped).
 - Self-hosted fonts (Cairo for Arabic/Latin, Bebas Neue for display).
@@ -63,13 +68,13 @@ The workflow passes the Pages origin and base path to the build (`SITE_URL`, `BA
 
 ## Official gym information
 
-All gym facts live in **`src/config/gym.ts`** — hours, permanent benefits, the permanent-discount statement, the coaching team, and the official phone/WhatsApp, Google Maps and Facebook links. A street address, opening days and coach credentials have not been provided and stay empty; the UI renders nothing for missing values.
+All gym facts live in **`src/config/gym.ts`** (the gym instance; product-wide settings are in `src/config/product.ts`) — hours, permanent benefits, the permanent-discount statement, the coaching team, and the official phone/WhatsApp, Google Maps and Facebook links. A street address, opening days and coach credentials have not been provided and stay empty; the UI renders nothing for missing values.
 
-## Architecture notes (future work — not part of V1)
+## Architecture notes (future work — not part of V1.2)
 
-**Visitor analytics.** V1 is fully static and ships no tracking. To add privacy-friendly analytics later (e.g. a cookieless script such as Plausible, GoatCounter or Cloudflare Web Analytics), create one `src/components/Analytics.astro` that renders the provider's `<script>` only when a `PUBLIC_ANALYTICS_*` build variable is set, and include it once in the `<head>` of `src/layouts/BaseLayout.astro`. Every page uses that layout, so no other file changes; set the variable in the GitHub Pages workflow. No backend is needed. Update the privacy wording in the About page and this README when you do.
+**Visitor analytics.** The site ships no tracking. The contract for future analytics is `src/utils/analytics.ts` (provider "none" today: collects nothing, `getPublicStats()` returns `null`, so no visitor numbers are ever shown). A real provider must implement `AnalyticsProvider`, tag events with the `gymId`, be disclosed with appropriate consent, and only publish aggregates (small groups suppressed). Gender is never inferred. Details in [docs/PRODUCT.md](docs/PRODUCT.md).
 
-**Multiple gyms.** Gym identity lives only in `src/config/gym.ts` (name, hours, benefits, coach, phone/WhatsApp, map, socials) plus the brand colour tokens in `src/styles/global.css` and the logo in `src/components/Logo.astro`. The exercise library, search, visual/animation engine, calculators, meal planner and workout builder (`src/data`, `src/utils`, `src/visual`, `src/scripts`) never import gym identity. A future multi-gym build would replace `gym.ts` with a per-gym config (gymId, domain, branding) selected at build time, without touching the exercise engine.
+**Multiple gyms.** Gym identity lives only in `src/config/gym.ts` (id, name, wordmark, colours, hours, benefits, coaches, contact, gym-specific copy) plus the colour tokens in `src/styles/global.css`; reusable components read it instead of hard-coding the name (a test enforces this). The exercise library, search, visual/animation engine, calculators, meal planner and workout builder (`src/data`, `src/utils`, `src/visual`, `src/scripts`) never import gym identity. A future multi-gym build would replace `gym.ts` with a per-gym config (gymId, domain, branding) selected at build time, without touching the exercise engine.
 
 ## Adding content
 

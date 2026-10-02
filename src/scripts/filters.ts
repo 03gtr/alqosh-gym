@@ -4,12 +4,12 @@
  */
 import type { ExerciseLite } from '../utils/exercise-index';
 
-export const FILTER_KEYS = ['category', 'equipment', 'difficulty', 'goal', 'pattern', 'type', 'era'] as const;
+export const FILTER_KEYS = ['program', 'category', 'equipment', 'difficulty', 'goal', 'pattern', 'type', 'era'] as const;
 export type FilterKey = (typeof FILTER_KEYS)[number];
 export type FilterState = Record<FilterKey, string[]>;
 
 export function emptyFilters(): FilterState {
-  return { category: [], equipment: [], difficulty: [], goal: [], pattern: [], type: [], era: [] };
+  return { program: [], category: [], equipment: [], difficulty: [], goal: [], pattern: [], type: [], era: [] };
 }
 
 export function filtersFromParams(params: URLSearchParams): FilterState {
@@ -27,6 +27,7 @@ export function activeCount(f: FilterState): number {
 export function matchesFilters(e: ExerciseLite, f: FilterState): boolean {
   const any = (vals: string[], test: (v: string) => boolean) => vals.length === 0 || vals.some(test);
   return (
+    any(f.program, (v) => e.programs.includes(v as never)) &&
     any(f.category, (v) => e.groups.includes(v as never)) &&
     any(f.equipment, (v) => e.equipment.includes(v as never)) &&
     any(f.difficulty, (v) => e.difficulty === v) &&

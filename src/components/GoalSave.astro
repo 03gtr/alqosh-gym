@@ -1,0 +1,48 @@
+---
+/** "Make this my goal" — saves the goal on this device for "My progress". */
+import Icon from './Icon.astro';
+import type { GoalId } from '../data/goal-ids';
+import { useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  goal: GoalId;
+}
+const { lang, goal } = Astro.props;
+const t = useT(lang);
+---
+
+<div class="goal-save" data-goal-save={goal} data-saved-msg={t('goals.saved')}>
+  <button type="button" class="btn btn--sm" aria-pressed="false" data-goal-btn hidden>
+    <Icon name="target" size={18} /><span>{t('goals.makeMine')}</span>
+  </button>
+  <p class="gs-current" data-goal-current hidden><Icon name="check" size={18} />{t('goals.current')}</p>
+</div>
+
+<script>
+  import { load, save, toast } from '../scripts/progress-store';
+  import { setPrefs } from '../utils/progress';
+  import type { GoalId } from '../data/goal-ids';
+
+  for (const box of document.querySelectorAll<HTMLElement>('[data-goal-save]')) {
+    const goal = box.dataset.goalSave as GoalId;
+    const btn = box.querySelector<HTMLButtonElement>('[data-goal-btn]')!;
+    const current = box.querySelector<HTMLElement>('[data-goal-current]')!;
+    const reflect = () => {
+      const mine = load().state.prefs.goal === goal;
+      btn.hidden = mine;
+      current.hidden = !mine;
+    };
+    reflect();
+    btn.addEventListener('click', () => {
+      if (save(setPrefs(load().state, { goal }))) toast(box.dataset.savedMsg ?? '');
+      reflect();
+    });
+  }
+</script>
+
+<style>
+  .goal-save { margin-block: 4px 18px; }
+  .gs-current { display: inline-flex; align-items: center; gap: 6px; min-block-size: 40px; font-weight: 800; color: var(--text); }
+  .gs-current :global(.icon) { color: var(--accent-text); }
+</style>

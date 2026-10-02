@@ -1,5 +1,10 @@
 /**
- * Official ALQOSH GYM facts.
+ * Gym instance configuration — ALQOSH GYM, the first gym running on IQ GYM.
+ *
+ * Everything specific to one gym lives here (identity, theme, hours, benefits,
+ * coaches, contact, gym-specific copy). Product-wide settings live in
+ * ./product.ts. Reusable components read these values instead of hard-coding
+ * the gym's name, so another gym can later supply its own configuration.
  *
  * Source: the gym's official promotional material and official statement.
  * Do NOT invent or change hours, benefits, discounts, coach details or contact
@@ -7,6 +12,7 @@
  * simply not rendered.
  */
 import type { Localized } from '../i18n/types';
+import { product } from './product';
 
 export interface TimeRange {
   /** 24h "HH:MM" */
@@ -44,8 +50,49 @@ export interface Coach {
 }
 
 export const gym = {
+  /** Stable instance id (future analytics, content overrides, multi-gym). */
+  id: 'alqosh-gym',
+  /** The product this gym runs on. */
+  productId: product.id,
   name: { en: 'ALQOSH GYM', ar: 'قاعة القوش جم' },
   altName: { en: 'Alqosh Sports Club', ar: 'نادي القوش الرياضي' },
+
+  /** Visual identity of this gym (the site theme). */
+  brand: {
+    /** Latin wordmark, split so the second word can take the accent colour. */
+    wordmark: { lead: 'ALQOSH', accent: 'GYM' },
+    /** Used for copyright and file names. */
+    shortName: 'Alqosh Gym',
+    slug: 'alqosh-gym',
+    /** Theme tokens mirrored in src/styles/global.css (black / white / red). */
+    colors: { background: '#070708', accent: '#e10600', text: '#ffffff' },
+  },
+
+  /** Supported languages; the first is the default (served at the root). */
+  languages: ['ar', 'en'] as const,
+
+  /** Gym-specific copy (kept here, not in the shared UI strings). */
+  copy: {
+    description: {
+      ar: 'قاعة القوش جم — موسوعة تمارين مع شرح التقنية الصحيحة، حاسبة سعرات، تغذية، ومعلومات القاعة وأوقات الدوام.',
+      en: 'ALQOSH GYM — exercise encyclopedia with correct technique, calorie calculator, nutrition guides, and official gym hours and benefits.',
+    },
+    identity: {
+      ar: 'قاعة القوش جم ليست مجرد غرفة مليئة بالأجهزة؛ هي مكان للتمرين والتعلّم والتطور والاستشفاء، لفهم الجسم وبناء عادات صحية. هذا الموقع امتداد تعليمي لهذه البيئة.',
+      en: 'ALQOSH GYM is not simply a room full of machines. It is a place to train, learn, improve and recover — to understand your body and build healthy habits. This website is an educational extension of that environment.',
+    },
+    aboutIntro: {
+      ar: 'موقع قاعة القوش جم الرسمي: معلومات القاعة، موسوعة تمارين، وأدوات تغذية ولياقة تعليمية.',
+      en: 'The official ALQOSH GYM website: gym information, an exercise encyclopedia and educational nutrition & fitness tools.',
+    },
+    developerNote: {
+      ar: 'هذا المشروع جزء من أعمال IQ Group الرقمية، وتم تطويره لدعم التجربة الرقمية لقاعة القوش جم.',
+      en: "This project is part of IQ Group's digital work, developed to support Alqosh Gym's digital experience.",
+    },
+  } satisfies Record<string, Localized>,
+
+  /** Optional sections this gym shows (all officially provided for Alqosh Gym). */
+  sections: { womenPathway: true, coaches: true, benefits: true },
 
   hours: {
     men: {
@@ -148,16 +195,6 @@ export const gym = {
     mapUrl: 'https://maps.app.goo.gl/CoY85ebkDbvYP2EQ6?g_st=ac' as string | null,
     socials: [{ id: 'facebook', url: 'https://facebook.com/share/19o136kGJc' }] as { id: 'facebook'; url: string }[],
   },
-} as const;
-
-export const developer = {
-  name: 'IQ Group',
-  credit: { ar: 'بدعم وتطوير IQ Group', en: 'Supported & Developed by IQ Group' },
-  about: {
-    ar: 'هذا المشروع جزء من أعمال IQ Group الرقمية، وتم تطويره لدعم التجربة الرقمية لقاعة القوش جم.',
-    en: "This project is part of IQ Group's digital work, developed to support Alqosh Gym's digital experience.",
-  },
-  url: 'https://iq-group.app' as string | null,
 } as const;
 
 export const COPYRIGHT_YEAR = 2026;
