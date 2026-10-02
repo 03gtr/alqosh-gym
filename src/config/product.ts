@@ -16,13 +16,8 @@ import type { Localized } from '../i18n/types';
 export const product = {
   id: 'iq-gym',
   name: 'IQ GYM',
-  /**
-   * Syriac product name, exactly as supplied by IQ Group.
-   * Note: the supplied string contains one Arabic letter (U+06CA, ARABIC LETTER
-   * WAW WITH TWO DOTS ABOVE) between Syriac letters. It is kept unchanged until
-   * IQ Group confirms the intended spelling.
-   */
-  syriacName: 'ܒܹܝܬ ܕۊܪܵܫܵܐ',
+  /** Syriac product name, exactly as supplied by IQ Group (shown in the product wordmark). */
+  syriacName: 'ܒܹܝܬ݂ ܕܲܪܵܫܘܼܬ݂ܵܐ',
   /** One-line description used on the About page. */
   about: {
     ar: 'IQ GYM منصة لياقة تعليمية تطوّرها IQ Group: موسوعة تمارين، أهداف ومسارات تدريب، أدوات تغذية، وتقدّم محلي بدون حساب. كل قاعة تستخدم IQ GYM تحتفظ بهويتها ومعلوماتها الخاصة؛ وتشغيل القاعة وإدارتها مسؤولية القاعة نفسها.',

@@ -2,7 +2,7 @@
 
 The official website of **ALQOSH GYM** (نادي القوش الرياضي): gym information, a bilingual exercise encyclopedia, and fitness & nutrition education — built mobile-first for members using their phones inside the gym.
 
-It runs on **IQ GYM** (ܒܹܝܬ ܕۊܪܵܫܵܐ), IQ Group's reusable fitness-companion product; Alqosh Gym is its first gym instance. See **[docs/PRODUCT.md](docs/PRODUCT.md)** for the product/gym architecture.
+It runs on **IQ GYM** (ܒܹܝܬ݂ ܕܲܪܵܫܘܼܬ݂ܵܐ), IQ Group's reusable fitness-companion product; Alqosh Gym is its first gym instance. See **[docs/PRODUCT.md](docs/PRODUCT.md)** for the product/gym architecture.
 
 > Supported & developed by [IQ Group](https://iq-group.app) · بدعم وتطوير IQ Group
 

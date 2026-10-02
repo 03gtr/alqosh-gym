@@ -26,8 +26,9 @@ describe('product vs gym configuration', () => {
   it('defines IQ GYM as the product, made by IQ Group', () => {
     expect(product.id).toBe('iq-gym');
     expect(product.name).toBe('IQ GYM');
-    // Exactly as supplied (see note in product.ts about U+06CA).
-    expect(product.syriacName).toBe('ܒܹܝܬ ܕۊܪܵܫܵܐ');
+    // Exactly as supplied by IQ Group, Syriac script only.
+    expect(product.syriacName).toBe('ܒܹܝܬ݂ ܕܲܪܵܫܘܼܬ݂ܵܐ');
+    expect([...product.syriacName].every((c) => c === ' ' || (c.codePointAt(0)! >= 0x700 && c.codePointAt(0)! <= 0x74f))).toBe(true);
     expect(company.name).toBe('IQ Group');
     expect(company.url).toBe('https://iq-group.app');
   });

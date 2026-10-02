@@ -2,7 +2,7 @@
 
 ```
 IQ Group                    technology / product company (src/config/product.ts → company)
- └─ IQ GYM · ܒܹܝܬ ܕۊܪܵܫܵܐ     the fitness product = this codebase (src/config/product.ts → product)
+ └─ IQ GYM · ܒܹܝܬ݂ ܕܲܪܵܫܘܼܬ݂ܵܐ     the fitness product = this codebase (src/config/product.ts → product)
      └─ Alqosh Gym          first gym instance (src/config/gym.ts)
          قاعة القوش جم
 ```
@@ -11,9 +11,8 @@ IQ Group builds the product; it does not operate the gym. In the gym experience 
 brand leads, IQ GYM appears in the splash, footer ("Runs on IQ GYM") and About page, and
 the IQ Group credit stays secondary.
 
-> The Syriac product name is stored exactly as supplied. It contains one Arabic letter
-> (U+06CA, waw with two dots above) between Syriac letters — confirm the intended spelling
-> with IQ Group and change it in one place: `product.syriacName`.
+> The Syriac product name is stored exactly as supplied by IQ Group, in one place:
+> `product.syriacName`. The splash, footer and About page wordmark all read it from there.
 
 ## What is product vs. gym
 
