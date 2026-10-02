@@ -3,8 +3,8 @@ import Logo from './Logo.astro';
 import ContactLinks from './ContactLinks.astro';
 import ProductMark from './ProductMark.astro';
 import { COPYRIGHT_YEAR, gym } from '../config/gym';
-import { company } from '../config/product';
-import { localePath, useT, type Lang } from '../i18n/utils';
+import { brandAssets, company } from '../config/product';
+import { localePath, url, useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -27,6 +27,7 @@ const learn = [
   { label: t('nav.advanced'), path: '/advanced/' },
   { label: t('nav.workouts'), path: '/workouts/' },
   { label: t('nav.meals'), path: '/nutrition/meals/' },
+  { label: t('nav.install'), path: '/install/' },
   { label: t('nav.qr'), path: '/qr/' },
 ];
 ---
@@ -58,7 +59,7 @@ const learn = [
   <div class="container footer-bottom">
     <p class="disclaimer">{t('disclaimer.short')}</p>
     <p class="platform">
-      <a href={localePath(lang, '/about/#product')}><span>{t('footer.platform')}</span><ProductMark class="footer-mark" /></a>
+      <a href={localePath(lang, '/about/#product')}><span>{t('footer.platform')}</span><img class="platform-icon" src={url(brandAssets.mark.src)} width="32" height="32" alt="" loading="lazy" decoding="async" /><ProductMark class="footer-mark" /></a>
     </p>
     <p class="credit">
       <a href={company.url ?? localePath(lang, '/about/#credits')} {...(company.url ? { target: '_blank', rel: 'noopener' } : {})}>
@@ -103,5 +104,6 @@ const learn = [
   }
   .platform a:hover { color: var(--white); }
   .platform :global(.footer-mark) { grid-auto-flow: column; gap: 10px; align-items: baseline; }
+  .platform-icon { inline-size: 32px; block-size: 32px; border-radius: 50%; border: 1px solid var(--line-strong); }
   .copy { font-size: var(--fs-xs); color: var(--text-dim); }
 </style>

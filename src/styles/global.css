@@ -338,3 +338,5 @@ html[data-splash] .splash > :nth-child(4) { animation-delay: 180ms; }
 }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
 @media (min-width: 1180px) { .toast { inset-block-end: 24px; } }
+/* Official IQ GYM logo inside the splash (artwork already carries the wordmark + Syriac name). */
+.splash-logo { inline-size: min(220px, 56vw); block-size: auto; aspect-ratio: 1; border-radius: 12px; }

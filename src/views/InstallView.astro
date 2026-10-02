@@ -1,0 +1,142 @@
+---
+/**
+ * "ثبّت IQ GYM على جهازك" — how to put IQ GYM on the home screen.
+ *
+ * Honest by design: the Android/desktop install button only appears when the
+ * browser actually fires `beforeinstallprompt`, and it calls the browser's own
+ * prompt. iPhone/iPad never get a button (iOS has no install prompt) — only
+ * the Safari "Add to Home Screen" steps. The section for the visitor's
+ * platform is shown first.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { brandAssets, product } from '../config/product';
+import { localePath, url, useT, type Lang } from '../i18n/utils';
+import type { UIKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const steps = (prefix: string, n: number) => Array.from({ length: n }, (_, i) => t(`${prefix}${i + 1}` as UIKey));
+const msgs = { accepted: t('install.accepted'), dismissed: t('install.dismissed') };
+---
+
+<BaseLayout lang={lang} path="/install/" title={t('install.title')} description={t('install.lead')}>
+  <PageHeader lang={lang} title={t('install.title')} lead={t('install.lead')} crumbs={[{ label: t('nav.install') }]} />
+
+  <div class="container section--tight install" data-install data-platform="unknown" data-msgs={JSON.stringify(msgs)}>
+    <section class="hero card" aria-labelledby="why-h">
+      <img class="hero-logo" src={url(brandAssets.logoWeb.src)} width="160" height="160" alt={`${product.name} — ${product.syriacName}`} decoding="async" />
+      <div>
+        <h2 id="why-h" class="sub">{t('install.whyTitle')}</h2>
+        <ul class="why">
+          {steps('install.why', 4).map((w) => <li>{w}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <p class="notice installed" data-installed hidden>{t('install.installed')}</p>
+
+    <div class="ways">
+      <section class="way card way--android" id="android" aria-labelledby="android-h">
+        <h2 id="android-h" class="sub">{t('install.androidTitle')}</h2>
+        <div class="bip" data-bip hidden>
+          <button type="button" class="btn btn--primary" data-install-btn>{t('install.button')}</button>
+          <p class="muted small">{t('install.buttonNote')}</p>
+        </div>
+        <p class="result" data-install-result aria-live="polite" hidden></p>
+        <p class="muted">{t('install.androidManual')}</p>
+        <ol class="num">{steps('install.android', 4).map((s) => <li>{s}</li>)}</ol>
+      </section>
+
+      <section class="way card way--ios" id="iphone" aria-labelledby="ios-h">
+        <h2 id="ios-h" class="sub">{t('install.iosTitle')}</h2>
+        <ol class="num">{steps('install.ios', 5).map((s) => <li>{s}</li>)}</ol>
+        <p class="muted small">{t('install.iosNote')}</p>
+        <p class="muted small">{t('install.iosStorage')} <a href={localePath(lang, '/progress/')}>{t('nav.progress')}</a></p>
+      </section>
+
+      <section class="way card way--desktop" id="desktop" aria-labelledby="desktop-h">
+        <h2 id="desktop-h" class="sub">{t('install.desktopTitle')}</h2>
+        <p>{t('install.desktopBody')}</p>
+      </section>
+    </div>
+
+    <p class="notice">{t('install.webApp')}</p>
+    <p class="muted small">{t('install.wording')}</p>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // Capture the browser's install prompt as early as possible (Chrome/Edge/Android).
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__iqInstallPrompt = e;
+    document.dispatchEvent(new Event('iq-install-available'));
+  });
+</script>
+
+<script>
+  type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }> };
+  const w = window as unknown as { __iqInstallPrompt?: BIPEvent };
+  const root = document.querySelector<HTMLElement>('[data-install]');
+  if (root) {
+    const msgs = JSON.parse(root.dataset.msgs ?? '{}') as Record<string, string>;
+    const ua = navigator.userAgent;
+    const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const android = /Android/.test(ua);
+    root.dataset.platform = ios ? 'ios' : android ? 'android' : 'desktop';
+
+    const installedNote = root.querySelector<HTMLElement>('[data-installed]')!;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+      || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    installedNote.hidden = !standalone;
+
+    const bip = root.querySelector<HTMLElement>('[data-bip]')!;
+    const btn = root.querySelector<HTMLButtonElement>('[data-install-btn]')!;
+    const result = root.querySelector<HTMLElement>('[data-install-result]')!;
+    // The button exists only while the browser offers a real install prompt.
+    const offer = () => { if (w.__iqInstallPrompt && !ios) bip.hidden = false; };
+    offer();
+    document.addEventListener('iq-install-available', offer);
+
+    btn.addEventListener('click', async () => {
+      const prompt = w.__iqInstallPrompt;
+      if (!prompt) return;
+      w.__iqInstallPrompt = undefined; // a prompt can be used once
+      bip.hidden = true;
+      await prompt.prompt();
+      const { outcome } = await prompt.userChoice;
+      result.textContent = outcome === 'accepted' ? msgs.accepted : msgs.dismissed;
+      result.hidden = false;
+    });
+    window.addEventListener('appinstalled', () => {
+      bip.hidden = true;
+      installedNote.hidden = false;
+    });
+  }
+</script>
+
+<style>
+  .install { display: grid; gap: 18px; max-inline-size: 900px; }
+  .hero { display: grid; gap: 16px; align-items: center; }
+  @media (min-width: 640px) { .hero { grid-template-columns: auto 1fr; } }
+  .hero-logo { inline-size: 160px; block-size: 160px; border-radius: 16px; justify-self: center; }
+  .sub { font-size: var(--fs-lg); margin-block-end: 8px; }
+  .why { display: grid; gap: 6px; padding-inline-start: 1.2em; list-style: disc; color: var(--text-muted); }
+  .ways { display: grid; gap: 14px; }
+  .way { display: grid; gap: 10px; align-content: start; }
+  /* The visitor's own platform first. */
+  [data-platform='ios'] .way--ios,
+  [data-platform='android'] .way--android,
+  [data-platform='desktop'] .way--desktop { order: -1; border-inline-start: 4px solid var(--accent); }
+  .num { display: grid; gap: 8px; padding-inline-start: 1.4em; list-style: decimal; }
+  .num li { padding-inline-start: 4px; }
+  .bip { display: grid; gap: 6px; justify-items: start; }
+  .bip .btn { min-block-size: 48px; }
+  .result { font-weight: 800; }
+  .installed { font-weight: 800; }
+  .small { font-size: var(--fs-sm); }
+</style>

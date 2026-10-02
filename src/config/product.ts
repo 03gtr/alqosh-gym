@@ -25,6 +25,31 @@ export const product = {
   } satisfies Localized,
 } as const;
 
+/**
+ * Official IQ GYM artwork (public/brand/). iq-gym-logo.jpg is the untouched
+ * original supplied by IQ Group (1280×1280, black background). Every other
+ * file is a scaled or cropped copy of it — never redrawn:
+ *  - icon-192 / icon-512 / apple-touch-icon: the complete logo, scaled.
+ *  - icon-maskable-512: the complete logo at 74 % on its own black background
+ *    (fits Android's circular safe zone).
+ *  - favicon-16/32, mark-96: crop of the king and ring (x 330, y 20, 600×600),
+ *    because the full logo is unreadable at tab size.
+ * Paths are relative to the site base (see `url()` in src/i18n/utils.ts).
+ */
+export const brandAssets = {
+  logo: { src: '/brand/iq-gym-logo.jpg', width: 1280, height: 1280, type: 'image/jpeg' },
+  logoWeb: { src: '/brand/iq-gym-logo-512.webp', width: 512, height: 512 },
+  mark: { src: '/brand/iq-gym-mark-96.webp', width: 96, height: 96 },
+  favicon16: '/brand/favicon-16.png',
+  favicon32: '/brand/favicon-32.png',
+  appleTouchIcon: '/brand/apple-touch-icon.png',
+  icon192: '/brand/iq-gym-icon-192.png',
+  icon512: '/brand/iq-gym-icon-512.png',
+  iconMaskable512: '/brand/iq-gym-icon-maskable-512.png',
+  /** Background of the artwork itself (Android launch screen). */
+  background: '#000000',
+} as const;
+
 /** The technology company behind IQ GYM. Secondary to the gym in the gym experience. */
 export const company = {
   name: 'IQ Group',

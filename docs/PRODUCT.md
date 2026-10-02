@@ -14,6 +14,28 @@ the IQ Group credit stays secondary.
 > The Syriac product name is stored exactly as supplied by IQ Group, in one place:
 > `product.syriacName`. The splash, footer and About page wordmark all read it from there.
 
+## Official artwork, icons and installation
+
+`public/brand/iq-gym-logo.jpg` is the official IQ GYM logo exactly as supplied (1280×1280 JPEG,
+black background; a test pins its SHA-256). Everything else in `public/brand/` is a scaled or
+cropped copy — never redrawn — listed in `brandAssets` (src/config/product.ts):
+
+| File | Content | Used for |
+| --- | --- | --- |
+| `iq-gym-icon-192.png`, `iq-gym-icon-512.png`, `apple-touch-icon.png` (180) | complete logo, scaled | manifest icons, iPhone home screen |
+| `iq-gym-icon-maskable-512.png` | complete logo at 74 % on its own black background | Android adaptive (circular) icon |
+| `favicon-16.png`, `favicon-32.png`, `iq-gym-mark-96.webp` | crop of the king and ring (x 330, y 20, 600×600) — the full logo is unreadable at tab size | browser tab, footer mark, install hint |
+| `iq-gym-logo-512.webp` | complete logo, scaled | splash, About, install page |
+
+The original JPEG is also the `og:image`/`twitter:image` for link previews.
+
+Installation: `/manifest.webmanifest` (generated from `src/utils/manifest.ts`, base-aware) declares
+IQ GYM, `display: standalone` and the icons. There is **no service worker** and no offline caching,
+so the installed app always loads the live site. `/install/` explains installation: the button
+appears only when the browser fires `beforeinstallprompt` and opens the browser's own prompt;
+iPhone/iPad get the Safari Share → "Add to Home Screen" steps (iOS has no install prompt). On iPhone
+the home-screen app keeps its own storage, so local progress moves via export/restore.
+
 ## What is product vs. gym
 
 | Product (shared, `src/config/product.ts`, `src/data`, `src/utils`, `src/visual`) | Gym instance (`src/config/gym.ts`) |

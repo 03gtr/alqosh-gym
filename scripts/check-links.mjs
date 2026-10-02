@@ -129,6 +129,36 @@ for (const page of ['gym/index.html', 'en/gym/index.html']) {
   }
 }
 
+// Web app manifest: valid JSON, base-aware paths, every icon exists at its declared PNG size.
+let manifestIcons = 0;
+const manifestFile = join(DIST, 'manifest.webmanifest');
+if (!existsSync(manifestFile)) problems.push('manifest.webmanifest: missing');
+else {
+  let man = null;
+  try {
+    man = JSON.parse(readFileSync(manifestFile, 'utf8'));
+  } catch {
+    problems.push('manifest.webmanifest: invalid JSON');
+  }
+  if (man) {
+    for (const key of ['id', 'start_url', 'scope']) if (man[key] !== BASE) problems.push(`manifest: ${key} "${man[key]}" should be "${BASE}"`);
+    if (man.display !== 'standalone') problems.push('manifest: display should be "standalone"');
+    if (!man.name || !man.short_name) problems.push('manifest: missing name/short_name');
+    const sizes = new Set();
+    for (const icon of man.icons ?? []) {
+      const r = resolveTarget(icon.src);
+      if (r.outside || !r.exists) { problems.push(`manifest: icon "${icon.src}" not found`); continue; }
+      const png = readFileSync(join(DIST, decodeURIComponent(icon.src.slice(BASE.length))));
+      const actual = `${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`;
+      if (png.toString('ascii', 1, 4) !== 'PNG') problems.push(`manifest: icon "${icon.src}" is not a PNG`);
+      else if (actual !== icon.sizes) problems.push(`manifest: icon "${icon.src}" is ${actual}, declared ${icon.sizes}`);
+      else manifestIcons++;
+      sizes.add(icon.sizes);
+    }
+    if (!sizes.has('192x192') || !sizes.has('512x512')) problems.push('manifest: needs 192x192 and 512x512 icons');
+  }
+}
+
 if (problems.length) {
   console.error(`✗ ${problems.length} problem(s) in ${htmlFiles.length} pages:`);
   for (const p of problems.slice(0, 200)) console.error(`  - ${p}`);
@@ -137,3 +167,4 @@ if (problems.length) {
 console.warn(`✓ ${htmlFiles.length} pages, ${linkCount} internal references — all resolve (base ${BASE}).`);
 console.warn(`✓ ${slugs.length} exercises: page + English page + short alias + QR (${qrCount} QR codes encode ${ORIGIN_BASE}exercises/<slug>/).`);
 console.warn('✓ Self-URLs, sitemap, og:url and contact links verified; no localhost URLs.');
+console.warn(`✓ Web app manifest valid (start_url/scope ${BASE}); ${manifestIcons} icons present at their declared sizes.`);

@@ -2,11 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import QRCTA from '../components/QRCTA.astro';
 import PageHeader from '../components/PageHeader.astro';
-import ProductMark from '../components/ProductMark.astro';
 import { gym } from '../config/gym';
-import { company, product } from '../config/product';
+import { brandAssets, company, product } from '../config/product';
 import { exercises } from '../data/exercises';
-import { localePath, useT, type Lang } from '../i18n/utils';
+import { localePath, url, useT, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -44,13 +43,14 @@ const t = useT(lang);
 
     <section class="card product" id="product" aria-labelledby="product-h">
       <h2 id="product-h">{t('about.productTitle')}</h2>
-      <ProductMark size="lg" class="about-mark" />
+      <img class="about-logo" src={url(brandAssets.logoWeb.src)} width={brandAssets.logoWeb.width} height={brandAssets.logoWeb.height} alt={`${product.name} — ${product.syriacName}`} loading="lazy" decoding="async" />
       <p>{product.about[lang]}</p>
       <ol class="hierarchy" role="list">
         <li><span class="h-role">{t('about.roleCompany')}</span><strong lang="en" dir="ltr">{company.name}</strong></li>
         <li><span class="h-role">{t('about.roleProduct')}</span><strong lang="en" dir="ltr">{product.name}</strong></li>
         <li><span class="h-role">{t('about.roleGym')}</span><strong>{gym.name[lang]}</strong></li>
       </ol>
+      <p class="install-link"><a class="link-arrow" href={localePath(lang, '/install/')}>{t('install.title')}</a></p>
     </section>
 
     <section class="card credits" id="credits" aria-labelledby="credits-h">
@@ -68,7 +68,8 @@ const t = useT(lang);
   .about p + p { margin-block-start: 8px; }
   .credits { border-inline-start: 3px solid var(--line-strong); background: var(--ink-900); }
   .credit-line { font-weight: 800; }
-  .product :global(.about-mark) { margin-block: 6px 10px; }
+  .about-logo { display: block; inline-size: min(240px, 70%); block-size: auto; margin-block: 8px 12px; border-radius: 12px; }
+  .install-link { margin-block-start: 12px; }
   .hierarchy { display: grid; gap: 6px; margin-block-start: 12px; }
   .hierarchy li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 8px 12px; background: var(--ink-900); border-radius: var(--radius-sm); }
   .hierarchy li + li { margin-inline-start: 14px; }

@@ -13,6 +13,7 @@ import GoalPicker from '../components/GoalPicker.astro';
 import BenefitList from '../components/BenefitList.astro';
 import CoachCards from '../components/CoachCards.astro';
 import ContactLinks from '../components/ContactLinks.astro';
+import InstallHint from '../components/InstallHint.astro';
 import Icon from '../components/Icon.astro';
 import { gym } from '../config/gym';
 import { MUSCLE_CATEGORIES, TRAINING_CATEGORIES } from '../data/taxonomy';
@@ -122,7 +123,9 @@ const categories = [...MUSCLE_CATEGORIES, ...TRAINING_CATEGORIES];
         <a class="link-arrow" href={localePath(lang, '/nutrition/')}>{t('nutrition.title')}</a>
         <a class="link-arrow" href={localePath(lang, '/health/')}>{t('home.allArticles')}</a>
         <a class="link-arrow" href={localePath(lang, '/progress/')}>{t('nav.progress')}</a>
+        <a class="link-arrow" href={localePath(lang, '/install/')}>{t('nav.install')}</a>
       </p>
+      <InstallHint lang={lang} />
     </div>
   </section>
 

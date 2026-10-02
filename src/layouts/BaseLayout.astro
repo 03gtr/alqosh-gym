@@ -7,9 +7,8 @@ import { muscleCss } from '../visual/anatomy';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
 import BodyMapSprite from '../components/BodyMapSprite.astro';
-import ProductMark from '../components/ProductMark.astro';
 import { gym } from '../config/gym';
-import { company, splash as splashConfig } from '../config/product';
+import { brandAssets, company, product, splash as splashConfig } from '../config/product';
 import { absoluteUrl, DIR, LANGS, url, useT, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -35,11 +34,15 @@ const { lang, path, title, description, noindex = false, ogType = 'website', jso
 const showSplash = splashConfig.enabled && allowSplash;
 const splashKey = splashConfig.sessionKey;
 const splashMs = splashConfig.durationMs;
+const splashLogo = url(brandAssets.logoWeb.src);
 const t = useT(lang);
 const siteName = lang === 'ar' ? `${gym.name.ar} | ${gym.name.en}` : `${gym.name.en} | ${gym.name.ar}`;
 const fullTitle = title ? `${title} — ${lang === 'ar' ? gym.name.ar : gym.name.en}` : siteName;
 const desc = description ?? gym.copy.description[lang];
 const site = Astro.site;
+// Official IQ GYM artwork for link previews (absolute URL on the public origin).
+const ogImage = (site ? new URL(String(site)).origin : '') + url(brandAssets.logo.src);
+const ogImageAlt = `${product.name} — ${product.syriacName}`;
 const canonical = absoluteUrl(urlLang, path, site);
 const ogLocale = lang === 'ar' ? 'ar_IQ' : 'en_US';
 
@@ -74,7 +77,14 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content={gym.brand.colors.background} />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={url(brandAssets.favicon32)} type="image/png" sizes="32x32" />
+    <link rel="icon" href={url(brandAssets.favicon16)} type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href={url(brandAssets.appleTouchIcon)} sizes="180x180" />
+    <link rel="manifest" href={url('/manifest.webmanifest')} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={product.name} />
+    <meta name="application-name" content={product.name} />
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
 
     <meta property="og:type" content={ogType} />
@@ -84,20 +94,30 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={ogLocale} />
     <meta property="og:locale:alternate" content={lang === 'ar' ? 'en_US' : 'ar_IQ'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content={brandAssets.logo.type} />
+    <meta property="og:image:width" content={String(brandAssets.logo.width)} />
+    <meta property="og:image:height" content={String(brandAssets.logo.height)} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={desc} />
+    <meta name="twitter:image" content={ogImage} />
 
     {structured.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
     <style is:inline set:html={muscleCss()} />
     {showSplash && (
-      <script is:inline define:vars={{ splashKey, splashMs }}>
+      <script is:inline define:vars={{ splashKey, splashMs, splashLogo }}>
         // Product splash: first page of a browser session only, never with
         // reduced motion. Content renders underneath; nothing waits for it.
         try {
           if (!sessionStorage.getItem(splashKey) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
             const root = document.documentElement;
             root.setAttribute('data-splash', '');
+            // Fetch the logo straight away (it is only requested when the splash shows).
+            const pre = document.createElement('link');
+            pre.rel = 'preload'; pre.as = 'image'; pre.href = splashLogo;
+            document.head.appendChild(pre);
             setTimeout(function () { root.removeAttribute('data-splash'); }, splashMs + 50);
           }
           sessionStorage.setItem(splashKey, '1');
@@ -110,7 +130,7 @@ const structured = path === '/' ? [orgLd, ...jsonLd] : jsonLd;
     {showSplash && (
       <div class="splash" aria-hidden="true" style={`--splash-ms:${splashMs}ms`}>
         <p class="splash-company" lang="en" dir="ltr">{company.name}</p>
-        <ProductMark size="lg" />
+        <img class="splash-logo" src={splashLogo} width="220" height="220" alt="" loading="lazy" decoding="async" />
         <span class="splash-rule"></span>
         <p class="splash-gym">
           <span class="splash-gym-en" lang="en" dir="ltr">{gym.brand.wordmark.lead} <em>{gym.brand.wordmark.accent}</em></span>

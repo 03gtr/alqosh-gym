@@ -34,6 +34,7 @@ export const bottomNav: NavItem[] = [
 /** Items inside the mobile "More" sheet. */
 export const moreNav: NavItem[] = [
   { key: 'nav.progress', path: '/progress/', icon: 'chart' },
+  { key: 'nav.install', path: '/install/', icon: 'phone' },
   { key: 'nav.gym', path: '/gym/', icon: 'clock' },
   { key: 'nav.women', path: '/women/', icon: 'user' },
   { key: 'nav.calculator', path: '/calculator/', icon: 'calculator' },

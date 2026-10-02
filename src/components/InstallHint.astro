@@ -1,0 +1,67 @@
+---
+/**
+ * Subtle "install IQ GYM" card. Hidden by default; shown only on phones and
+ * tablets, never when already running as an installed app, and never again
+ * once dismissed (remembered on this device).
+ */
+import { brandAssets } from '../config/product';
+import { localePath, url, useT, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<aside class="install-hint card" data-install-hint hidden aria-label={t('install.title')}>
+  <img src={url(brandAssets.mark.src)} width="44" height="44" alt="" loading="lazy" decoding="async" />
+  <a class="ih-text" href={localePath(lang, '/install/')}>
+    <strong>{t('install.hintTitle')}</strong>
+    <span>{t('install.hintBody')}</span>
+  </a>
+  <button type="button" class="ih-close" data-install-hint-close aria-label={t('install.hintDismiss')}>✕</button>
+</aside>
+
+<script>
+  const KEY = 'iqGym.installHintDismissed';
+  const box = document.querySelector<HTMLElement>('[data-install-hint]');
+  if (box) {
+    const ua = navigator.userAgent;
+    const mobile = /Android|iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+      || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem(KEY) === '1';
+    } catch {
+      /* storage blocked: still respect the session */
+    }
+    box.hidden = !mobile || standalone || dismissed;
+    box.querySelector('[data-install-hint-close]')?.addEventListener('click', () => {
+      box.hidden = true;
+      try {
+        localStorage.setItem(KEY, '1');
+      } catch {
+        /* ignore */
+      }
+    });
+  }
+</script>
+
+<style>
+  .install-hint {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+    padding: 12px 8px 12px 14px; margin-block: 8px;
+  }
+  .install-hint[hidden] { display: none; }
+  .install-hint img { inline-size: 44px; block-size: 44px; border-radius: 50%; border: 1px solid var(--line-strong); }
+  .ih-text { display: grid; gap: 2px; color: var(--text); text-decoration: none; min-block-size: 44px; align-content: center; }
+  .ih-text span { font-size: var(--fs-sm); color: var(--text-muted); }
+  .ih-text:hover strong { text-decoration: underline; }
+  .ih-close {
+    min-inline-size: 44px; min-block-size: 44px; background: none; border: 0; cursor: pointer;
+    color: var(--text-muted); font: inherit;
+  }
+  .ih-close:hover { color: var(--white); }
+</style>

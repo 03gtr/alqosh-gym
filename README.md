@@ -15,6 +15,7 @@ It runs on **IQ GYM** (ܒܹܝܬ݂ ܕܲܪܵܫܘܼܬ݂ܵܐ), IQ Group's reusable f
 | Home workout — time → equipment → goal → a ready session from the same library | `/workouts/home/` |
 | My progress (MY IQ GYM) — goal, level, favourites, completed exercises, streak, saved plan, export/restore/clear; on-device only, no account | `/progress/` |
 | Learning guides — gradual weight loss, natural muscle gain, recovery & sleep | `/learn/<slug>/` |
+| Install IQ GYM — add to the home screen (real Android/desktop install button when the browser offers one; iPhone Safari steps) | `/install/` |
 | Women's pathway — women's hours, women's coach, goals and tools | `/women/` |
 | Exercise library — bilingual search + 8 filters (incl. pathway: powerlifting, conditioning, home), beginner mode | `/exercises/` |
 | Exercise pages (one per exercise, QR-ready) | `/exercises/<slug>/` (alias `/exercise/<slug>/`) |

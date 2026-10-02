@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { analytics, company, product, splash, storage } from '../src/config/product';
+import { analytics, brandAssets, company, product, splash, storage } from '../src/config/product';
+import { webManifest } from '../src/utils/manifest';
 import { gym } from '../src/config/gym';
 import { exercises, getExercise } from '../src/data/exercises';
 import { DIFFICULTY } from '../src/data/taxonomy';
@@ -326,5 +328,57 @@ describe('powerlifting builder', () => {
     for (const it of plan.week.flatMap((d) => d.session?.items ?? [])) {
       if (it.exercise) expect(it.exercise.difficulty, it.exercise.slug).toBe('beginner');
     }
+  });
+});
+
+/* ------------------------------------------------------------------ official brand assets + install */
+
+describe('official IQ GYM brand assets', () => {
+  const pngSize = (file: string) => {
+    const b = readFileSync(join('public', file));
+    expect(b.toString('ascii', 1, 4), file).toBe('PNG');
+    return `${b.readUInt32BE(16)}x${b.readUInt32BE(20)}`;
+  };
+
+  it('keeps the supplied artwork untouched', () => {
+    const hash = createHash('sha256').update(readFileSync('public/brand/iq-gym-logo.jpg')).digest('hex');
+    expect(hash).toBe('12df9d9e1b543486ee4278a4191068ff769da09641cf36e51c376ebd1cd227c6');
+    expect(brandAssets.logo).toMatchObject({ width: 1280, height: 1280, type: 'image/jpeg' });
+  });
+
+  it('ships every derived icon at its declared size', () => {
+    expect(pngSize(brandAssets.icon192)).toBe('192x192');
+    expect(pngSize(brandAssets.icon512)).toBe('512x512');
+    expect(pngSize(brandAssets.iconMaskable512)).toBe('512x512');
+    expect(pngSize(brandAssets.appleTouchIcon)).toBe('180x180');
+    expect(pngSize(brandAssets.favicon32)).toBe('32x32');
+    expect(pngSize(brandAssets.favicon16)).toBe('16x16');
+    for (const f of [brandAssets.logoWeb.src, brandAssets.mark.src]) expect(statSync(join('public', f)).size, f).toBeGreaterThan(0);
+  });
+
+  it('describes a base-aware, installable manifest without offline caching', () => {
+    const m = webManifest();
+    expect(m).toMatchObject({ name: 'IQ GYM', short_name: 'IQ GYM', display: 'standalone', start_url: '/', scope: '/', id: '/' });
+    expect(m.icons.map((i) => `${i.sizes}:${i.purpose}`)).toEqual(['192x192:any', '512x512:any', '512x512:maskable']);
+    expect(JSON.stringify(m)).not.toMatch(/localhost|127\.0\.0\.1/);
+    // No service worker in this phase.
+    const src = readdirSync('src', { recursive: true }).map(String).filter((f) => /\.(ts|astro)$/.test(f));
+    expect(src.some((f) => readFileSync(join('src', f), 'utf8').includes('serviceWorker.register'))).toBe(false);
+  });
+
+  it('wires favicon, Apple icon, manifest and share image into every page', () => {
+    const layout = readFileSync('src/layouts/BaseLayout.astro', 'utf8');
+    for (const needle of ['brandAssets.favicon32', 'brandAssets.appleTouchIcon', "url('/manifest.webmanifest')", 'og:image', 'twitter:image', 'apple-mobile-web-app-title']) {
+      expect(layout, needle).toContain(needle);
+    }
+    expect(layout).not.toContain('favicon.svg');
+  });
+
+  it('only offers a real install button, never on iPhone', () => {
+    const view = readFileSync('src/views/InstallView.astro', 'utf8');
+    expect(view).toContain('beforeinstallprompt');
+    expect(view).toMatch(/<div class="bip" data-bip hidden>/); // hidden until the browser offers it
+    expect(view).toContain('prompt.prompt()');
+    expect(view).toContain('!ios');
   });
 });
