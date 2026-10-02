@@ -25,6 +25,16 @@ export function storageAvailable(): boolean {
   }
 }
 
+/**
+ * Status of the first read on this page. Several scripts on one page may load
+ * the store; the first one repairs and saves, so later reads would report
+ * "ok" — this keeps the original status for the user-visible notice.
+ */
+let firstStatus: LoadStatus | null = null;
+export function initialStatus(): LoadStatus {
+  return firstStatus ?? load().status;
+}
+
 export function load(): { state: LocalState; status: LoadStatus } {
   let raw: string | null = null;
   try {
@@ -33,6 +43,7 @@ export function load(): { state: LocalState; status: LoadStatus } {
     /* unavailable */
   }
   const res = parseStored(raw, gymId);
+  firstStatus ??= res.status;
   // Persist a repaired/reset copy so the warning is shown only once.
   if (res.status === 'repaired' || res.status === 'reset') save(res.state);
   return res;

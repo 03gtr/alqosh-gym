@@ -123,7 +123,7 @@ const i18n = {
 </BaseLayout>
 
 <script>
-  import { load, save, clearAll, storageAvailable, today, toast } from '../scripts/progress-store';
+  import { load, save, clearAll, initialStatus, storageAvailable, today, toast } from '../scripts/progress-store';
   import { exportState, importState, localDate, setPrefs, summarize, toggleFavorite, type LocalState } from '../utils/progress';
   import { loadIndex, exerciseHref, escapeHtml } from '../scripts/exercise-index';
   import { daysLabel } from '../utils/motivation';
@@ -152,8 +152,9 @@ const i18n = {
     };
     if (!storageAvailable()) showStatus(i18n.noStorage);
     const first = load();
-    if (first.status === 'repaired') showStatus(i18n.repaired);
-    if (first.status === 'reset') showStatus(i18n.reset);
+    const status = initialStatus();
+    if (status === 'repaired') showStatus(i18n.repaired);
+    if (status === 'reset') showStatus(i18n.reset);
 
     const exName = (slug: string) => {
       const e = names.get(slug);
